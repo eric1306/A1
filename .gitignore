@@ -78,6 +78,9 @@ Content/DefaultGameData.uasset
 Content/Maps/DevMap
 Content/Blueprints/Developing
 
+# Content(Fab Asset)
+Content/SpaceshipInterior
+
 # Precompiled Assets
 SourceArt/**/*.png
 SourceArt/**/*.tga
