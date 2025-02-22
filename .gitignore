@@ -80,6 +80,7 @@ Content/Blueprints/Developing
 
 # Content(Fab Asset)
 Content/SpaceshipInterior
+Content/SciFiCharacterPack
 
 # Precompiled Assets
 SourceArt/**/*.png
