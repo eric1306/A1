@@ -22,6 +22,7 @@ void UA1AnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 		return;
 	IsInAir = MovementComponent->IsFalling();
 	Speed = Character->GetVelocity().Length();
+	Velocity = Character->GetVelocity();
 
 	{
 		const FRotator AimRotator = Character->GetBaseAimRotation();
