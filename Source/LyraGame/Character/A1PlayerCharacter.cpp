@@ -5,7 +5,6 @@
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
-#include "GameFramework/SpringArmComponent.h"
 #include "InputMappingContext.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
@@ -15,7 +14,7 @@ AA1PlayerCharacter::AA1PlayerCharacter()
 {
 	// Pawn
 	bUseControllerRotationPitch = false;
-	bUseControllerRotationYaw = false;
+	bUseControllerRotationYaw = true;
 	bUseControllerRotationRoll = false;
 
 	// Capsule
@@ -44,45 +43,39 @@ AA1PlayerCharacter::AA1PlayerCharacter()
 	}
 
 	//TODO: Set AnimInstance
-	static ConstructorHelpers::FClassFinder<UAnimInstance> AnimInstanceClassRef(TEXT("/Game/Blueprints/Developing/ABP_A1PlayerCharacter.ABP_A1PlayerCharacter_C"));
+	static ConstructorHelpers::FClassFinder<UAnimInstance> AnimInstanceClassRef(TEXT("/Game/Developing/Animation/ABP_A1PlayerCharacter1.ABP_A1PlayerCharacter1_C"));
 	if (AnimInstanceClassRef.Class)
 	{
 		GetMesh()->SetAnimInstanceClass(AnimInstanceClassRef.Class);
 	}
 
 	// Camera
-	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
-	CameraBoom->SetupAttachment(RootComponent);
-	CameraBoom->TargetArmLength = -30.0f;
-	CameraBoom->bUsePawnControlRotation = true;
-
 	FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
 	FollowCamera->SetupAttachment(GetMesh(), "head");
-	FollowCamera->bUsePawnControlRotation = false;
+	FollowCamera->bUsePawnControlRotation = true;
 	FollowCamera->SetRelativeLocation(FVector(0.f, 10.f, 0.f));
-	FollowCamera->SetRelativeRotation(FRotator(-90.f, 0.f, 90.f));
+	FollowCamera->SetRelativeRotation(FRotator(0.f, 90.f, -90.f));
 
 	//Input
-	//TODO: 병합 후 경로 수정
-	static ConstructorHelpers::FObjectFinder<UInputMappingContext> InputMappingContextRef(TEXT("/Script/EnhancedInput.InputMappingContext'/Game/Blueprints/Developing/IMC_Default0.IMC_Default0'"));
+	static ConstructorHelpers::FObjectFinder<UInputMappingContext> InputMappingContextRef(TEXT("/Script/EnhancedInput.InputMappingContext'/Game/Developing/Input/IMC_Default1.IMC_Default1'"));
 	if (nullptr != InputMappingContextRef.Object)
 	{
 		InputMappingContext = InputMappingContextRef.Object;
 	}
 
-	static ConstructorHelpers::FObjectFinder<UInputAction> InputActionMoveRef(TEXT("/Script/EnhancedInput.InputAction'/Game/Blueprints/Developing/Actions/IA_Move0.IA_Move0'"));
+	static ConstructorHelpers::FObjectFinder<UInputAction> InputActionMoveRef(TEXT("/Script/EnhancedInput.InputAction'/Game/Developing/Input/Actions/IA_Move1.IA_Move1'"));
 	if (nullptr != InputActionMoveRef.Object)
 	{
 		MoveAction = InputActionMoveRef.Object;
 	}
 
-	static ConstructorHelpers::FObjectFinder<UInputAction> InputActionLookRef(TEXT("/Script/EnhancedInput.InputAction'/Game/Blueprints/Developing/Actions/IA_Look0.IA_Look0'"));
+	static ConstructorHelpers::FObjectFinder<UInputAction> InputActionLookRef(TEXT("/Script/EnhancedInput.InputAction'/Game/Developing/Input/Actions/IA_Look1.IA_Look1'"));
 	if (nullptr != InputActionLookRef.Object)
 	{
 		LookAction = InputActionLookRef.Object;
 	}
 
-	static ConstructorHelpers::FObjectFinder<UInputAction> InputActionJumpRef(TEXT("/Script/EnhancedInput.InputAction'/Game/Blueprints/Developing/Actions/IA_Jump0.IA_Jump0'"));
+	static ConstructorHelpers::FObjectFinder<UInputAction> InputActionJumpRef(TEXT("/Script/EnhancedInput.InputAction'/Game/Developing/Input/Actions/IA_Jump1.IA_Jump1'"));
 	if (nullptr != InputActionJumpRef.Object)
 	{
 		JumpAction = InputActionJumpRef.Object;
