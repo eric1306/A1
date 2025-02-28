@@ -90,6 +90,9 @@ SourceArt/**/*.tga
 Binaries/**
 Plugins/**/Binaries/**
 
+# Map
+Plugins/GameFeatures/**/Content/Maps/DevMap
+
 # Builds
 Build/*
 
