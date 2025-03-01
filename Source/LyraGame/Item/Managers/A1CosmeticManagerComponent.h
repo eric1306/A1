@@ -26,7 +26,7 @@ public:
 private:
 	void InitializeManager();
 
-	UChildActorComponent* SpawnCosmeticSlotActor(TSoftObjectPtr<USkeletalMesh> InDefaultMesh, FName InSkinMaterialSlotName, TSoftObjectPtr<UMaterialInterface> InSkinMaterial);
+	UChildActorComponent* SpawnCosmeticSlotActor(TSoftObjectPtr<USkeletalMesh> InDefaultMesh, TArray<FName> InSkinMaterialSlotName, TArray<TSoftObjectPtr<UMaterialInterface>> InSkinMaterial);
 	void SetPrimaryArmorMesh(EArmorType ArmorType, TSoftObjectPtr<USkeletalMesh> ArmorMeshPtr);
 
 protected:
@@ -41,7 +41,7 @@ private:
 	TObjectPtr<UChildActorComponent> HeadSlot;
 
 	UPROPERTY()
-	TArray<TObjectPtr<UChildActorComponent>> CosmeticSlots;
+	TObjectPtr<UChildActorComponent> CosmeticSlots;
 
 	bool bInitialized = false;
 };

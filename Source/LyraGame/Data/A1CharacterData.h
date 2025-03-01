@@ -11,15 +11,11 @@ struct FA1DefaultArmorMeshSet
 
 public:
 	UPROPERTY(EditDefaultsOnly)
-	TSoftObjectPtr<UMaterialInterface> BodySkinMaterial;
+	TArray<TSoftObjectPtr<UMaterialInterface>> BodySkinMaterial;
 
 public:
 	UPROPERTY(EditDefaultsOnly)
 	TSoftObjectPtr<USkeletalMesh> DefaultMesh;
-
-public:
-	UPROPERTY(EditDefaultsOnly, meta = (ArraySizeEnum = "EArmorType"))
-	TSoftObjectPtr<USkeletalMesh> DefaultMeshEntries[(int32)EArmorType::Count];
 };
 
 UCLASS(BlueprintType)

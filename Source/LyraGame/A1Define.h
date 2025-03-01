@@ -75,6 +75,16 @@ enum class EArmorType : uint8
 };
 
 UENUM(BlueprintType)
+enum class EBodyType : uint8
+{
+	Head		UMETA(DisplayName = "Head"),
+	Torso		UMETA(DisplayName = "Torso"),
+	Limbs		UMETA(DisplayName = "Limbs"),
+
+	Count UMETA(Hidden)
+};
+
+UENUM(BlueprintType)
 enum class EWeaponType : uint8
 {
 	Unarmed,

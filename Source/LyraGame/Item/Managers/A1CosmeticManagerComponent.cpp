@@ -29,13 +29,12 @@ void UA1CosmeticManagerComponent::EndPlay(const EEndPlayReason::Type EndPlayReas
 		HeadSlot->DestroyComponent();
 	}
 
-	for (UChildActorComponent* CosmeticSlot : CosmeticSlots)
+
+	if (CosmeticSlots)
 	{
-		if (CosmeticSlot)
-		{
-			CosmeticSlot->DestroyComponent();
-		}
+		CosmeticSlots->DestroyComponent();
 	}
+	
 
 	Super::EndPlay(EndPlayReason);
 }
@@ -136,16 +135,14 @@ void UA1CosmeticManagerComponent::GetMeshComponents(TArray<UMeshComponent*>& Out
 		}
 	}
 
-	for (UChildActorComponent* CosmeticSlot : CosmeticSlots)
+	if (CosmeticSlots)
 	{
-		if (CosmeticSlot)
+		if (AA1ArmorBase* CosmeticActor = Cast<AA1ArmorBase>(CosmeticSlots->GetChildActor()))
 		{
-			if (AA1ArmorBase* CosmeticActor = Cast<AA1ArmorBase>(CosmeticSlot->GetChildActor()))
-			{
-				OutMeshComponents.Add(CosmeticActor->GetMeshComponent());
-			}
+			OutMeshComponents.Add(CosmeticActor->GetMeshComponent());
 		}
 	}
+	
 }
 
 void UA1CosmeticManagerComponent::InitializeManager()
@@ -154,9 +151,6 @@ void UA1CosmeticManagerComponent::InitializeManager()
 		return;
 
 	bInitialized = true;
-
-	const int32 ArmorTypeCount = (int32)EArmorType::Count;
-	CosmeticSlots.SetNumZeroed(ArmorTypeCount);
 
 	check(CosmeticSlotClass);
 	check(CharacterSkinType != ECharacterSkinType::Count);
@@ -168,32 +162,32 @@ void UA1CosmeticManagerComponent::InitializeManager()
 			const UA1CharacterData& CharacterData = ULyraAssetManager::Get().GetCharacterData();
 			const FA1DefaultArmorMeshSet& DefaultArmorMeshSet = CharacterData.GetDefaultArmorMeshSet(CharacterSkinType);
 
-			HeadSlot = SpawnCosmeticSlotActor(DefaultArmorMeshSet.DefaultMesh, NAME_None, nullptr);
+			//HeadSlot = SpawnCosmeticSlotActor(DefaultArmorMeshSet.DefaultMesh, NAME_None, NULLPTR);
 
-			for (int32 i = 0; i < (int32)EArmorType::Count; i++)
+			TArray<FName> SkinMaterialSlotName;
+			TArray<TSoftObjectPtr<UMaterialInterface>> SkinMaterial;
+
+			SkinMaterialSlotName.SetNum((int32)EBodyType::Count);
+			SkinMaterial.SetNum((int32)EBodyType::Count);
+
+			UEnum* Enum = FindObject<UEnum>(ANY_PACKAGE, TEXT("EBodyType"), true);
+			check(Enum);
+			
+			for (int32 i = 0; i < (int32)EBodyType::Count; i++)
 			{
-				EArmorType ArmorType = (EArmorType)i;
-				FName SkinMaterialSlotName;
-				TSoftObjectPtr<UMaterialInterface> SkinMaterial;
-
-				if (ArmorType == EArmorType::Helmet || ArmorType == EArmorType::Chest || ArmorType == EArmorType::Hands)
-				{
-					SkinMaterialSlotName = FName("UpperBody");
-					SkinMaterial = DefaultArmorMeshSet.BodySkinMaterial;
-				}
-				else if (ArmorType == EArmorType::Legs || ArmorType == EArmorType::Foot)
-				{
-					SkinMaterialSlotName = FName("LowerBody");
-					SkinMaterial = DefaultArmorMeshSet.BodySkinMaterial;
-				}
-
-				CosmeticSlots[i] = SpawnCosmeticSlotActor(DefaultArmorMeshSet.DefaultMeshEntries[i], SkinMaterialSlotName, SkinMaterial);
+				auto na = (int32)EBodyType::Count;
+				SkinMaterialSlotName[i] = FName(*Enum->GetNameStringByIndex(i));
+				SkinMaterial[i] = DefaultArmorMeshSet.BodySkinMaterial[i];
 			}
+			
+
+			CosmeticSlots = SpawnCosmeticSlotActor(DefaultArmorMeshSet.DefaultMesh, SkinMaterialSlotName, SkinMaterial);
+			
 		}
 	}
 }
 
-UChildActorComponent* UA1CosmeticManagerComponent::SpawnCosmeticSlotActor(TSoftObjectPtr<USkeletalMesh> InDefaultMesh, FName InSkinMaterialSlotName, TSoftObjectPtr<UMaterialInterface> InSkinMaterial)
+UChildActorComponent* UA1CosmeticManagerComponent::SpawnCosmeticSlotActor(TSoftObjectPtr<USkeletalMesh> InDefaultMesh, TArray<FName> InSkinMaterialSlotName, TArray<TSoftObjectPtr<UMaterialInterface>> InSkinMaterial)
 {
 	UChildActorComponent* CosmeticComponent = nullptr;
 
