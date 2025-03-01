@@ -172,10 +172,8 @@ UENUM(BlueprintType)
 enum class ECharacterSkinType : uint8
 {
 	Black,
-	Grey,
 	White,
 	Red,
-	Yellow,
 	Blue,
 
 	Count UMETA(Hidden)
