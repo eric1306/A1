@@ -11,10 +11,9 @@ public:
 	AA1ArmorBase(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
 public:
-	void InitializeActor(TSoftObjectPtr<USkeletalMesh> InDefaultArmorMesh, FName InSkinMaterialSlotName, TSoftObjectPtr<UMaterialInterface> InSkinMaterial);
+	void InitializeActor(TSoftObjectPtr<USkeletalMesh> InDefaultArmorMesh, TArray<FName> InSkinMaterialSlotName, TArray<TSoftObjectPtr<UMaterialInterface>> InSkinMaterial);
 
 private:
-	void RefreshArmorMesh();
 	void SetArmorMesh(TSoftObjectPtr<USkeletalMesh> InArmorMesh);
 
 public:
@@ -30,8 +29,8 @@ protected:
 
 protected:
 	UPROPERTY()
-	FName SkinMaterialSlotName;
+	TArray<FName> SkinMaterialSlotName;
 
 	UPROPERTY()
-	TSoftObjectPtr<UMaterialInterface> SkinMaterial;
+	TArray<TSoftObjectPtr<UMaterialInterface>> SkinMaterial;
 };

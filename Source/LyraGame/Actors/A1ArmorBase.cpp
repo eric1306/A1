@@ -1,4 +1,5 @@
 #include "A1ArmorBase.h"
+#include "A1Define.h"
 #include "System/LyraAssetManager.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(A1ArmorBase)
@@ -14,11 +15,11 @@ AA1ArmorBase::AA1ArmorBase(const FObjectInitializer& ObjectInitializer)
 	SetRootComponent(ArmorMeshComponent);
 }
 
-void AA1ArmorBase::InitializeActor(TSoftObjectPtr<USkeletalMesh> InDefaultArmorMesh, FName InSkinMaterialSlotName, TSoftObjectPtr<UMaterialInterface> InSkinMaterial)
+void AA1ArmorBase::InitializeActor(TSoftObjectPtr<USkeletalMesh> InDefaultArmorMesh, TArray<FName> InSkinMaterialSlotName, TArray<TSoftObjectPtr<UMaterialInterface>> InSkinMaterial)
 {
 	DefaultArmorMesh = InDefaultArmorMesh;
 
-	if (InSkinMaterialSlotName.IsNone() == false && InSkinMaterial.IsNull() == false)
+	if (InSkinMaterialSlotName.Num() == (int32)EBodyType::Count && InSkinMaterial.Num() == (int32)EBodyType::Count)
 	{
 		SkinMaterialSlotName = InSkinMaterialSlotName;
 		SkinMaterial = InSkinMaterial;
@@ -39,9 +40,12 @@ void AA1ArmorBase::SetArmorMesh(TSoftObjectPtr<USkeletalMesh> InArmorMesh)
 	ArmorMeshComponent->SetSkeletalMesh(LoadedArmorMesh);
 	ArmorMeshComponent->EmptyOverrideMaterials();
 
-	if (SkinMaterialSlotName.IsNone() == false && SkinMaterial.IsNull() == false)
+	if (SkinMaterialSlotName.Num() == (int32)EBodyType::Count && SkinMaterial.Num() == (int32)EBodyType::Count)
 	{
-		UMaterialInterface* LoadedMaterial = ULyraAssetManager::GetAsset<UMaterialInterface>(SkinMaterial);
-		ArmorMeshComponent->SetMaterialByName(SkinMaterialSlotName, LoadedMaterial);
+		for (int32 i = 0; i < (int32)EBodyType::Count; i++)
+		{
+			UMaterialInterface* LoadedMaterial = ULyraAssetManager::GetAsset<UMaterialInterface>(SkinMaterial[i]);
+			ArmorMeshComponent->SetMaterialByName(SkinMaterialSlotName[i], LoadedMaterial);
+		}
 	}
 }
