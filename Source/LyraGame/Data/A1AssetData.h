@@ -28,13 +28,13 @@ public:
 	TArray<FAssetEntry> AssetEntries;
 };
 
-UCLASS(Const, CollapseCategories, meta=(DisplayName="D1 Asset Data"))
+UCLASS(Const, CollapseCategories, meta=(DisplayName="A1 Asset Data"))
 class UA1AssetData : public UPrimaryDataAsset
 {
 	GENERATED_BODY()
 
 public:
-	//static const UA1AssetData& Get();
+	static const UA1AssetData& Get();
 	
 protected:
 #if WITH_EDITOR

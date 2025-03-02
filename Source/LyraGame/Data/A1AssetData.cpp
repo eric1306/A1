@@ -10,10 +10,10 @@
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(A1AssetData)
 
-//const UA1AssetData& UA1AssetData::Get()
-//{
-//	return ULyraAssetManager::Get().GetAssetData();
-//}
+const UA1AssetData& UA1AssetData::Get()
+{
+	return ULyraAssetManager::Get().GetAssetData();
+}
 
 #if WITH_EDITOR
 void UA1AssetData::PreSave(FObjectPreSaveContext ObjectSaveContext)
