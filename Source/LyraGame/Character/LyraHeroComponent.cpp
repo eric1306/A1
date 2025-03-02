@@ -375,12 +375,6 @@ void ULyraHeroComponent::Input_Move(const FInputActionValue& InputActionValue)
 {
 	APawn* Pawn = GetPawn<APawn>();
 	AController* Controller = Pawn ? Pawn->GetController() : nullptr;
-
-	// If the player has attempted to move again then cancel auto running
-	if (ALyraPlayerController* LyraController = Cast<ALyraPlayerController>(Controller))
-	{
-		LyraController->SetIsAutoRunning(false);
-	}
 	
 	if (Controller)
 	{
