@@ -34,7 +34,7 @@ void AA1ArmorBase::SetArmorMesh(TSoftObjectPtr<USkeletalMesh> InArmorMesh)
 	USkeletalMesh* LoadedArmorMesh = nullptr;
 	if (InArmorMesh.IsNull() == false)
 	{
-		LoadedArmorMesh = ULyraAssetManager::GetAsset<USkeletalMesh>(InArmorMesh);
+		LoadedArmorMesh = ULyraAssetManager::GetAssetByPath<USkeletalMesh>(InArmorMesh);
 	}
 
 	ArmorMeshComponent->SetSkeletalMesh(LoadedArmorMesh);
@@ -44,7 +44,7 @@ void AA1ArmorBase::SetArmorMesh(TSoftObjectPtr<USkeletalMesh> InArmorMesh)
 	{
 		for (int32 i = 0; i < (int32)EBodyType::Count; i++)
 		{
-			UMaterialInterface* LoadedMaterial = ULyraAssetManager::GetAsset<UMaterialInterface>(SkinMaterial[i]);
+			UMaterialInterface* LoadedMaterial = ULyraAssetManager::GetAssetByPath<UMaterialInterface>(SkinMaterial[i]);
 			ArmorMeshComponent->SetMaterialByName(SkinMaterialSlotName[i], LoadedMaterial);
 		}
 	}
