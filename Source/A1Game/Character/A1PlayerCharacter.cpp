@@ -36,7 +36,7 @@ AA1PlayerCharacter::AA1PlayerCharacter()
 	GetMesh()->SetCollisionProfileName(TEXT("NoCollision"));
 
 	//Asset Import & Set Mesh
-	static ConstructorHelpers::FObjectFinder<USkeletalMesh> CharacterMeshRef(TEXT("/Script/Engine.SkeletalMesh'/Game/SciFiCharacterPack/SciFiGirl/Meshes/SK_SciFiGirl.SK_SciFiGirl'"));
+	static ConstructorHelpers::FObjectFinder<USkeletalMesh> CharacterMeshRef(TEXT("/Script/Engine.SkeletalMesh'/Game/SciFiCharacterPack/SciFiWarrior/Meshes/SK_SciFiWarrior.SK_SciFiWarrior'"));
 	if (CharacterMeshRef.Object)
 	{
 		GetMesh()->SetSkeletalMesh(CharacterMeshRef.Object);
