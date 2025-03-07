@@ -39,91 +39,92 @@ void UA1CosmeticManagerComponent::EndPlay(const EEndPlayReason::Type EndPlayReas
 	Super::EndPlay(EndPlayReason);
 }
 
-void UA1CosmeticManagerComponent::RefreshArmorMesh(EArmorType ArmorType /*, const UD1ItemFragment_Equipable_Armor* ArmorFragment*/)
-{
-	if (ArmorType == EArmorType::Count)
-		return;
+//void UA1CosmeticManagerComponent::RefreshArmorMesh(EArmorType ArmorType /*, const UD1ItemFragment_Equipable_Armor* ArmorFragment*/)
+//{
+//	if (ArmorType == EArmorType::Count)
+//		return;
+//
+//	InitializeManager();
+//
+//	/*if (ArmorFragment)
+//	{
+//		if (ArmorFragment == nullptr || ArmorFragment->ArmorType != ArmorType)
+//			return;
+//
+//		SetPrimaryArmorMesh(ArmorType, ArmorFragment->ArmorMesh);
+//
+//		if (ArmorType == EArmorType::Chest)
+//		{
+//			if (UChildActorComponent* CosmeticSlot = CosmeticSlots[(int32)EArmorType::Legs])
+//			{
+//				if (AA1ArmorBase* CosmeticActor = Cast<AA1ArmorBase>(CosmeticSlot->GetChildActor()))
+//				{
+//					CosmeticActor->ShouldUseSecondaryMesh(ArmorFragment->bIsFullBody);
+//				}
+//			}
+//		}
+//		else if (ArmorType == EArmorType::Helmet)
+//		{
+//			if (HeadSlot)
+//			{
+//				if (AA1ArmorBase* CosmeticActor = Cast<AA1ArmorBase>(HeadSlot->GetChildActor()))
+//				{
+//					CosmeticActor->ShouldUseSecondaryMesh(true);
+//				}
+//			}
+//		}
+//	}
+//	else*/
+//	{
+//		//if (ArmorType == EArmorType::Chest)
+//		//{
+//		//	if (UChildActorComponent* CosmeticSlot = CosmeticSlots[(int32)EArmorType::Legs])
+//		//	{
+//		//		if (AA1ArmorBase* CosmeticActor = Cast<AA1ArmorBase>(CosmeticSlot->GetChildActor()))
+//		//		{
+//		//			CosmeticActor->ShouldUseSecondaryMesh(false);
+//		//		}
+//		//	}
+//		//}
+//		//else if (ArmorType == EArmorType::Helmet)
+//		//{
+//		//	if (HeadSlot)
+//		//	{
+//		//		if (AA1ArmorBase* CosmeticActor = Cast<AA1ArmorBase>(HeadSlot->GetChildActor()))
+//		//		{
+//		//			CosmeticActor->ShouldUseSecondaryMesh(false);
+//		//		}
+//		//	}
+//		//}
+//
+//		//SetPrimaryArmorMesh(ArmorType, nullptr);
+//	}
+//}
 
-	InitializeManager();
 
-	/*if (ArmorFragment)
-	{
-		if (ArmorFragment == nullptr || ArmorFragment->ArmorType != ArmorType)
-			return;
-
-		SetPrimaryArmorMesh(ArmorType, ArmorFragment->ArmorMesh);
-
-		if (ArmorType == EArmorType::Chest)
-		{
-			if (UChildActorComponent* CosmeticSlot = CosmeticSlots[(int32)EArmorType::Legs])
-			{
-				if (AA1ArmorBase* CosmeticActor = Cast<AA1ArmorBase>(CosmeticSlot->GetChildActor()))
-				{
-					CosmeticActor->ShouldUseSecondaryMesh(ArmorFragment->bIsFullBody);
-				}
-			}
-		}
-		else if (ArmorType == EArmorType::Helmet)
-		{
-			if (HeadSlot)
-			{
-				if (AA1ArmorBase* CosmeticActor = Cast<AA1ArmorBase>(HeadSlot->GetChildActor()))
-				{
-					CosmeticActor->ShouldUseSecondaryMesh(true);
-				}
-			}
-		}
-	}
-	else*/
-	{
-		//if (ArmorType == EArmorType::Chest)
-		//{
-		//	if (UChildActorComponent* CosmeticSlot = CosmeticSlots[(int32)EArmorType::Legs])
-		//	{
-		//		if (AA1ArmorBase* CosmeticActor = Cast<AA1ArmorBase>(CosmeticSlot->GetChildActor()))
-		//		{
-		//			CosmeticActor->ShouldUseSecondaryMesh(false);
-		//		}
-		//	}
-		//}
-		//else if (ArmorType == EArmorType::Helmet)
-		//{
-		//	if (HeadSlot)
-		//	{
-		//		if (AA1ArmorBase* CosmeticActor = Cast<AA1ArmorBase>(HeadSlot->GetChildActor()))
-		//		{
-		//			CosmeticActor->ShouldUseSecondaryMesh(false);
-		//		}
-		//	}
-		//}
-
-		//SetPrimaryArmorMesh(ArmorType, nullptr);
-	}
-}
-
-void UA1CosmeticManagerComponent::SetPrimaryArmorMesh(EArmorType ArmorType, TSoftObjectPtr<USkeletalMesh> ArmorMeshPtr)
-{
-	if (ArmorType == EArmorType::Count)
-		return;
-
-	InitializeManager();
-
-	//if (UChildActorComponent* CosmeticSlot = CosmeticSlots[(int32)ArmorType])
-	//{
-	//	if (AA1ArmorBase* CosmeticActor = Cast<AA1ArmorBase>(CosmeticSlot->GetChildActor()))
-	//	{
-	//		if (ArmorMeshPtr.IsNull())
-	//		{
-	//			CosmeticActor->SetPrimaryArmorMesh(nullptr);
-	//		}
-	//		else
-	//		{
-	//			USkeletalMesh* ArmorMesh = ULyraAssetManager::GetAsset<USkeletalMesh>(ArmorMeshPtr);
-	//			CosmeticActor->SetPrimaryArmorMesh(ArmorMesh);
-	//		}
-	//	}
-	//}
-}
+//void UA1CosmeticManagerComponent::SetPrimaryArmorMesh(EArmorType ArmorType, TSoftObjectPtr<USkeletalMesh> ArmorMeshPtr)
+//{
+//	if (ArmorType == EArmorType::Count)
+//		return;
+//
+//	InitializeManager();
+//
+//	if (UChildActorComponent* CosmeticSlot = CosmeticSlots[(int32)ArmorType])
+//	{
+//		if (AA1ArmorBase* CosmeticActor = Cast<AA1ArmorBase>(CosmeticSlot->GetChildActor()))
+//		{
+//			if (ArmorMeshPtr.IsNull())
+//			{
+//				CosmeticActor->SetPrimaryArmorMesh(nullptr);
+//			}
+//			else
+//			{
+//				USkeletalMesh* ArmorMesh = ULyraAssetManager::GetAsset<USkeletalMesh>(ArmorMeshPtr);
+//				CosmeticActor->SetPrimaryArmorMesh(ArmorMesh);
+//			}
+//		}
+//	}
+//}
 
 void UA1CosmeticManagerComponent::GetMeshComponents(TArray<UMeshComponent*>& OutMeshComponents) const
 {

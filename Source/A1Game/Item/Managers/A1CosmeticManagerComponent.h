@@ -20,14 +20,14 @@ protected:
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
 public:
-	void RefreshArmorMesh(EArmorType ArmorType /*, const UA1ItemFragment_Equipable_Armor* ArmorFragment*/);
+	//void RefreshArmorMesh(EArmorType ArmorType /*, const UA1ItemFragment_Equipable_Armor* ArmorFragment*/);
 	void GetMeshComponents(TArray<UMeshComponent*>& OutMeshComponents) const;
 
 private:
 	void InitializeManager();
 
 	UChildActorComponent* SpawnCosmeticSlotActor(TSoftObjectPtr<USkeletalMesh> InDefaultMesh, TArray<FName> InSkinMaterialSlotName, TArray<TSoftObjectPtr<UMaterialInterface>> InSkinMaterial);
-	void SetPrimaryArmorMesh(EArmorType ArmorType, TSoftObjectPtr<USkeletalMesh> ArmorMeshPtr);
+	//void SetPrimaryArmorMesh(EArmorType ArmorType, TSoftObjectPtr<USkeletalMesh> ArmorMeshPtr);
 
 protected:
 	UPROPERTY(EditDefaultsOnly)

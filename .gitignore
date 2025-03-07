@@ -69,6 +69,8 @@ Content/System
 Content/Tools
 Content/UI
 Content/Weapons
+Content/Blueprints
+Content/Item
 Content/B_LyraGameInstance.uasset
 Content/B_LyraGameMode.uasset
 Content/DefaultGame_Label.uasset

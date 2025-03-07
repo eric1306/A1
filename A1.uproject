@@ -318,6 +318,10 @@
 		{
 			"Name": "GameplayBehaviors",
 			"Enabled": true
+		},
+		{
+			"Name": "SkeletalMeshModelingTools",
+			"Enabled": true
 		}
 	],
 	"EpicSampleNameHash": "451731683"

@@ -14,24 +14,12 @@ enum class EEquipmentSlotType : uint8
 	Unarmed_LeftHand,
 	Unarmed_RightHand,
 
-	Primary_LeftHand,
-	Primary_RightHand,
-	Primary_TwoHand,
+	LeftHand,
+	RightHand,
+	TwoHand,
 
-	Secondary_LeftHand,
-	Secondary_RightHand,
-	Secondary_TwoHand,
-
-	Utility_Primary,
-	Utility_Secondary,
-	Utility_Tertiary,
-	Utility_Quaternary,
-
-	Helmet,
-	Chest,
-	Legs,
-	Hands,
-	Foot,
+	//Utility_Primary,
+	//Utility_Secondary,
 
 	Count	UMETA(Hidden)
 };
@@ -46,8 +34,9 @@ enum class EEquipState : uint8
 
 	Utility_Primary,
 	Utility_Secondary,
-	Utility_Tertiary,
-	Utility_Quaternary,
+
+//	Primary,
+//	Secondary,
 
 	Count	UMETA(Hidden)
 };
@@ -62,17 +51,17 @@ enum class EEquipmentType : uint8
 	Count	UMETA(Hidden)
 };
 
-UENUM(BlueprintType)
-enum class EArmorType : uint8
-{
-	Helmet,
-	Chest,
-	Legs,
-	Hands,
-	Foot,
-
-	Count UMETA(Hidden)
-};
+//UENUM(BlueprintType)
+//enum class EArmorType : uint8
+//{
+//	Helmet,
+//	Chest,
+//	Legs,
+//	Hands,
+//	Foot,
+//
+//	Count UMETA(Hidden)
+//};
 
 UENUM(BlueprintType)
 enum class EBodyType : uint8
@@ -90,10 +79,7 @@ enum class EWeaponType : uint8
 	Unarmed,
 	OneHandSword,
 	TwoHandSword,
-	GreatSword,
-	Shield,
-	Staff,
-	Bow,
+	Gun,
 
 	Count	UMETA(Hidden)
 };
@@ -120,22 +106,24 @@ enum class EWeaponHandType : uint8
 UENUM(BlueprintType)
 enum class EUtilityType : uint8
 {
+	Fuel,
+	Oxygen,
 	Drink,
 	LightSource,
 
 	Count	UMETA(Hidden)
 };
 
-UENUM(BlueprintType)
-enum class EUtilitySlotType : uint8
-{
-	Primary,
-	Secondary,
-	Tertiary,
-	Quaternary,
-
-	Count	UMETA(Hidden)
-};
+//UENUM(BlueprintType)
+//enum class EUtilitySlotType : uint8
+//{
+//	Primary,
+//	Secondary,
+//	Tertiary,
+//	Quaternary,
+//
+//	Count	UMETA(Hidden)
+//};
 
 UENUM(BlueprintType)
 enum class EItemRarity : uint8
@@ -179,18 +167,6 @@ enum class ECharacterSkinType : uint8
 	Blue,
 
 	Count UMETA(Hidden)
-};
-
-UENUM(BlueprintType, meta = (Bitflags))
-enum class ECharacterClassType : uint8
-{
-	Fighter,
-	Swordmaster,
-	Barbarian,
-	Wizard,
-	Archer,
-
-	Count	UMETA(Hidden)
 };
 
 UENUM(BlueprintType)
