@@ -81,14 +81,14 @@ protected:
 	void AddStatTagStack(UA1ItemInstance* ItemInstance, const TArray<FRarityStatSet>& RarityStatSets) const;
 	void AddStatTagStack(UA1ItemInstance* ItemInstance, const TArray<FRarityStatRangeSet>& RarityStatRangeSets) const;
 
-public:
-	bool IsEquipableClassType(ECharacterClassType ClassType) const;
+//public:
+	//bool IsEquipableClassType(ECharacterClassType ClassType) const;
 	
 public:
 	EEquipmentType EquipmentType = EEquipmentType::Count;
 	
-	UPROPERTY(EditDefaultsOnly, meta=(Bitmask, BitmaskEnum="ECharacterClassType"))
-	uint32 EquipableClassFlags = ((1 << (uint32)ECharacterClassType::Count) - 1);
+	//UPROPERTY(EditDefaultsOnly, meta=(Bitmask, BitmaskEnum="ECharacterClassType"))
+	//uint32 EquipableClassFlags = ((1 << (uint32)ECharacterClassType::Count) - 1);
 	
 	UPROPERTY(EditDefaultsOnly)
 	TObjectPtr<const ULyraAbilitySet> BaseAbilitySet;
