@@ -8,61 +8,25 @@ enum class ESlotState : uint8
 	Valid
 };
 
+/*---------------------------------------
+*   Character가 가지고 있어야 할 정보
+---------------------------------------*/
+
+// Character의 skin 색상
 UENUM(BlueprintType)
-enum class EEquipmentSlotType : uint8
+enum class ECharacterSkinType : uint8
 {
-	Unarmed_LeftHand,
-	Unarmed_RightHand,
+	Black,
+	Grey,
+	White,
+	Red,
+	Yellow,
+	Blue,
 
-	LeftHand,
-	RightHand,
-	TwoHand,
-
-	//Utility_Primary,
-	//Utility_Secondary,
-
-	Count	UMETA(Hidden)
+	Count UMETA(Hidden)
 };
 
-UENUM(BlueprintType)
-enum class EEquipState : uint8
-{
-	Unarmed,
-
-	Weapon_Primary,
-	Weapon_Secondary,
-
-	Utility_Primary,
-	Utility_Secondary,
-
-//	Primary,
-//	Secondary,
-
-	Count	UMETA(Hidden)
-};
-
-UENUM(BlueprintType)
-enum class EEquipmentType : uint8
-{
-	Armor,
-	Weapon,
-	Utility,
-
-	Count	UMETA(Hidden)
-};
-
-//UENUM(BlueprintType)
-//enum class EArmorType : uint8
-//{
-//	Helmet,
-//	Chest,
-//	Legs,
-//	Hands,
-//	Foot,
-//
-//	Count UMETA(Hidden)
-//};
-
+// Character Mesh Material type
 UENUM(BlueprintType)
 enum class EBodyType : uint8
 {
@@ -73,6 +37,71 @@ enum class EBodyType : uint8
 	Count UMETA(Hidden)
 };
 
+// 장비 장착 slot 타입 
+UENUM(BlueprintType)
+enum class EEquipmentSlotType : uint8
+{
+	Unarmed_LeftHand,
+	Unarmed_RightHand,
+
+	LeftHand,
+	RightHand,
+	TwoHand,
+
+	Count	UMETA(Hidden)
+};
+
+// 메인으로 사용하는 손이 무엇인지
+UENUM(BlueprintType)
+enum class EEquipState : uint8
+{
+	Unarmed,
+
+	Left,
+	Right,
+	Both,
+
+	Count	UMETA(Hidden)
+};
+
+
+/*---------------------------------------
+*    Item이 가지고 있어야 할 정보
+---------------------------------------*/
+// 현재 내가 주 장비인지 보조 장비인지
+UENUM(BlueprintType)
+enum class EItemSlotType : uint8
+{
+	Primary,
+	Secondary,
+
+	Count	UMETA(Hidden)
+};
+
+// 어디에 장착 가능한 건지
+UENUM(BlueprintType)
+enum class EItemHandType : uint8
+{
+	LeftHand,
+	RightHand,
+	TwoHand,
+
+	Count	UMETA(Hidden)
+};
+
+
+// Item 분류
+UENUM(BlueprintType)
+enum class EEquipmentType : uint8
+{
+	Armor,
+	Weapon,
+	Utility,
+
+	Count	UMETA(Hidden)
+};
+
+// 무기 종류
 UENUM(BlueprintType)
 enum class EWeaponType : uint8
 {
@@ -84,25 +113,7 @@ enum class EWeaponType : uint8
 	Count	UMETA(Hidden)
 };
 
-UENUM(BlueprintType)
-enum class EWeaponSlotType : uint8
-{
-	Primary,
-	Secondary,
-
-	Count	UMETA(Hidden)
-};
-
-UENUM(BlueprintType)
-enum class EWeaponHandType : uint8
-{
-	LeftHand,
-	RightHand,
-	TwoHand,
-
-	Count	UMETA(Hidden)
-};
-
+// Utillity 종류
 UENUM(BlueprintType)
 enum class EUtilityType : uint8
 {
@@ -113,17 +124,6 @@ enum class EUtilityType : uint8
 
 	Count	UMETA(Hidden)
 };
-
-//UENUM(BlueprintType)
-//enum class EUtilitySlotType : uint8
-//{
-//	Primary,
-//	Secondary,
-//	Tertiary,
-//	Quaternary,
-//
-//	Count	UMETA(Hidden)
-//};
 
 UENUM(BlueprintType)
 enum class EItemRarity : uint8
@@ -156,18 +156,6 @@ enum class EOverlayTargetType : uint8
 	All,
 };
 
-UENUM(BlueprintType)
-enum class ECharacterSkinType : uint8
-{
-	Black,
-	Grey,
-	White,
-	Red,
-	Yellow,
-	Blue,
-
-	Count UMETA(Hidden)
-};
 
 UENUM(BlueprintType)
 enum class ED1TeamID : uint8

@@ -181,4 +181,8 @@ private:
 
 	UFUNCTION()
 	void OnRep_MySquadID();
+
+public:
+	UFUNCTION(Server, Reliable, BlueprintCallable)
+	void Server_SelectClass(/*ECharacterClassType ClassType*/);
 };

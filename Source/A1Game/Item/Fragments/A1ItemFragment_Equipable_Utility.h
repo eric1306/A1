@@ -30,4 +30,7 @@ public:
 	
 	UPROPERTY(EditDefaultsOnly, meta=(ForceInlineRow))
 	TArray<FRarityStatSet> RarityStatSets;
+
+	UPROPERTY(EditDefaultsOnly)
+	int32 Gauge = 0;
 };
