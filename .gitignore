@@ -52,6 +52,7 @@ Plugins/**/BlueprintAssist/NodeSizeCache/*
 # Content(Lyra)
 Content/Audio
 Content/Characters
+!Content/Characters/Player/Animation
 Content/Collections
 Content/ContextEffects
 Content/Developers
