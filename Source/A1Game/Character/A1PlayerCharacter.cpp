@@ -43,7 +43,7 @@ AA1PlayerCharacter::AA1PlayerCharacter()
 	}
 
 	//TODO: Set AnimInstance
-	static ConstructorHelpers::FClassFinder<UAnimInstance> AnimInstanceClassRef(TEXT("/Game/Developing/Animation/ABP_A1PlayerCharacter1.ABP_A1PlayerCharacter1_C"));
+	static ConstructorHelpers::FClassFinder<UAnimInstance> AnimInstanceClassRef(TEXT("/Game/Developing/Animation/ABP_A1PlayerCharacter1.ABP_A1PlayerCharacter2_C"));
 	if (AnimInstanceClassRef.Class)
 	{
 		GetMesh()->SetAnimInstanceClass(AnimInstanceClassRef.Class);
