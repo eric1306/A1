@@ -4,6 +4,26 @@
 #include "Engine/DataAsset.h"
 #include "A1CharacterData.generated.h"
 
+class UA1ItemTemplate;
+USTRUCT(BlueprintType)
+struct FA1DefaultItemEntry
+{
+	GENERATED_BODY()
+
+public:
+	UPROPERTY(EditDefaultsOnly)
+	EEquipmentSlotType EquipmentSlotType = EEquipmentSlotType::Count;
+
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<UA1ItemTemplate> ItemTemplateClass;
+
+	UPROPERTY(EditDefaultsOnly)
+	EItemRarity ItemRarity = EItemRarity::Poor;
+
+	UPROPERTY(EditDefaultsOnly)
+	int32 ItemCount = 1;
+};
+
 USTRUCT(BlueprintType)
 struct FA1DefaultArmorMeshSet
 {
@@ -37,4 +57,9 @@ public:
 private:
 	UPROPERTY(EditDefaultsOnly)
 	TMap<ECharacterSkinType, FA1DefaultArmorMeshSet> DefaultArmorMeshMap;
+
+	// TODO 제거할 예정
+public:
+	UPROPERTY(EditDefaultsOnly)
+	FA1DefaultItemEntry DefaultItemEntries;
 };

@@ -6,13 +6,13 @@
 class AA1EquipmentBase;
 
 USTRUCT(BlueprintType)
-struct FA1WeaponAttachInfo
+struct FA1ItemAttachInfo
 {
 	GENERATED_BODY()
 
 public:
 	UPROPERTY(EditDefaultsOnly)
-	TSubclassOf<AA1EquipmentBase> SpawnWeaponClass;
+	TSubclassOf<AA1EquipmentBase> SpawnItemClass;
 
 	UPROPERTY(EditDefaultsOnly)
 	FName AttachSocket;
@@ -31,10 +31,10 @@ public:
 
 public:
 	UPROPERTY(EditDefaultsOnly)
-	EWeaponHandType WeaponHandType = EWeaponHandType::Count;
+	EItemHandType ItemHandType = EItemHandType::Count;
 
 	UPROPERTY(EditDefaultsOnly)
-	FA1WeaponAttachInfo WeaponAttachInfo;
+	FA1ItemAttachInfo ItemAttachInfo;
 
 	UPROPERTY(EditDefaultsOnly)
 	TSoftObjectPtr<UAnimMontage> EquipMontage;

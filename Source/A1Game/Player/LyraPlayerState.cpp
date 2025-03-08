@@ -19,6 +19,10 @@
 #include "Messages/LyraVerbMessage.h"
 #include "Net/UnrealNetwork.h"
 
+#include "Item/Managers/A1EquipmentManagerComponent.h"
+#include "Character/LyraCharacter.h"
+#include "Data/A1CharacterData.h"
+
 #include UE_INLINE_GENERATED_CPP_BY_NAME(LyraPlayerState)
 
 class AController;
@@ -298,3 +302,24 @@ void ALyraPlayerState::ClientBroadcastMessage_Implementation(const FLyraVerbMess
 	}
 }
 
+void ALyraPlayerState::Server_SelectClass_Implementation(/*ECharacterClassType ClassType*/)
+{
+	if (HasAuthority() == false)
+		return;
+
+	const FA1DefaultItemEntry& DefaultEntry = UA1CharacterData::Get().DefaultItemEntries;
+
+	if (ALyraCharacter* LyraCharacter = GetPawn<ALyraCharacter>())
+	{
+		if (UA1EquipmentManagerComponent* EquipmentManager = LyraCharacter->GetComponentByClass<UA1EquipmentManagerComponent>())
+		{
+			EquipmentManager->SetEquipment(DefaultEntry.EquipmentSlotType, DefaultEntry.ItemTemplateClass, DefaultEntry.ItemRarity, DefaultEntry.ItemCount);	
+		}
+	}
+
+	/*AbilitySetGrantedHandles.TakeFromAbilitySystem(AbilitySystemComponent);
+	if (ULyraAbilitySet* AbilitySet = ClassEntry.ClassAbilitySet)
+	{
+		AbilitySet->GiveToAbilitySystem(AbilitySystemComponent, &AbilitySetGrantedHandles, this);
+	}*/
+}
