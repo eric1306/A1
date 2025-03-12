@@ -512,7 +512,7 @@ UA1InventoryManagerComponent* UA1ItemManagerComponent::GetMyInventoryManager() c
 	return MyInventoryManager;
 }
 
-UA1EquipmentManagerComponent* UAItemManagerComponent::GetMyEquipmentManager() const
+UA1EquipmentManagerComponent* UA1ItemManagerComponent::GetMyEquipmentManager() const
 {
 	UA1EquipmentManagerComponent* MyEquipmentManager = nullptr;
 	
