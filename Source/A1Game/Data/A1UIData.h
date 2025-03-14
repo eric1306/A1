@@ -15,6 +15,22 @@ class UA1InventoryEntryWidget;
 class UA1InventoryValidWidget;
 
 USTRUCT(BlueprintType)
+struct FA1ItemRarityInfoEntry
+{
+	GENERATED_BODY()
+
+public:
+	UPROPERTY(EditDefaultsOnly, meta = (HideAlphaChannel))
+	FColor Color = FColor::White;
+
+	UPROPERTY(EditDefaultsOnly)
+	TObjectPtr<UTexture2D> EntryTexture;
+
+	UPROPERTY(EditDefaultsOnly)
+	TObjectPtr<UTexture2D> HoverTexture;
+};
+
+USTRUCT(BlueprintType)
 struct FA1UIInfo
 {
 	GENERATED_BODY()
@@ -39,6 +55,10 @@ public:
 	static const UA1UIData& Get();
 
 public: 
+	UTexture2D* GetEntryRarityTexture(EItemRarity ItemRarity) const;
+	UTexture2D* GetHoverRarityTexture(EItemRarity ItemRarity) const;
+	FColor GetRarityColor(EItemRarity ItemRarity) const;
+
 	const FA1UIInfo& GetTagUIInfo(FGameplayTag Tag) const;
 
 public:
@@ -65,6 +85,9 @@ public:
 	TSubclassOf<UA1InventoryValidWidget> InventoryValidWidgetClass;
 
 private:
+	UPROPERTY(EditDefaultsOnly, meta = (ArraySizeEnum = "EItemRarity"))
+	FA1ItemRarityInfoEntry RarityInfoEntries[(int32)EItemRarity::Count];
+
 	UPROPERTY(EditDefaultsOnly, meta = (DisplayName = "Tag UI Infos"))
 	TMap<FGameplayTag, FA1UIInfo> TagUIInfos;
 };

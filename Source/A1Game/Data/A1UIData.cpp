@@ -10,6 +10,33 @@ const UA1UIData& UA1UIData::Get()
 	return ULyraAssetManager::Get().GetUIData();
 }
 
+UTexture2D* UA1UIData::GetEntryRarityTexture(EItemRarity ItemRarity) const
+{
+	const int32 ItemRarityIndex = (int32)ItemRarity;
+	if (ItemRarityIndex < 0 || ItemRarityIndex >= (int32)EItemRarity::Count)
+		return nullptr;
+
+	return RarityInfoEntries[ItemRarityIndex].EntryTexture;
+}
+
+UTexture2D* UA1UIData::GetHoverRarityTexture(EItemRarity ItemRarity) const
+{
+	const int32 ItemRarityIndex = (int32)ItemRarity;
+	if (ItemRarityIndex < 0 || ItemRarityIndex >= (int32)EItemRarity::Count)
+		return nullptr;
+
+	return RarityInfoEntries[ItemRarityIndex].HoverTexture;
+}
+
+FColor UA1UIData::GetRarityColor(EItemRarity ItemRarity) const
+{
+	const int32 ItemRarityIndex = (int32)ItemRarity;
+	if (ItemRarityIndex < 0 || ItemRarityIndex >= (int32)EItemRarity::Count)
+		return FColor::White;
+
+	return RarityInfoEntries[ItemRarityIndex].Color;
+}
+
 const FA1UIInfo& UA1UIData::GetTagUIInfo(FGameplayTag Tag) const
 {
 	const FA1UIInfo* UIInfo = TagUIInfos.Find(Tag);

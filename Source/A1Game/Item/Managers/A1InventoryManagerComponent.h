@@ -158,5 +158,5 @@ private:
 	UPROPERTY(Replicated)
 	TArray<bool> SlotChecks;
 	
-	FIntPoint InventorySlotCount = FIntPoint(10, 5);
+	FIntPoint InventorySlotCount = FIntPoint(5, 5);
 };

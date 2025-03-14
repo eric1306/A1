@@ -2,6 +2,7 @@
 #pragma once
 
 #include "Blueprint/UserWidget.h"
+#include "GameFramework/GameplayMessageSubsystem.h"
 #include "A1InventorySlotsWidget.generated.h"
 
 class UTextBlock;
@@ -10,7 +11,19 @@ class UUniformGridPanel;
 class UCanvasPanel;
 class UA1InventorySlotWidget;
 class UA1InventoryEntryWidget;
+class UA1InventoryValidWidget;
 class UA1InventoryManagerComponent;
+class UA1ItemInstance;
+
+USTRUCT(BlueprintType)
+struct FInventoryInitializeMessage
+{
+	GENERATED_BODY()
+
+public:
+	UPROPERTY(BlueprintReadWrite)
+	TObjectPtr<UA1InventoryManagerComponent> InventoryManager;
+};
 
 UCLASS()
 class A1GAME_API UA1InventorySlotsWidget : public UUserWidget
@@ -30,15 +43,18 @@ protected:
 	virtual bool NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent& InDragDropEvent, UDragDropOperation* InOperation);
 
 private:
-	void ConstructUI(/*FGameplayTag Channel, const FInventoryInitializeMessage& Message*/);
+	void ConstructUI(FGameplayTag Channel, const FInventoryInitializeMessage& Message);
 	void DestructUI();
 
-	void OnInventoryEntryChanged(const FIntPoint& ItemSlotPos, UA1ItemInstance* ItemInstance, int32 InItemCount);
+	void OnInventoryEntryChanged(const FIntPoint& InItemSlotPos, UA1ItemInstance* InItemInstance, int32 InItemCount);
 
 public:
 	UA1InventoryManagerComponent* GetInventoryManager() const { return InventoryManager; }
 
 public:
+	UPROPERTY(EditAnywhere, meta = (Categories = "Message"))
+	FGameplayTag MessageChannelTag;
+
 	UPROPERTY(EditAnywhere)
 	FText TitleText;
 
@@ -73,4 +89,5 @@ private:
 
 private:
 	FDelegateHandle EntryChangedDelegateHandle;
+	FGameplayMessageListenerHandle MessageListenerHandle;
 };

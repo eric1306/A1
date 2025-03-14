@@ -54,8 +54,3 @@ void UA1ItemFragment_Equipable::AddStatTagStack(UA1ItemInstance* ItemInstance, c
 		ItemInstance->AddStatTagStack(StatTag, StatValue);
 	}
 }
-
-//bool UA1ItemFragment_Equipable::IsEquipableClassType(ECharacterClassType ClassType) const
-//{
-//	return (EquipableClassFlags & (1 << (uint32)ClassType)) != 0;
-//}

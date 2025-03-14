@@ -24,6 +24,9 @@ protected:
 	virtual void NativeDestruct() override;
 
 public:
+	void RefreshWidgetOpacity(bool bClearlyVisible);
+	void RefreshUI(UA1ItemInstance* NewItemInstance, int32 NewItemCount);
+	void RefreshItemCount(int32 NewItemCount);
 	UA1ItemInstance* GetItemInstance() const { return ItemInstance; }
 
 protected:

@@ -204,7 +204,11 @@ int32 UA1EquipmentManagerComponent::CanMoveOrMergeEquipment(UA1InventoryManagerC
 
 	return CanAddEquipment(FromItemInstance->GetItemTemplateID(), FromItemInstance->GetItemRarity(), FromItemCount, ToEquipmentSlotType);
 }
-
+/*
+*   CanMoveOrMergeEquipment_Quick
+*   빈 자리 있으면 바로 해당 자리에 가능한 지
+*	없으면 아이템 개수 증가 가능한 지
+*/
 int32 UA1EquipmentManagerComponent::CanMoveOrMergeEquipment_Quick(UA1EquipmentManagerComponent* OtherComponent, EEquipmentSlotType FromEquipmentSlotType, EEquipmentSlotType& OutToEquipmentSlotType) const
 {
 	OutToEquipmentSlotType = EEquipmentSlotType::Count;
@@ -259,57 +263,27 @@ int32 UA1EquipmentManagerComponent::CanMoveOrMergeEquipment_Quick(int32 FromItem
 	if (FromEquippableFragment == nullptr)
 		return 0;
 
-	if (FromEquippableFragment->EquipmentType == EEquipmentType::Weapon)
+	const UA1ItemFragment_Equipable_Attachment* FromItemFragment = Cast<UA1ItemFragment_Equipable_Attachment>(FromEquippableFragment);
+	EEquipmentSlotType ToEquipmentSlotType = UA1EquipManagerComponent::ConvertToEquipmentSlotType(FromItemFragment->ItemHandType);
+
+	UA1ItemInstance* ToItemInstance = GetItemInstance(ToEquipmentSlotType);
+
+	if((ToItemInstance != nullptr))
 	{
-		const UA1ItemFragment_Equipable_Weapon* FromWeaponFragment = Cast<UA1ItemFragment_Equipable_Weapon>(FromEquippableFragment);
+		const int32 ToItemCount = GetItemCount(ToEquipmentSlotType);
+		const UA1ItemTemplate& ToItemTemplate = UA1ItemData::Get().FindItemTemplateByID(ToItemInstance->GetItemTemplateID());
 
-		for (int32 i = 0; i < (int32)EItemSlotType::Count; i++)
-		{
-			EEquipmentSlotType ToEquipmentSlotType = UA1EquipManagerComponent::ConvertToEquipmentSlotType(FromWeaponFragment->ItemHandType, (EItemSlotType)i);
-			int32 MovableCount = CanAddEquipment(FromItemTemplateID, FromItemRarity, FromItemCount, ToEquipmentSlotType);
-			if (MovableCount > 0)
-			{
-				OutToEquipmentSlotType = ToEquipmentSlotType;
-				return MovableCount;
-			}
-		}
-	}
-	else if (FromEquippableFragment->EquipmentType == EEquipmentType::Utility)
-	{
-		EEquipmentSlotType ToEquipmentSlotPick = EEquipmentSlotType::Count;
-
-		for (int32 i = 0; i < (int32)EUtilitySlotType::Count; i++)
-		{
-			EEquipmentSlotType ToEquipmentSlotType = UA1EquipManagerComponent::ConvertToEquipmentSlotType((EUtilitySlotType)i);
-			UA1ItemInstance* ToItemInstance = GetItemInstance(ToEquipmentSlotType);
-			if (ToItemInstance == nullptr)
-			{
-				ToEquipmentSlotPick = ToEquipmentSlotType;
-				break;
-			}
-			else
-			{
-				const int32 ToItemCount = GetItemCount(ToEquipmentSlotType);
-				const UA1ItemTemplate& ToItemTemplate = UA1ItemData::Get().FindItemTemplateByID(ToItemInstance->GetItemTemplateID());
-				if (ToItemTemplate.MaxStackCount > 1 && ToItemCount < ToItemTemplate.MaxStackCount && ToItemInstance->GetItemRarity() == FromItemRarity && ToItemInstance->GetItemTemplateID() == FromItemTemplateID)
-				{
-					ToEquipmentSlotPick = ToEquipmentSlotType;
-					break;
-				}
-			}
-		}
-
-		if (ToEquipmentSlotPick == EEquipmentSlotType::Count)
+		if (!(ToItemTemplate.MaxStackCount > 1 && ToItemCount < ToItemTemplate.MaxStackCount && ToItemInstance->GetItemRarity() == FromItemRarity && ToItemInstance->GetItemTemplateID() == FromItemTemplateID))
 			return 0;
-
-		int32 MovableCount = CanAddEquipment(FromItemTemplateID, FromItemRarity, FromItemCount, ToEquipmentSlotPick);
-		if (MovableCount > 0)
-		{
-			OutToEquipmentSlotType = ToEquipmentSlotPick;
-			return MovableCount;
-		}
 	}
-
+	
+	int32 MovableCount = CanAddEquipment(FromItemTemplateID, FromItemRarity, FromItemCount, ToEquipmentSlotType);
+	if (MovableCount > 0)
+	{
+		OutToEquipmentSlotType = ToEquipmentSlotType;
+		return MovableCount;
+	}
+	
 	return 0;
 }
 
@@ -336,32 +310,32 @@ bool UA1EquipmentManagerComponent::CanSwapEquipment(UA1EquipmentManagerComponent
 	if (ToItemInstance == nullptr)
 		return false;
 
-	if (FromEquippableFragment->EquipmentType == EEquipmentType::Weapon)
-	{
-		const UA1ItemFragment_Equipable_Weapon* FromWeaponFragment = Cast<UA1ItemFragment_Equipable_Weapon>(FromEquippableFragment);
-		if (FromWeaponFragment == nullptr)
-			return false;
-
-		EWeaponHandType FromWeaponHandType = FromWeaponFragment->WeaponHandType;
-		if (IsSameWeaponHandType(ToEquipmentSlotType, FromWeaponHandType) == false)
-			return false;
-
-		return true;
-	}
-	else if (FromEquippableFragment->EquipmentType == EEquipmentType::Armor)
-	{
-		if (FromEquipmentSlotType != ToEquipmentSlotType)
-			return false;
-
-		return true;
-	}
-	else if (FromEquippableFragment->EquipmentType == EEquipmentType::Utility)
-	{
-		if (IsUtilitySlot(ToEquipmentSlotType) == false)
-			return false;
-
-		return true;
-	}
+	//if (FromEquippableFragment->EquipmentType == EEquipmentType::Weapon)
+	//{
+	//	const UA1ItemFragment_Equipable_Weapon* FromWeaponFragment = Cast<UA1ItemFragment_Equipable_Weapon>(FromEquippableFragment);
+	//	if (FromWeaponFragment == nullptr)
+	//		return false;
+	//
+	//	EWeaponHandType FromWeaponHandType = FromWeaponFragment->WeaponHandType;
+	//	if (IsSameWeaponHandType(ToEquipmentSlotType, FromWeaponHandType) == false)
+	//		return false;
+	//
+	//	return true;
+	//}
+	//else if (FromEquippableFragment->EquipmentType == EEquipmentType::Armor)
+	//{
+	//	if (FromEquipmentSlotType != ToEquipmentSlotType)
+	//		return false;
+	//
+	//	return true;
+	//}
+	//else if (FromEquippableFragment->EquipmentType == EEquipmentType::Utility)
+	//{
+	//	if (IsUtilitySlot(ToEquipmentSlotType) == false)
+	//		return false;
+	//
+	//	return true;
+	//}
 
 	return false;
 }
@@ -390,29 +364,21 @@ bool UA1EquipmentManagerComponent::CanSwapEquipment(UA1InventoryManagerComponent
 	if (FromEquippableFragment == nullptr)
 		return false;
 
-	if (FromEquippableFragment->EquipmentType == EEquipmentType::Weapon)
-	{
-		const UA1ItemFragment_Equipable_Weapon* FromWeaponFragment = Cast<UA1ItemFragment_Equipable_Weapon>(FromEquippableFragment);
-		if (FromWeaponFragment == nullptr)
-			return false;
-
-		EWeaponHandType FromWeaponHandType = FromWeaponFragment->WeaponHandType;
-		if (IsSameWeaponHandType(ToEquipmentSlotType, FromWeaponHandType) == false)
-			return false;
-	}
-	else if (FromEquippableFragment->EquipmentType == EEquipmentType::Armor)
-	{
-		const UA1ItemFragment_Equipable_Armor* FromArmorFragment = Cast<UA1ItemFragment_Equipable_Armor>(FromEquippableFragment);
-		EEquipmentSlotType FromEquipmentSlotType = UA1EquipManagerComponent::ConvertToEquipmentSlotType(FromArmorFragment->ArmorType);
-
-		if (FromEquipmentSlotType != ToEquipmentSlotType)
-			return false;
-	}
-	else if (FromEquippableFragment->EquipmentType == EEquipmentType::Utility)
-	{
-		if (IsUtilitySlot(ToEquipmentSlotType) == false)
-			return false;
-	}
+	//if (FromEquippableFragment->EquipmentType == EEquipmentType::Weapon)
+	//{
+	//	const UA1ItemFragment_Equipable_Weapon* FromWeaponFragment = Cast<UA1ItemFragment_Equipable_Weapon>(FromEquippableFragment);
+	//	if (FromWeaponFragment == nullptr)
+	//		return false;
+	//
+	//	EWeaponHandType FromWeaponHandType = FromWeaponFragment->WeaponHandType;
+	//	if (IsSameWeaponHandType(ToEquipmentSlotType, FromWeaponHandType) == false)
+	//		return false;
+	//}
+	//else if (FromEquippableFragment->EquipmentType == EEquipmentType::Utility)
+	//{
+	//	if (IsUtilitySlot(ToEquipmentSlotType) == false)
+	//		return false;
+	//}
 
 	const UA1ItemTemplate& FromItemTemplate = UA1ItemData::Get().FindItemTemplateByID(FromItemInstance->GetItemTemplateID());
 	const FIntPoint& FromSlotCount = FromItemTemplate.SlotCount;
@@ -481,16 +447,9 @@ bool UA1EquipmentManagerComponent::CanSwapEquipment_Quick(UA1EquipmentManagerCom
 		if (FindPairItemInstance(FromItemInstance, OutToEquipmentSlotType))
 			return true;
 	}
-	else if (FromEquippableFragment->EquipmentType == EEquipmentType::Armor)
+	else if (FromEquippableFragment->EquipmentType == EEquipmentType::Utility)
 	{
-		const UA1ItemFragment_Equipable_Armor* FromArmorFragment = Cast<UA1ItemFragment_Equipable_Armor>(FromEquippableFragment);
-		EEquipmentSlotType ToEquipmentSlotType = UA1EquipManagerComponent::ConvertToEquipmentSlotType(FromArmorFragment->ArmorType);
-
-		if (GetItemInstance(ToEquipmentSlotType))
-		{
-			OutToEquipmentSlotType = ToEquipmentSlotType;
-			return true;
-		}
+		// TODO Jerry
 	}
 
 	return false;
@@ -525,12 +484,9 @@ bool UA1EquipmentManagerComponent::CanSwapEquipment_Quick(UA1InventoryManagerCom
 
 		ToItemInstance = FindPairItemInstance(FromItemInstance, OutToEquipmentSlotType);
 	}
-	else if (FromEquippableFragment->EquipmentType == EEquipmentType::Armor)
+	else if (FromEquippableFragment->EquipmentType == EEquipmentType::Utility)
 	{
-		const UA1ItemFragment_Equipable_Armor* FromArmorFragment = Cast<UA1ItemFragment_Equipable_Armor>(FromEquippableFragment);
-		OutToEquipmentSlotType = UA1EquipManagerComponent::ConvertToEquipmentSlotType(FromArmorFragment->ArmorType);
-
-		ToItemInstance = GetItemInstance(OutToEquipmentSlotType);
+		// TODO Jerry
 	}
 
 	if (ToItemInstance == nullptr)
@@ -625,6 +581,10 @@ int32 UA1EquipmentManagerComponent::CanAddEquipment(int32 ItemTemplateID, EItemR
 				}
 			}
 		}
+		//else if (FromEquippableFragment->EquipmentType == EEquipmentType::Utility)
+		//{
+		//	return IsUtilitySlot(ToEquipmentSlotType) ? ItemCount : 0;
+		//}
 	}
 
 	return 0;

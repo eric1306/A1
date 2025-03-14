@@ -11,7 +11,9 @@
 			"AdditionalDependencies": [
 				"DeveloperSettings",
 				"Engine",
-				"GameplayAbilities"
+				"GameplayAbilities",
+				"UMG",
+				"CommonUI"
 			]
 		},
 		{
