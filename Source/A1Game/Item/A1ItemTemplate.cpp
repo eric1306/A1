@@ -57,29 +57,19 @@ EDataValidationResult UA1ItemTemplate::IsDataValid(FDataValidationContext& Conte
 			return EDataValidationResult::Invalid;
 		}
 		
-		//if (FoundEquipable->EquipmentType == EEquipmentType::Armor)
-		//{
-		//	const UA1ItemFragment_Equipable_Armor* ArmorFragment = Cast<UA1ItemFragment_Equipable_Armor>(FoundEquipable);
-		//	
-		//	if (ArmorFragment->ArmorType == EArmorType::Count)
-		//	{
-		//		Context.AddError(FText::FromString(FString::Printf(TEXT("Armor Type is Invalid : [EArmorType::Count]"))));
-		//		Result = EDataValidationResult::Invalid;
-		//	}
-		//}
-		else if (FoundEquipable->EquipmentType == EEquipmentType::Weapon)
+		if (FoundEquipable->EquipmentType == EEquipmentType::Weapon)
 		{
 			const UA1ItemFragment_Equipable_Weapon* WeaponFragment = Cast<UA1ItemFragment_Equipable_Weapon>(FoundEquipable);
 			
 			if (WeaponFragment->WeaponType == EWeaponType::Count)
 			{
-				Context.AddError(FText::FromString(FString::Printf(TEXT("Weapon Type is Invalid : [EWeaponType::Count]"))));
+				Context.AddError(FText::FromString(FString::Printf(TEXT("Item Type is Invalid : [EItemType::Count]"))));
 				Result = EDataValidationResult::Invalid;
 			}
 				
-			if (WeaponFragment->WeaponHandType == EWeaponHandType::Count)
+			if (WeaponFragment->ItemHandType == EItemHandType::Count)
 			{
-				Context.AddError(FText::FromString(FString::Printf(TEXT("Weapon Hand Type is Invalid : [EWeaponHandType::Count]"))));
+				Context.AddError(FText::FromString(FString::Printf(TEXT("Item Hand Type is Invalid : [EItemHandType::Count]"))));
 				Result = EDataValidationResult::Invalid;
 			}
 		}

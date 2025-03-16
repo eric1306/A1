@@ -11,7 +11,9 @@
 			"AdditionalDependencies": [
 				"DeveloperSettings",
 				"Engine",
-				"GameplayAbilities"
+				"GameplayAbilities",
+				"UMG",
+				"CommonUI"
 			]
 		},
 		{
@@ -55,6 +57,10 @@
 		},
 		{
 			"Name": "CommonConversation",
+			"Enabled": true
+		},
+		{
+			"Name": "GameFeatures",
 			"Enabled": true
 		},
 		{

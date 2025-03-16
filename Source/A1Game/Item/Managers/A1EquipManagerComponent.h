@@ -122,9 +122,6 @@ protected:
 public:
 	void Equip(EEquipmentSlotType EquipmentSlotType, UA1ItemInstance* ItemInstance);
 	void Unequip(EEquipmentSlotType EquipmentSlotType);
-
-	void EquipCurrentSlots();
-	void UnequipCurrentSlots();
 	
 public:
 	UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly)
@@ -147,20 +144,12 @@ public:
 	UAbilitySystemComponent* GetAbilitySystemComponent() const;
 	UA1EquipmentManagerComponent* GetEquipmentManager() const;
 
-	static EEquipmentSlotType ConvertToEquipmentSlotType(EWeaponHandType WeaponHandType, EEquipState EquipState);
-	//static EEquipmentSlotType ConvertToEquipmentSlotType(EWeaponHandType WeaponHandType, EWeaponSlotType WeaponSlotType);
-	//static EEquipmentSlotType ConvertToEquipmentSlotType(EArmorType ArmorType);
-	//static EEquipmentSlotType ConvertToEquipmentSlotType(EUtilitySlotType UtilitySlotType);
-	
-	static EWeaponSlotType ConvertToWeaponSlotType(EEquipmentSlotType EquipmentSlotType);
-	//static EWeaponHandType ConvertToWeaponHandType(EEquipmentSlotType EquipmentSlotType);
-	//static EArmorType ConvertToArmorType(EEquipmentSlotType EquipmentSlotType);
-	//static EUtilitySlotType ConvertToUtilitySlotType(EEquipmentSlotType EquipmentSlotType);
-	static EEquipState ConvertToEquipState(EWeaponSlotType WeaponSlotType);
-	//static EEquipState ConvertToEquipState(EUtilitySlotType UtilitySlotType);
+	static EEquipmentSlotType ConvertToEquipmentSlotType(EEquipState EquipState);
+	static EEquipmentSlotType ConvertToEquipmentSlotType(EItemHandType ItemHandType, EEquipState EquipState);
+	static EEquipmentSlotType ConvertToEquipmentSlotType(EItemHandType ItemHandType);
 
-	static bool IsWeaponEquipState(EEquipState EquipState);
-	static bool IsUtilityEquipState(EEquipState EquipState);
+	static EEquipState ConvertToEquipState(EEquipmentSlotType EquipmentSlotType);
+	static EItemHandType ConvertToItemHandType(EEquipmentSlotType EquipmentSlotType);
 
 	static const TArray<EEquipmentSlotType>& GetEquipmentSlotsByEquipState(EEquipState EquipState);
 	
@@ -170,13 +159,9 @@ public:
 	bool ShouldHiddenEquipments() const { return bShouldHiddenEquipments; }
 	EEquipState GetCurrentEquipState() const { return CurrentEquipState; }
 	
-	AA1EquipmentBase* GetFirstEquippedActor() const;
-	AA1EquipmentBase* GetEquippedActor(EWeaponHandType WeaponHandType) const;
-	void GetAllEquippedActors(TArray<AA1EquipmentBase*>& OutActors) const;
+	AA1EquipmentBase* GetEquippedActor(EItemHandType WeaponHandType) const;
 
-	UA1ItemInstance* GetFirstEquippedItemInstance(bool bIgnoreArmor = true) const;
-	//UA1ItemInstance* GetEquippedItemInstance(EArmorType ArmorType) const;
-	UA1ItemInstance* GetEquippedItemInstance(EWeaponHandType WeaponHandType) const;
+	UA1ItemInstance* GetEquippedItemInstance(EItemHandType WeaponHandType) const;
 	UA1ItemInstance* GetEquippedItemInstance(EEquipmentSlotType EquipmentSlotType) const;
 
 public:

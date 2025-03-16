@@ -15,6 +15,7 @@ class ULyraPawnData;
 class UA1CharacterData;
 class UA1ItemData;
 class UA1AssetData;
+class UA1UIData;
 
 struct FLyraBundles
 {
@@ -61,6 +62,7 @@ public:
 	const UA1CharacterData& GetCharacterData();
 	const UA1ItemData& GetItemData();
 	const UA1AssetData& GetAssetData();
+	const UA1UIData& GetUIData();
 
 protected:
 	template <typename GameDataClass>
@@ -74,7 +76,6 @@ protected:
 		// Does a blocking load if needed
 		return *CastChecked<const GameDataClass>(LoadGameDataOfClass(GameDataClass::StaticClass(), DataPath, GameDataClass::StaticClass()->GetFName()));
 	}
-
 
 	static UObject* SynchronousLoadAsset(const FSoftObjectPath& AssetPath);
 	static bool ShouldLogAssetLoads();
@@ -113,6 +114,9 @@ protected:
 
 	UPROPERTY(Config)
 	TSoftObjectPtr<UA1AssetData> AssetDataPath;
+
+	UPROPERTY(Config)
+	TSoftObjectPtr<UA1UIData> UIDataPath;
 
 private:
 	// Flushes the StartupJobs array. Processes all startup work.
