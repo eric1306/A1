@@ -72,8 +72,8 @@ public:
 	//UPROPERTY(EditDefaultsOnly)
 	//TSubclassOf<UA1ItemHoverWidget> ItemHoverWidgetClass;
 
-	//UPROPERTY(EditDefaultsOnly)
-	//TSubclassOf<UA1EquipmentEntryWidget> EquipmentEntryWidgetClass;
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<UA1EquipmentEntryWidget> EquipmentEntryWidgetClass;
 
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<UA1InventorySlotWidget> InventorySlotWidgetClass;

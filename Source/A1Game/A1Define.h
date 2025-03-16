@@ -68,12 +68,11 @@ enum class EEquipState : uint8
 /*---------------------------------------
 *    Item이 가지고 있어야 할 정보
 ---------------------------------------*/
-// 현재 내가 주 장비인지 보조 장비인지
 UENUM(BlueprintType)
 enum class EItemSlotType : uint8
 {
-	Primary,
-	Secondary,
+	Left,
+	Right,
 
 	Count	UMETA(Hidden)
 };

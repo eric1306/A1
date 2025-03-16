@@ -13,7 +13,7 @@ class UA1ItemTemplate;
 class UA1EquipmentManagerComponent;
 class UA1InventoryManagerComponent;
 
-DECLARE_MULTICAST_DELEGATE_ThreeParams(FOnEquipmentEntryChanged, EEquipmentSlotType, UA1ItemInstance*, int32/*ItemCount*/);
+DECLARE_MULTICAST_DELEGATE_ThreeParams(FOnEquipmentEntryChanged, EEquipmentSlotType, UA1ItemInstance*, int32 ItemCount);
 
 USTRUCT(BlueprintType)
 struct FA1EquipmentEntry : public FFastArraySerializerItem
