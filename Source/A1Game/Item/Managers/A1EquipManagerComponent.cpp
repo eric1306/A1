@@ -228,14 +228,10 @@ void FA1EquipEntry::Unequip()
 			BaseStatHandle.Invalidate();
 		}
 		
-		// Despawn Real Weapon
-		if (UA1EquipmentManagerComponent::IsWeaponSlot(EquipmentSlotType) /* || UA1EquipmentManagerComponent::IsUtilitySlot(EquipmentSlotType)*/)
+		if (IsValid(SpawnedEquipmentActor))
 		{
-			if (IsValid(SpawnedEquipmentActor))
-			{
-				SpawnedEquipmentActor->Destroy();
-			}
-		}
+			SpawnedEquipmentActor->Destroy();
+		}	
 	}
 	else
 	{
@@ -600,14 +596,7 @@ EEquipmentSlotType UA1EquipManagerComponent::ConvertToEquipmentSlotType(EItemHan
 		}
 	}
 	else
-	{
-		switch (ItemHandType)
-		{
-		case EItemHandType::LeftHand:  EquipmentSlotType = EEquipmentSlotType::LeftHand;  break;
-		case EItemHandType::RightHand: EquipmentSlotType = EEquipmentSlotType::RightHand; break;
-		case EItemHandType::TwoHand:   EquipmentSlotType = EEquipmentSlotType::TwoHand;   break;
-		}
-	}
+		EquipmentSlotType = ConvertToEquipmentSlotType(ItemHandType);
 
 	return EquipmentSlotType;
 }
@@ -621,6 +610,19 @@ EEquipmentSlotType UA1EquipManagerComponent::ConvertToEquipmentSlotType(EItemHan
 	case EItemHandType::LeftHand:  EquipmentSlotType = EEquipmentSlotType::LeftHand;  break;
 	case EItemHandType::RightHand: EquipmentSlotType = EEquipmentSlotType::RightHand; break;
 	case EItemHandType::TwoHand:   EquipmentSlotType = EEquipmentSlotType::TwoHand;   break;
+	}
+
+	return EquipmentSlotType;
+}
+
+EEquipmentSlotType UA1EquipManagerComponent::ConvertToEquipmentSlotType(EItemSlotType ItemSlotType)
+{
+	EEquipmentSlotType EquipmentSlotType = EEquipmentSlotType::Count;
+
+	switch (ItemSlotType)
+	{
+	case EItemSlotType::Left:  EquipmentSlotType = EEquipmentSlotType::LeftHand;  break;
+	case EItemSlotType::Right: EquipmentSlotType = EEquipmentSlotType::RightHand; break;
 	}
 
 	return EquipmentSlotType;

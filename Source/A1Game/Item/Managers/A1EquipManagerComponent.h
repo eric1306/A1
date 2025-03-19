@@ -147,6 +147,7 @@ public:
 	static EEquipmentSlotType ConvertToEquipmentSlotType(EEquipState EquipState);
 	static EEquipmentSlotType ConvertToEquipmentSlotType(EItemHandType ItemHandType, EEquipState EquipState);
 	static EEquipmentSlotType ConvertToEquipmentSlotType(EItemHandType ItemHandType);
+	static EEquipmentSlotType ConvertToEquipmentSlotType(EItemSlotType ItemSlotType);
 
 	static EEquipState ConvertToEquipState(EEquipmentSlotType EquipmentSlotType);
 	static EItemHandType ConvertToItemHandType(EEquipmentSlotType EquipmentSlotType);

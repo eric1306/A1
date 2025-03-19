@@ -564,23 +564,18 @@ int32 UA1EquipmentManagerComponent::CanAddEquipment(int32 ItemTemplateID, EItemR
 	}
 	else
 	{
-		if (FromEquippableFragment->EquipmentType == EEquipmentType::Weapon)
+		const UA1ItemFragment_Equipable_Attachment* FromItemFragment = Cast<UA1ItemFragment_Equipable_Attachment>(FromEquippableFragment);
+		EEquipmentSlotType FromEquipSlotType = UA1EquipManagerComponent::ConvertToEquipmentSlotType(FromItemFragment->ItemHandType);
+
+		if(FromEquipSlotType == EEquipmentSlotType::LeftHand || FromEquipSlotType == EEquipmentSlotType::RightHand)
 		{
-			const UA1ItemFragment_Equipable_Weapon* FromWeaponFragment = Cast<UA1ItemFragment_Equipable_Weapon>(FromEquippableFragment);
-			EItemHandType FromWeaponHandType = FromWeaponFragment->ItemHandType;
-		
-			if (IsWeaponSlot(ToEquipmentSlotType))
-			{
-				if (FromWeaponHandType == EItemHandType::LeftHand || FromWeaponHandType == EItemHandType::RightHand)
-				{
-					return (GetItemInstance(EEquipmentSlotType::TwoHand) == nullptr) ? ItemCount : 0;
-				}
-				else if (FromWeaponHandType == EItemHandType::TwoHand)
-				{
-					return (GetItemInstance(EEquipmentSlotType::LeftHand) == nullptr && GetItemInstance(EEquipmentSlotType::RightHand) == nullptr) ? ItemCount : 0;
-				}
-			}
+			return ((GetItemInstance(EEquipmentSlotType::TwoHand) == nullptr) && (FromEquipSlotType == ToEquipmentSlotType)) ? ItemCount : 0;
 		}
+		if (FromEquipSlotType == EEquipmentSlotType::TwoHand)
+		{
+			return (GetItemInstance(EEquipmentSlotType::LeftHand) == nullptr && GetItemInstance(EEquipmentSlotType::RightHand) == nullptr) ? ItemCount : 0;
+		}
+		
 		//else if (FromEquippableFragment->EquipmentType == EEquipmentType::Utility)
 		//{
 		//	return IsUtilitySlot(ToEquipmentSlotType) ? ItemCount : 0;
@@ -673,18 +668,17 @@ void UA1EquipmentManagerComponent::SetEquipment(EEquipmentSlotType EquipmentSlot
 		const UA1ItemFragment_Equipable_Weapon* WeaponFragment = Cast<UA1ItemFragment_Equipable_Weapon>(EquippableFragment);
 		EItemHandType ItemHandType = WeaponFragment->ItemHandType;
 
-		if (IsWeaponSlot(EquipmentSlotType))
+
+		if (ItemHandType == EItemHandType::LeftHand || ItemHandType == EItemHandType::RightHand)
 		{
-			if (ItemHandType == EItemHandType::LeftHand || ItemHandType == EItemHandType::RightHand)
-			{
-				RemoveEquipment_Unsafe(EEquipmentSlotType::TwoHand, 1);
-			}
-			else if (ItemHandType == EItemHandType::TwoHand)
-			{
-				RemoveEquipment_Unsafe(EEquipmentSlotType::LeftHand, 1);
-				RemoveEquipment_Unsafe(EEquipmentSlotType::RightHand, 1);
-			}
+			RemoveEquipment_Unsafe(EEquipmentSlotType::TwoHand, 1);
 		}
+		else if (ItemHandType == EItemHandType::TwoHand)
+		{
+			RemoveEquipment_Unsafe(EEquipmentSlotType::LeftHand, 1);
+			RemoveEquipment_Unsafe(EEquipmentSlotType::RightHand, 1);
+		}
+		
 	}
 
 	UA1ItemInstance* AddedItemInstance = NewObject<UA1ItemInstance>();
@@ -706,11 +700,6 @@ void UA1EquipmentManagerComponent::SetEquipment(EEquipmentSlotType EquipmentSlot
 	}
 
 	EquipmentList.MarkItemDirty(Entry);
-}
-
-bool UA1EquipmentManagerComponent::IsWeaponSlot(EEquipmentSlotType EquipmentSlotType)
-{
-	return (EEquipmentSlotType::Unarmed_LeftHand <= EquipmentSlotType && EquipmentSlotType <= EEquipmentSlotType::TwoHand);
 }
 
 bool UA1EquipmentManagerComponent::IsSameEquipState(EEquipmentSlotType EquipmentSlotType, EEquipState WeaponEquipState)
@@ -739,9 +728,6 @@ const UA1ItemInstance* UA1EquipmentManagerComponent::FindPairItemInstance(const 
 		const TArray<FA1EquipmentEntry>& Entries = EquipmentList.GetAllEntries();
 		for (int32 i = 0; i < (int32)EEquipmentSlotType::Count; i++)
 		{
-			if (IsWeaponSlot((EEquipmentSlotType)i) == false)
-				continue;
-		
 			const FA1EquipmentEntry& Entry = Entries[i];
 			if (UA1ItemInstance* ItemInstance = Entry.ItemInstance)
 			{
@@ -860,9 +846,6 @@ void UA1EquipmentManagerComponent::GetAllWeaponItemInstances(TArray<UA1ItemInsta
 
 	for (int32 i = 0; i < (int32)EEquipmentSlotType::Count; i++)
 	{
-		if (IsWeaponSlot((EEquipmentSlotType)i) == false)
-			continue;
-		
 		const FA1EquipmentEntry& Entry = Entries[i];
 		if (Entry.ItemInstance)
 		{
