@@ -66,8 +66,8 @@ public:
 	FIntPoint UnitInventorySlotSize = FIntPoint::ZeroValue;
 
 public:
-	//UPROPERTY(EditDefaultsOnly)
-	//TSubclassOf<UA1ItemDragWidget> DragWidgetClass;
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<UA1ItemDragWidget> DragWidgetClass;
 
 	//UPROPERTY(EditDefaultsOnly)
 	//TSubclassOf<UA1ItemHoverWidget> ItemHoverWidgetClass;

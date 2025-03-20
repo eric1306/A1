@@ -130,21 +130,11 @@ public:
 	void SetEquipment(EEquipmentSlotType EquipmentSlotType, TSubclassOf<UA1ItemTemplate> ItemTemplateClass, EItemRarity ItemRarity, int32 ItemCount);
 	
 public:
-	static bool IsWeaponSlot(EEquipmentSlotType EquipmentSlotType);
-	//static bool IsArmorSlot(EEquipmentSlotType EquipmentSlotType);
-	//static bool IsUtilitySlot(EEquipmentSlotType EquipmentSlotType);
-	
-	static bool IsSameEquipState(EEquipmentSlotType EquipmentSlotType, EEquipState WeaponEquipState);
-	//static bool IsSameWeaponHandType(EEquipmentSlotType EquipmentSlotType, EWeaponHandType WeaponHandType);
-	//static bool IsSameArmorType(EEquipmentSlotType EquipmentSlotType, EArmorType ArmorType);
-	
-	//static bool IsPrimaryWeaponSlot(EEquipmentSlotType EquipmentSlotType);
-	//static bool IsSecondaryWeaponSlot(EEquipmentSlotType EquipmentSlotType);
-
 	const UA1ItemInstance* FindPairItemInstance(const UA1ItemInstance* InBaseItemInstance, EEquipmentSlotType& OutEquipmentSlotType) const;
-	
+	static bool IsSameEquipState(EEquipmentSlotType EquipmentSlotType, EEquipState WeaponEquipState);
 	bool IsAllEmpty(EEquipState EquipState) const;
 
+public:
 	ALyraCharacter* GetCharacter() const;
 	ALyraPlayerController* GetPlayerController() const;
 	UA1EquipManagerComponent* GetEquipManager() const;

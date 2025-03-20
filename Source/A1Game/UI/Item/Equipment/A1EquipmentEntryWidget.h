@@ -21,6 +21,10 @@ public:
 	void Init(UA1ItemInstance* InItemInstance, int32 InItemCount, EEquipmentSlotType InEquipmentSlotType, UA1EquipmentManagerComponent* InEquipmentManager);
 
 protected:
+	virtual void NativeOnDragDetected(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent, UDragDropOperation*& OutOperation) override;
+	virtual FReply NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
+
+protected:
 
 protected:
 	UPROPERTY()

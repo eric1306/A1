@@ -46,10 +46,13 @@ private:
 	void ConstructUI(FGameplayTag Channel, const FInventoryInitializeMessage& Message);
 	void DestructUI();
 
+	void ResetValidSlots();
+	void FinishDrag();
 	void OnInventoryEntryChanged(const FIntPoint& InItemSlotPos, UA1ItemInstance* InItemInstance, int32 InItemCount);
 
 public:
 	UA1InventoryManagerComponent* GetInventoryManager() const { return InventoryManager; }
+	const FGeometry& GetSlotContainerGeometry() const;
 
 public:
 	UPROPERTY(EditAnywhere, meta = (Categories = "Message"))
@@ -89,5 +92,6 @@ private:
 
 private:
 	FDelegateHandle EntryChangedDelegateHandle;
+	FIntPoint PrevDragOverSlotPos = FIntPoint(-1, -1);
 	FGameplayMessageListenerHandle MessageListenerHandle;
 };

@@ -10,9 +10,15 @@
 #include "Components/Overlay.h"
 #include "Components/TextBlock.h"
 #include "Components/UniformGridPanel.h"
-#include "Item/A1ItemInstance.h"
-#include "Item/Managers/A1InventoryManagerComponent.h"
+#include "Data/A1ItemData.h"
 #include "Data/A1UIData.h"
+#include "Item/A1ItemInstance.h"
+#include "Item/A1ItemTemplate.h"
+#include "Item/Managers/A1EquipmentManagerComponent.h"
+#include "Item/Managers/A1InventoryManagerComponent.h"
+#include "Item/Managers/A1ItemManagerComponent.h"
+#include "UI/Item/A1ItemDragDrop.h"
+#include "UI/Item/Equipment/A1EquipmentEntryWidget.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(A1InventorySlotsWidget)
 
@@ -49,16 +55,104 @@ void UA1InventorySlotsWidget::NativeDestruct()
 
 bool UA1InventorySlotsWidget::NativeOnDragOver(const FGeometry& InGeometry, const FDragDropEvent& InDragDropEvent, UDragDropOperation* InOperation)
 {
-	return false;
+	Super::NativeOnDragOver(InGeometry, InDragDropEvent, InOperation);
+
+	UA1ItemDragDrop* DragDrop = Cast<UA1ItemDragDrop>(InOperation);
+	if (DragDrop == nullptr)
+		return false;
+
+	FIntPoint UnitInventorySlotSize = UA1UIData::Get().UnitInventorySlotSize;
+
+	FVector2D MouseWidgetPos = GetSlotContainerGeometry().AbsoluteToLocal(InDragDropEvent.GetScreenSpacePosition());
+	FVector2D ToWidgetPos = MouseWidgetPos - DragDrop->DeltaWidgetPos;
+	FIntPoint ToItemSlotPos = FIntPoint(ToWidgetPos.X / UnitInventorySlotSize.X, ToWidgetPos.Y / UnitInventorySlotSize.Y);
+
+	if (PrevDragOverSlotPos == ToItemSlotPos)
+		return true;
+
+	PrevDragOverSlotPos = ToItemSlotPos;
+
+	UA1ItemEntryWidget* FromEntryWidget = DragDrop->FromEntryWidget;
+	UA1ItemInstance* FromItemInstance = FromEntryWidget->GetItemInstance();
+	if (FromItemInstance == nullptr)
+		return false;
+
+	const UA1ItemTemplate& FromItemTemplate = UA1ItemData::Get().FindItemTemplateByID(FromItemInstance->GetItemTemplateID());
+	const FIntPoint& FromItemSlotCount = FromItemTemplate.SlotCount;
+
+	int32 MovableCount = 0;
+	if (UA1InventoryManagerComponent* FromInventoryManager = DragDrop->FromInventoryManager)
+	{
+		MovableCount = InventoryManager->CanMoveOrMergeItem(FromInventoryManager, DragDrop->FromItemSlotPos, ToItemSlotPos);
+	}
+	else if (UA1EquipmentManagerComponent* FromEquipmentManager = DragDrop->FromEquipmentManager)
+	{
+		MovableCount = InventoryManager->CanMoveOrMergeItem(FromEquipmentManager, DragDrop->FromEquipmentSlotType, ToItemSlotPos);
+	}
+
+	ResetValidSlots();
+
+	const FIntPoint& InventorySlotCount = InventoryManager->GetInventorySlotCount();
+
+	const FIntPoint StartSlotPos = FIntPoint(FMath::Max(0, ToItemSlotPos.X), FMath::Max(0, ToItemSlotPos.Y));
+	const FIntPoint EndSlotPos = FIntPoint(FMath::Min(ToItemSlotPos.X + FromItemSlotCount.X, InventorySlotCount.X),
+		FMath::Min(ToItemSlotPos.Y + FromItemSlotCount.Y, InventorySlotCount.Y));
+
+	ESlotState SlotState = (MovableCount > 0) ? ESlotState::Valid : ESlotState::Invalid;
+	for (int32 y = StartSlotPos.Y; y < EndSlotPos.Y; y++)
+	{
+		for (int32 x = StartSlotPos.X; x < EndSlotPos.X; x++)
+		{
+			int32 Index = y * InventorySlotCount.X + x;
+			if (UA1InventoryValidWidget* ValidWidget = ValidWidgets[Index])
+			{
+				ValidWidget->ChangeSlotState(SlotState);
+			}
+		}
+	}
+	return true;
 }
 
 void UA1InventorySlotsWidget::NativeOnDragLeave(const FDragDropEvent& InDragDropEvent, UDragDropOperation* InOperation)
 {
+	Super::NativeOnDragLeave(InDragDropEvent, InOperation);
+
+	FinishDrag();
 }
 
 bool UA1InventorySlotsWidget::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent& InDragDropEvent, UDragDropOperation* InOperation)
 {
-	return false;
+	Super::NativeOnDrop(InGeometry, InDragDropEvent, InOperation);
+
+	FinishDrag();
+
+	FIntPoint UnitInventorySlotSize = UA1UIData::Get().UnitInventorySlotSize;
+
+	UA1ItemDragDrop* DragDrop = Cast<UA1ItemDragDrop>(InOperation);
+	check(DragDrop);
+
+	UA1ItemEntryWidget* FromEntryWidget = DragDrop->FromEntryWidget;
+	FromEntryWidget->RefreshWidgetOpacity(true);
+
+	FVector2D MouseWidgetPos = GetSlotContainerGeometry().AbsoluteToLocal(InDragDropEvent.GetScreenSpacePosition());
+	FVector2D ToWidgetPos = MouseWidgetPos - DragDrop->DeltaWidgetPos;
+	FIntPoint ToItemSlotPos = FIntPoint(ToWidgetPos.X / UnitInventorySlotSize.X, ToWidgetPos.Y / UnitInventorySlotSize.Y);
+
+	DragDrop->ToInventoryManager = InventoryManager;
+	DragDrop->ToItemSlotPos = ToItemSlotPos;
+
+	UA1ItemManagerComponent* ItemManager = GetOwningPlayer()->FindComponentByClass<UA1ItemManagerComponent>();
+	check(ItemManager);
+
+	if (UA1InventoryManagerComponent* FromInventoryManager = DragDrop->FromInventoryManager)
+	{
+		ItemManager->Server_InventoryToInventory(FromInventoryManager, DragDrop->FromItemSlotPos, InventoryManager, ToItemSlotPos);
+	}
+	else if (UA1EquipmentManagerComponent* FromEquipmentManager = DragDrop->FromEquipmentManager)
+	{
+		ItemManager->Server_EquipmentToInventory(FromEquipmentManager, DragDrop->FromEquipmentSlotType, InventoryManager, ToItemSlotPos);
+	}
+	return true;
 }
 
 void UA1InventorySlotsWidget::ConstructUI(FGameplayTag Channel, const FInventoryInitializeMessage& Message)
@@ -119,6 +213,23 @@ void UA1InventorySlotsWidget::DestructUI()
 	SlotWidgets.Reset();
 }
 
+void UA1InventorySlotsWidget::ResetValidSlots()
+{
+	for (UA1InventoryValidWidget* ValidWidget : ValidWidgets)
+	{
+		if (ValidWidget)
+		{
+			ValidWidget->ChangeSlotState(ESlotState::Default);
+		}
+	}
+}
+
+void UA1InventorySlotsWidget::FinishDrag()
+{
+	ResetValidSlots();
+	PrevDragOverSlotPos = FIntPoint(-1, -1);
+}
+
 void UA1InventorySlotsWidget::OnInventoryEntryChanged(const FIntPoint& InItemSlotPos, UA1ItemInstance* InItemInstance, int32 InItemCount)
 {
 	const FIntPoint& InventorySlotCount = InventoryManager->GetInventorySlotCount();
@@ -150,4 +261,9 @@ void UA1InventorySlotsWidget::OnInventoryEntryChanged(const FIntPoint& InItemSlo
 		CanvasPanelSlot->SetAutoSize(true);
 		CanvasPanelSlot->SetPosition(FVector2D(InItemSlotPos.X * UnitInventorySlotSize.X, InItemSlotPos.Y * UnitInventorySlotSize.Y));
 	}
+}
+
+const FGeometry& UA1InventorySlotsWidget::GetSlotContainerGeometry() const
+{
+	return Overlay_Slots->GetCachedGeometry();
 }

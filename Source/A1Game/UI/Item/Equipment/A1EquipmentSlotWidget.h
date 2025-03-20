@@ -33,7 +33,6 @@ protected:
 
 public:
 	void OnEquipmentEntryChange(EItemHandType InItemHandType, UA1ItemInstance* InItemInstance, int32 InItemCount);
-	void Test(UA1ItemInstance* InItemInstance);
 
 protected:
 	UPROPERTY()
