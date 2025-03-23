@@ -238,7 +238,7 @@ void UA1InventorySlotsWidget::OnInventoryEntryChanged(const FIntPoint& InItemSlo
 	if (UA1InventoryEntryWidget* EntryWidget = EntryWidgets[SlotIndex])
 	{
 		UA1ItemInstance* ItemInstance = EntryWidget->GetItemInstance();
-		if (ItemInstance && ItemInstance == ItemInstance)
+		if (ItemInstance && ItemInstance == InItemInstance)
 		{
 			EntryWidget->RefreshItemCount(InItemCount);
 			return;
