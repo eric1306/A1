@@ -73,7 +73,9 @@ public class A1Game : ModuleRules
 				"AudioModulation",
 				"EngineSettings",
 				"DTLSHandlerComponent",
-			}
+                "NiagaraAnimNotifies",
+				"GameplayCameras",
+            }
 		);
 
 		DynamicallyLoadedModuleNames.AddRange(

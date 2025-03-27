@@ -224,4 +224,7 @@ private:
 
 	UFUNCTION()
 	void OnRep_MyTeamID(FGenericTeamId OldTeamID);
+
+//public:
+//	virtual void GetMeshComponents(TArray<UMeshComponent*>& OutMeshComponents) const override;
 };
