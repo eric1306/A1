@@ -1,8 +1,7 @@
-// Copyright Epic Games, Inc. All Rights Reserved.
+#include "A1VitalSet.h"
 
-#include "LyraHealthSet.h"
-#include "AbilitySystem/Attributes/LyraAttributeSet.h"
-#include "LyraGameplayTags.h"
+#include "A1GameplayTags.h"
+#include "AbilitySystem/Attributes/A1AttributeSet.h"
 #include "Net/UnrealNetwork.h"
 #include "AbilitySystem/LyraAbilitySystemComponent.h"
 #include "Engine/World.h"
@@ -10,7 +9,7 @@
 #include "Messages/LyraVerbMessage.h"
 #include "GameFramework/GameplayMessageSubsystem.h"
 
-#include UE_INLINE_GENERATED_CPP_BY_NAME(LyraHealthSet)
+#include UE_INLINE_GENERATED_CPP_BY_NAME(A1VitalSet)
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_Gameplay_Damage, "Gameplay.Damage");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Gameplay_DamageImmunity, "Gameplay.DamageImmunity");
@@ -18,37 +17,33 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_Gameplay_DamageSelfDestruct, "Gameplay.Damage.SelfDes
 UE_DEFINE_GAMEPLAY_TAG(TAG_Gameplay_FellOutOfWorld, "Gameplay.Damage.FellOutOfWorld");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Lyra_Damage_Message, "Lyra.Damage.Message");
 
-ULyraHealthSet::ULyraHealthSet()
-	: Health(100.0f)
-	, MaxHealth(100.0f)
+UA1VitalSet::UA1VitalSet()
 {
 	bOutOfHealth = false;
 	MaxHealthBeforeAttributeChange = 0.0f;
 	HealthBeforeAttributeChange = 0.0f;
 }
 
-void ULyraHealthSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+void UA1VitalSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-	DOREPLIFETIME_CONDITION_NOTIFY(ULyraHealthSet, Health, COND_None, REPNOTIFY_Always);
-	DOREPLIFETIME_CONDITION_NOTIFY(ULyraHealthSet, MaxHealth, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(ThisClass, Health, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(ThisClass, MaxHealth, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(ThisClass, Oxygen, COND_OwnerOnly, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(ThisClass, MaxOxygen, COND_OwnerOnly, REPNOTIFY_Always);
 }
 
-void ULyraHealthSet::OnRep_Health(const FGameplayAttributeData& OldValue)
+void UA1VitalSet::OnRep_Health(const FGameplayAttributeData& OldValue)
 {
-	GAMEPLAYATTRIBUTE_REPNOTIFY(ULyraHealthSet, Health, OldValue);
-
-	// Call the change callback, but without an instigator
-	// This could be changed to an explicit RPC in the future
-	// These events on the client should not be changing attributes
+	GAMEPLAYATTRIBUTE_REPNOTIFY(ThisClass, Health, OldValue);
 
 	const float CurrentHealth = GetHealth();
 	const float EstimatedMagnitude = CurrentHealth - OldValue.GetCurrentValue();
 	
 	OnHealthChanged.Broadcast(nullptr, nullptr, nullptr, EstimatedMagnitude, OldValue.GetCurrentValue(), CurrentHealth);
 
-	if (!bOutOfHealth && CurrentHealth <= 0.0f)
+	if (bOutOfHealth == false && CurrentHealth <= 0.0f)
 	{
 		OnOutOfHealth.Broadcast(nullptr, nullptr, nullptr, EstimatedMagnitude, OldValue.GetCurrentValue(), CurrentHealth);
 	}
@@ -56,56 +51,57 @@ void ULyraHealthSet::OnRep_Health(const FGameplayAttributeData& OldValue)
 	bOutOfHealth = (CurrentHealth <= 0.0f);
 }
 
-void ULyraHealthSet::OnRep_MaxHealth(const FGameplayAttributeData& OldValue)
+void UA1VitalSet::OnRep_MaxHealth(const FGameplayAttributeData& OldValue)
 {
-	GAMEPLAYATTRIBUTE_REPNOTIFY(ULyraHealthSet, MaxHealth, OldValue);
-
-	// Call the change callback, but without an instigator
-	// This could be changed to an explicit RPC in the future
+	GAMEPLAYATTRIBUTE_REPNOTIFY(ThisClass, MaxHealth, OldValue);
+	
 	OnMaxHealthChanged.Broadcast(nullptr, nullptr, nullptr, GetMaxHealth() - OldValue.GetCurrentValue(), OldValue.GetCurrentValue(), GetMaxHealth());
 }
 
-bool ULyraHealthSet::PreGameplayEffectExecute(FGameplayEffectModCallbackData &Data)
+void UA1VitalSet::OnRep_Oxygen(const FGameplayAttributeData& OldValue)
 {
-	if (!Super::PreGameplayEffectExecute(Data))
-	{
-		return false;
-	}
+	GAMEPLAYATTRIBUTE_REPNOTIFY(ThisClass, Oxygen, OldValue);
+}
 
-	// Handle modifying incoming normal damage
-	if (Data.EvaluatedData.Attribute == GetDamageAttribute())
+void UA1VitalSet::OnRep_MaxOxygen(const FGameplayAttributeData& OldValue)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(ThisClass, MaxOxygen, OldValue);
+}
+
+bool UA1VitalSet::PreGameplayEffectExecute(FGameplayEffectModCallbackData& Data)
+{
+	if (Super::PreGameplayEffectExecute(Data) == false)
+		return false;
+	
+	if (Data.EvaluatedData.Attribute == GetIncomingDamageAttribute())
 	{
 		if (Data.EvaluatedData.Magnitude > 0.0f)
 		{
 			const bool bIsDamageFromSelfDestruct = Data.EffectSpec.GetDynamicAssetTags().HasTagExact(TAG_Gameplay_DamageSelfDestruct);
 
-			if (Data.Target.HasMatchingGameplayTag(TAG_Gameplay_DamageImmunity) && !bIsDamageFromSelfDestruct)
+			if (Data.Target.HasMatchingGameplayTag(TAG_Gameplay_DamageImmunity) && bIsDamageFromSelfDestruct == false)
 			{
-				// Do not take away any health.
 				Data.EvaluatedData.Magnitude = 0.0f;
 				return false;
 			}
 
 #if !UE_BUILD_SHIPPING
-			// Check GodMode cheat, unlimited health is checked below
-			if (Data.Target.HasMatchingGameplayTag(LyraGameplayTags::Cheat_GodMode) && !bIsDamageFromSelfDestruct)
+			if (Data.Target.HasMatchingGameplayTag(A1GameplayTags::Cheat_GodMode) && bIsDamageFromSelfDestruct == false)
 			{
-				// Do not take away any health.
 				Data.EvaluatedData.Magnitude = 0.0f;
 				return false;
 			}
 #endif // #if !UE_BUILD_SHIPPING
 		}
 	}
-
-	// Save the current health
+	
 	HealthBeforeAttributeChange = GetHealth();
 	MaxHealthBeforeAttributeChange = GetMaxHealth();
-
+	
 	return true;
 }
 
-void ULyraHealthSet::PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data)
+void UA1VitalSet::PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data)
 {
 	Super::PostGameplayEffectExecute(Data);
 
@@ -113,9 +109,8 @@ void ULyraHealthSet::PostGameplayEffectExecute(const FGameplayEffectModCallbackD
 	float MinimumHealth = 0.0f;
 
 #if !UE_BUILD_SHIPPING
-	// Godmode and unlimited health stop death unless it's a self destruct
-	if (!bIsDamageFromSelfDestruct &&
-		(Data.Target.HasMatchingGameplayTag(LyraGameplayTags::Cheat_GodMode) || Data.Target.HasMatchingGameplayTag(LyraGameplayTags::Cheat_UnlimitedHealth) ))
+	if (bIsDamageFromSelfDestruct == false &&
+		(Data.Target.HasMatchingGameplayTag(A1GameplayTags::Cheat_GodMode) || Data.Target.HasMatchingGameplayTag(A1GameplayTags::Cheat_UnlimitedHealth)))
 	{
 		MinimumHealth = 1.0f;
 	}
@@ -124,10 +119,9 @@ void ULyraHealthSet::PostGameplayEffectExecute(const FGameplayEffectModCallbackD
 	const FGameplayEffectContextHandle& EffectContext = Data.EffectSpec.GetEffectContext();
 	AActor* Instigator = EffectContext.GetOriginalInstigator();
 	AActor* Causer = EffectContext.GetEffectCauser();
-
-	if (Data.EvaluatedData.Attribute == GetDamageAttribute())
+	
+	if (Data.EvaluatedData.Attribute == GetIncomingDamageAttribute())
 	{
-		// Send a standardized verb message that other systems can observe
 		if (Data.EvaluatedData.Magnitude > 0.0f)
 		{
 			FLyraVerbMessage Message;
@@ -136,79 +130,87 @@ void ULyraHealthSet::PostGameplayEffectExecute(const FGameplayEffectModCallbackD
 			Message.InstigatorTags = *Data.EffectSpec.CapturedSourceTags.GetAggregatedTags();
 			Message.Target = GetOwningActor();
 			Message.TargetTags = *Data.EffectSpec.CapturedTargetTags.GetAggregatedTags();
-			//@TODO: Fill out context tags, and any non-ability-system source/instigator tags
-			//@TODO: Determine if it's an opposing team kill, self-own, team kill, etc...
 			Message.Magnitude = Data.EvaluatedData.Magnitude;
 
 			UGameplayMessageSubsystem& MessageSystem = UGameplayMessageSubsystem::Get(GetWorld());
 			MessageSystem.BroadcastMessage(Message.Verb, Message);
 		}
-
-		// Convert into -Health and then clamp
-		SetHealth(FMath::Clamp(GetHealth() - GetDamage(), MinimumHealth, GetMaxHealth()));
-		SetDamage(0.0f);
+		
+		SetHealth(FMath::Clamp(GetHealth() - GetIncomingDamage(), MinimumHealth, GetMaxHealth()));
+		SetIncomingDamage(0.0f);
 	}
-	else if (Data.EvaluatedData.Attribute == GetHealingAttribute())
+	else if (Data.EvaluatedData.Attribute == GetIncomingHealthAttribute())
 	{
-		// Convert into +Health and then clamo
-		SetHealth(FMath::Clamp(GetHealth() + GetHealing(), MinimumHealth, GetMaxHealth()));
-		SetHealing(0.0f);
+		SetHealth(FMath::Clamp(GetHealth() + GetIncomingHealth(), MinimumHealth, GetMaxHealth()));
+		SetIncomingHealth(0.0f);
+	}
+	else if (Data.EvaluatedData.Attribute == GetIncomingOxygenAttribute())
+	{
+		SetOxygen(FMath::Clamp(GetOxygen() + GetIncomingOxygen(), 0.0f, GetMaxOxygen()));
+		SetIncomingOxygen(0.0f);
 	}
 	else if (Data.EvaluatedData.Attribute == GetHealthAttribute())
 	{
-		// Clamp and fall into out of health handling below
 		SetHealth(FMath::Clamp(GetHealth(), MinimumHealth, GetMaxHealth()));
+	}
+	else if (Data.EvaluatedData.Attribute == GetOxygenAttribute())
+	{
+		SetOxygen(FMath::Clamp(GetOxygen(), 0.f, GetMaxOxygen()));
 	}
 	else if (Data.EvaluatedData.Attribute == GetMaxHealthAttribute())
 	{
-		// TODO clamp current health?
-
-		// Notify on any requested max health changes
 		OnMaxHealthChanged.Broadcast(Instigator, Causer, &Data.EffectSpec, Data.EvaluatedData.Magnitude, MaxHealthBeforeAttributeChange, GetMaxHealth());
 	}
-
-	// If health has actually changed activate callbacks
+	
 	if (GetHealth() != HealthBeforeAttributeChange)
 	{
 		OnHealthChanged.Broadcast(Instigator, Causer, &Data.EffectSpec, Data.EvaluatedData.Magnitude, HealthBeforeAttributeChange, GetHealth());
 	}
 
-	if ((GetHealth() <= 0.0f) && !bOutOfHealth)
+	if ((GetHealth() <= 0.0f) && bOutOfHealth == false)
 	{
 		OnOutOfHealth.Broadcast(Instigator, Causer, &Data.EffectSpec, Data.EvaluatedData.Magnitude, HealthBeforeAttributeChange, GetHealth());
 	}
 
-	// Check health again in case an event above changed it.
 	bOutOfHealth = (GetHealth() <= 0.0f);
 }
 
-void ULyraHealthSet::PreAttributeBaseChange(const FGameplayAttribute& Attribute, float& NewValue) const
+void UA1VitalSet::PreAttributeBaseChange(const FGameplayAttribute& Attribute, float& NewValue) const
 {
 	Super::PreAttributeBaseChange(Attribute, NewValue);
 
 	ClampAttribute(Attribute, NewValue);
 }
 
-void ULyraHealthSet::PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue)
+void UA1VitalSet::PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue)
 {
 	Super::PreAttributeChange(Attribute, NewValue);
 
 	ClampAttribute(Attribute, NewValue);
 }
 
-void ULyraHealthSet::PostAttributeChange(const FGameplayAttribute& Attribute, float OldValue, float NewValue)
+void UA1VitalSet::PostAttributeChange(const FGameplayAttribute& Attribute, float OldValue, float NewValue)
 {
 	Super::PostAttributeChange(Attribute, OldValue, NewValue);
 
 	if (Attribute == GetMaxHealthAttribute())
 	{
-		// Make sure current health is not greater than the new max health.
 		if (GetHealth() > NewValue)
 		{
 			ULyraAbilitySystemComponent* LyraASC = GetLyraAbilitySystemComponent();
 			check(LyraASC);
 
 			LyraASC->ApplyModToAttribute(GetHealthAttribute(), EGameplayModOp::Override, NewValue);
+		}
+	}
+	else if (Attribute == GetMaxOxygenAttribute())
+	{
+		if (GetOxygen() > NewValue)
+		{
+			ULyraAbilitySystemComponent* LyraASC = GetLyraAbilitySystemComponent();
+			check(LyraASC);
+
+			LyraASC->ApplyModToAttribute(GetOxygenAttribute(), EGameplayModOp::Override, NewValue);
 		}
 	}
 
@@ -218,17 +220,22 @@ void ULyraHealthSet::PostAttributeChange(const FGameplayAttribute& Attribute, fl
 	}
 }
 
-void ULyraHealthSet::ClampAttribute(const FGameplayAttribute& Attribute, float& NewValue) const
+void UA1VitalSet::ClampAttribute(const FGameplayAttribute& Attribute, float& NewValue) const
 {
 	if (Attribute == GetHealthAttribute())
 	{
-		// Do not allow health to go negative or above max health.
 		NewValue = FMath::Clamp(NewValue, 0.0f, GetMaxHealth());
 	}
 	else if (Attribute == GetMaxHealthAttribute())
 	{
-		// Do not allow max health to drop below 1.
+		NewValue = FMath::Max(NewValue, 1.0f);
+	}
+	else if (Attribute == GetOxygenAttribute())
+	{
+		NewValue = FMath::Clamp(NewValue, 0.0f, GetMaxOxygen());
+	}
+	else if (Attribute == GetMaxOxygenAttribute())
+	{
 		NewValue = FMath::Max(NewValue, 1.0f);
 	}
 }
-

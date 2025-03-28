@@ -74,7 +74,7 @@ EDataValidationResult UGameFeatureAction_AddAbilities::IsDataValid(FDataValidati
 		}
 
 		int32 AttributesIndex = 0;
-		for (const FLyraAttributeSetGrant& Attributes : Entry.GrantedAttributes)
+		for (const FA1AttributeSetGrant& Attributes : Entry.GrantedAttributes)
 		{
 			if (Attributes.AttributeSetType.IsNull())
 			{
@@ -190,7 +190,7 @@ void UGameFeatureAction_AddAbilities::AddActorAbilities(AActor* Actor, const FGa
 			}
 		}
 
-		for (const FLyraAttributeSetGrant& Attributes : AbilitiesEntry.GrantedAttributes)
+		for (const FA1AttributeSetGrant& Attributes : AbilitiesEntry.GrantedAttributes)
 		{
 			if (!Attributes.AttributeSetType.IsNull())
 			{
