@@ -16,6 +16,7 @@
 #include "Player/LyraPlayerState.h"
 #include "System/LyraSignificanceManager.h"
 #include "TimerManager.h"
+//#include "Item/Managers/A1CosmeticManagerComponent.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(LyraCharacter)
 
@@ -680,3 +681,14 @@ bool FSharedRepMovement::NetSerialize(FArchive& Ar, class UPackageMap* Map, bool
 
 	return true;
 }
+
+// TODO : Interactable
+//void ALyraCharacter::GetMeshComponents(TArray<UMeshComponent*>& OutMeshComponents) const
+//{
+//	OutMeshComponents.Add(GetMesh());
+//
+//	if (UA1CosmeticManagerComponent* CosmeticManager = GetComponentByClass<UA1CosmeticManagerComponent>())
+//	{
+//		CosmeticManager->GetMeshComponents(OutMeshComponents);
+//	}
+//}
