@@ -4,7 +4,7 @@
 
 #include "Camera/LyraCameraAssistInterface.h"
 #include "CommonPlayerController.h"
-#include "Teams/LyraTeamAgentInterface.h"
+#include "Teams/A1TeamAgentInterface.h"
 
 #include "LyraPlayerController.generated.h"
 
@@ -28,7 +28,7 @@ struct FFrame;
  *	The base player controller class used by this project.
  */
 UCLASS(Config = Game, Meta = (ShortTooltip = "The base player controller class used by this project."))
-class A1GAME_API ALyraPlayerController : public ACommonPlayerController, public ILyraCameraAssistInterface, public ILyraTeamAgentInterface
+class A1GAME_API ALyraPlayerController : public ACommonPlayerController, public ILyraCameraAssistInterface, public IA1TeamAgentInterface
 {
 	GENERATED_BODY()
 
@@ -90,15 +90,15 @@ public:
 	virtual void OnCameraPenetratingTarget() override;
 	//~End of ILyraCameraAssistInterface interface
 	
-	//~ILyraTeamAgentInterface interface
+	//~IA1TeamAgentInterface interface
 	virtual void SetGenericTeamId(const FGenericTeamId& NewTeamID) override;
 	virtual FGenericTeamId GetGenericTeamId() const override;
-	virtual FOnLyraTeamIndexChangedDelegate* GetOnTeamIndexChangedDelegate() override;
-	//~End of ILyraTeamAgentInterface interface
+	virtual FOnA1TeamIndexChangedDelegate* GetOnTeamIndexChangedDelegate() override;
+	//~End of IA1TeamAgentInterface interface
 
 private:
 	UPROPERTY()
-	FOnLyraTeamIndexChangedDelegate OnTeamChangedDelegate;
+	FOnA1TeamIndexChangedDelegate OnTeamChangedDelegate;
 
 	UPROPERTY()
 	TObjectPtr<APlayerState> LastSeenPlayerState;

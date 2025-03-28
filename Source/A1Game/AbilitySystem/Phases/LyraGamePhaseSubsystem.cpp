@@ -13,7 +13,7 @@
 class ULyraGameplayAbility;
 class UObject;
 
-DEFINE_LOG_CATEGORY(LogLyraGamePhase);
+DEFINE_LOG_CATEGORY(LogA1GamePhase);
 
 //////////////////////////////////////////////////////////////////////
 // ULyraGamePhaseSubsystem
@@ -137,7 +137,7 @@ void ULyraGamePhaseSubsystem::OnBeginPhase(const ULyraGamePhaseAbility* PhaseAbi
 {
 	const FGameplayTag IncomingPhaseTag = PhaseAbility->GetGamePhaseTag();
 
-	UE_LOG(LogLyraGamePhase, Log, TEXT("Beginning Phase '%s' (%s)"), *IncomingPhaseTag.ToString(), *GetNameSafe(PhaseAbility));
+	UE_LOG(LogA1GamePhase, Log, TEXT("Beginning Phase '%s' (%s)"), *IncomingPhaseTag.ToString(), *GetNameSafe(PhaseAbility));
 
 	const UWorld* World = GetWorld();
 	ULyraAbilitySystemComponent* GameState_ASC = World->GetGameState()->FindComponentByClass<ULyraAbilitySystemComponent>();
@@ -167,7 +167,7 @@ void ULyraGamePhaseSubsystem::OnBeginPhase(const ULyraGamePhaseAbility* PhaseAbi
 			// continue.  Similarly if we activated Game.GameOver, all the Game.Playing* phases would end.
 			if (!IncomingPhaseTag.MatchesTag(ActivePhaseTag))
 			{
-				UE_LOG(LogLyraGamePhase, Log, TEXT("\tEnding Phase '%s' (%s)"), *ActivePhaseTag.ToString(), *GetNameSafe(ActivePhaseAbility));
+				UE_LOG(LogA1GamePhase, Log, TEXT("\tEnding Phase '%s' (%s)"), *ActivePhaseTag.ToString(), *GetNameSafe(ActivePhaseAbility));
 
 				FGameplayAbilitySpecHandle HandleToEnd = ActivePhase->Handle;
 				GameState_ASC->CancelAbilitiesByFunc([HandleToEnd](const ULyraGameplayAbility* LyraAbility, FGameplayAbilitySpecHandle Handle) {
@@ -193,7 +193,7 @@ void ULyraGamePhaseSubsystem::OnBeginPhase(const ULyraGamePhaseAbility* PhaseAbi
 void ULyraGamePhaseSubsystem::OnEndPhase(const ULyraGamePhaseAbility* PhaseAbility, const FGameplayAbilitySpecHandle PhaseAbilityHandle)
 {
 	const FGameplayTag EndedPhaseTag = PhaseAbility->GetGamePhaseTag();
-	UE_LOG(LogLyraGamePhase, Log, TEXT("Ended Phase '%s' (%s)"), *EndedPhaseTag.ToString(), *GetNameSafe(PhaseAbility));
+	UE_LOG(LogA1GamePhase, Log, TEXT("Ended Phase '%s' (%s)"), *EndedPhaseTag.ToString(), *GetNameSafe(PhaseAbility));
 
 	const FLyraGamePhaseEntry& Entry = ActivePhaseMap.FindChecked(PhaseAbilityHandle);
 	Entry.PhaseEndedCallback.ExecuteIfBound(PhaseAbility);

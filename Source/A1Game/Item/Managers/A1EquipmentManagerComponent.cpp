@@ -55,11 +55,12 @@ UA1ItemInstance* FA1EquipmentEntry::Reset()
 	ItemInstance = nullptr;
 	ItemCount = 0;
 	
-	if (EquipmentManager->IsAllEmpty(EquipManager->GetCurrentEquipState()))
-	{
+	//한 손만 아이템을 들고 있을 때 아이템을 해제한 경우
+	if (EquipManager->GetCurrentEquipState() != EEquipState::Both)
 		EquipManager->ChangeEquipState(EEquipState::Unarmed);
-	}
-	
+	else
+		EquipManager->ChangeEquipState(EquipManager->ConvertToAnotherHand(EquipmentSlotType));
+
 	return RemovedItemInstance;
 }
 
@@ -172,7 +173,7 @@ int32 UA1EquipmentManagerComponent::CanMoveOrMergeEquipment(UA1EquipmentManagerC
 	if (OtherComponent == nullptr)
 		return 0;
 
-	if (FromEquipmentSlotType == EEquipmentSlotType::Unarmed_LeftHand || FromEquipmentSlotType == EEquipmentSlotType::Unarmed_RightHand || FromEquipmentSlotType == EEquipmentSlotType::Count)
+	if (FromEquipmentSlotType == EEquipmentSlotType::Count)
 		return 0;
 
 	const UA1ItemInstance* FromItemInstance = OtherComponent->GetItemInstance(FromEquipmentSlotType);
@@ -216,7 +217,7 @@ int32 UA1EquipmentManagerComponent::CanMoveOrMergeEquipment_Quick(UA1EquipmentMa
 	if (OtherComponent == nullptr)
 		return 0;
 
-	if (FromEquipmentSlotType == EEquipmentSlotType::Unarmed_LeftHand || FromEquipmentSlotType == EEquipmentSlotType::Unarmed_RightHand || FromEquipmentSlotType == EEquipmentSlotType::Count)
+	if (FromEquipmentSlotType == EEquipmentSlotType::Count)
 		return 0;
 
 	if (this == OtherComponent)
@@ -349,7 +350,7 @@ bool UA1EquipmentManagerComponent::CanSwapEquipment(UA1InventoryManagerComponent
 	if (FromItemSlotPos.X < 0 || FromItemSlotPos.Y < 0 || FromItemSlotPos.X >= FromInventorySlotCount.X || FromItemSlotPos.Y >= FromInventorySlotCount.Y)
 		return false;
 
-	if (ToEquipmentSlotType == EEquipmentSlotType::Unarmed_LeftHand || ToEquipmentSlotType == EEquipmentSlotType::Unarmed_RightHand || ToEquipmentSlotType == EEquipmentSlotType::Count)
+	if (ToEquipmentSlotType == EEquipmentSlotType::Count)
 		return false;
 
 	UA1ItemInstance* FromItemInstance = OtherComponent->GetItemInstance(FromItemSlotPos);
@@ -427,7 +428,7 @@ bool UA1EquipmentManagerComponent::CanSwapEquipment_Quick(UA1EquipmentManagerCom
 	if (OtherComponent == nullptr)
 		return false;
 
-	if (FromEquipmentSlotType == EEquipmentSlotType::Unarmed_LeftHand || FromEquipmentSlotType == EEquipmentSlotType::Unarmed_RightHand || FromEquipmentSlotType == EEquipmentSlotType::Count)
+	if (FromEquipmentSlotType == EEquipmentSlotType::Count)
 		return false;
 
 	UA1ItemInstance* FromItemInstance = OtherComponent->GetItemInstance(FromEquipmentSlotType);
@@ -537,7 +538,7 @@ int32 UA1EquipmentManagerComponent::CanAddEquipment(int32 ItemTemplateID, EItemR
 	if (ItemTemplateID <= 0 || ItemRarity == EItemRarity::Count || ItemCount <= 0)
 		return 0;
 	
-	if (ToEquipmentSlotType == EEquipmentSlotType::Unarmed_LeftHand || ToEquipmentSlotType == EEquipmentSlotType::Unarmed_RightHand || ToEquipmentSlotType == EEquipmentSlotType::Count)
+	if (ToEquipmentSlotType == EEquipmentSlotType::Count)
 		return 0;
 	
 	const UA1ItemTemplate& ItemTemplate = UA1ItemData::Get().FindItemTemplateByID(ItemTemplateID);
@@ -575,11 +576,6 @@ int32 UA1EquipmentManagerComponent::CanAddEquipment(int32 ItemTemplateID, EItemR
 		{
 			return (GetItemInstance(EEquipmentSlotType::LeftHand) == nullptr && GetItemInstance(EEquipmentSlotType::RightHand) == nullptr) ? ItemCount : 0;
 		}
-		
-		//else if (FromEquippableFragment->EquipmentType == EEquipmentType::Utility)
-		//{
-		//	return IsUtilitySlot(ToEquipmentSlotType) ? ItemCount : 0;
-		//}
 	}
 
 	return 0;
@@ -589,8 +585,8 @@ void UA1EquipmentManagerComponent::AddUnarmedEquipments(TSubclassOf<UA1ItemTempl
 {
 	check(HasAuthority());
 
-	SetEquipment(EEquipmentSlotType::Unarmed_LeftHand, LeftHandClass, EItemRarity::Poor, 1);
-	SetEquipment(EEquipmentSlotType::Unarmed_RightHand, RightHandClass, EItemRarity::Poor, 1);
+	SetEquipment(EEquipmentSlotType::LeftHand, LeftHandClass, EItemRarity::Poor, 1);
+	SetEquipment(EEquipmentSlotType::RightHand, RightHandClass, EItemRarity::Poor, 1);
 }
 
 void UA1EquipmentManagerComponent::AddEquipment_Unsafe(EEquipmentSlotType EquipmentSlotType, UA1ItemInstance* ItemInstance, int32 ItemCount)
@@ -704,10 +700,7 @@ void UA1EquipmentManagerComponent::SetEquipment(EEquipmentSlotType EquipmentSlot
 
 bool UA1EquipmentManagerComponent::IsSameEquipState(EEquipmentSlotType EquipmentSlotType, EEquipState WeaponEquipState)
 {
-
-	return (((EquipmentSlotType == EEquipmentSlotType::Unarmed_LeftHand || EquipmentSlotType == EEquipmentSlotType::Unarmed_RightHand) && WeaponEquipState == EEquipState::Unarmed) ||
-		((EquipmentSlotType == EEquipmentSlotType::LeftHand || EquipmentSlotType == EEquipmentSlotType::RightHand || EquipmentSlotType == EEquipmentSlotType::TwoHand) && WeaponEquipState != EEquipState::Unarmed));
-
+	return (((EquipmentSlotType == EEquipmentSlotType::LeftHand || EquipmentSlotType == EEquipmentSlotType::RightHand || EquipmentSlotType == EEquipmentSlotType::TwoHand) && WeaponEquipState != EEquipState::Unarmed));
 }
 
 const UA1ItemInstance* UA1EquipmentManagerComponent::FindPairItemInstance(const UA1ItemInstance* InBaseItemInstance, EEquipmentSlotType& OutEquipmentSlotType) const
@@ -764,27 +757,6 @@ const UA1ItemInstance* UA1EquipmentManagerComponent::FindPairItemInstance(const 
 	}
 
 	return SelectedItemInstance;
-}
-
-bool UA1EquipmentManagerComponent::IsAllEmpty(EEquipState EquipState) const
-{
-	if (EquipState == EEquipState::Count)
-		return true;
-
-	if (EquipState == EEquipState::Unarmed)
-		return false;
-
-	bool bAllEmpty = true;
-	for (EEquipmentSlotType SlotType : UA1EquipManagerComponent::GetEquipmentSlotsByEquipState(EquipState))
-	{
-		const FA1EquipmentEntry& Entry = EquipmentList.Entries[(int32)SlotType];
-		if (Entry.ItemInstance)
-		{
-			bAllEmpty = false;
-			break;
-		}
-	}
-	return bAllEmpty;
 }
 
 ALyraCharacter* UA1EquipmentManagerComponent::GetCharacter() const

@@ -18,6 +18,7 @@ class APlayerController;
 class FText;
 class ILyraAbilitySourceInterface;
 class UAnimMontage;
+class UInputMappingContext;
 class ULyraAbilityCost;
 class ULyraAbilitySystemComponent;
 class ULyraCameraMode;
@@ -36,6 +37,8 @@ struct FGameplayEventData;
 UENUM(BlueprintType)
 enum class ELyraAbilityActivationPolicy : uint8
 {
+	Manual,
+
 	// Try to activate the ability when the input is triggered.
 	OnInputTriggered,
 
@@ -45,7 +48,6 @@ enum class ELyraAbilityActivationPolicy : uint8
 	// Try to activate the ability when an avatar is assigned.
 	OnSpawn
 };
-
 
 /**
  * ELyraAbilityActivationGroup
@@ -67,6 +69,18 @@ enum class ELyraAbilityActivationGroup : uint8
 	MAX	UMETA(Hidden)
 };
 
+UENUM(BlueprintType)
+enum class EA1Direction : uint8
+{
+	None,
+	Forward,
+	Right,
+	Backward,
+	Left,
+
+	MAX UMETA(Hidden)
+};
+
 /** Failure reason that can be used to play an animation montage when a failure occurs */
 USTRUCT(BlueprintType)
 struct FLyraAbilityMontageFailureMessage
@@ -74,7 +88,6 @@ struct FLyraAbilityMontageFailureMessage
 	GENERATED_BODY()
 
 public:
-	
 	UPROPERTY(BlueprintReadWrite)
 	TObjectPtr<APlayerController> PlayerController = nullptr;
 
@@ -98,7 +111,6 @@ class A1GAME_API ULyraGameplayAbility : public UGameplayAbility
 	friend class ULyraAbilitySystemComponent;
 
 public:
-
 	ULyraGameplayAbility(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
 	UFUNCTION(BlueprintCallable, Category = "Lyra|Ability")
@@ -144,7 +156,6 @@ public:
 	}
 
 protected:
-
 	// Called when the ability fails to activate
 	virtual void NativeOnAbilityFailedToActivate(const FGameplayTagContainer& FailedReason) const;
 
@@ -161,6 +172,7 @@ protected:
 	virtual void EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled) override;
 	virtual bool CheckCost(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, OUT FGameplayTagContainer* OptionalRelevantTags = nullptr) const override;
 	virtual void ApplyCost(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo) const override;
+	virtual void ApplyCooldown(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo) const override;
 	virtual FGameplayEffectContextHandle MakeEffectContext(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo) const override;
 	virtual void ApplyAbilityTagsToGameplayEffectSpec(FGameplayEffectSpec& Spec, FGameplayAbilitySpec* AbilitySpec) const override;
 	virtual bool DoesAbilitySatisfyTagRequirements(const UAbilitySystemComponent& AbilitySystemComponent, const FGameplayTagContainer* SourceTags = nullptr, const FGameplayTagContainer* TargetTags = nullptr, OUT FGameplayTagContainer* OptionalRelevantTags = nullptr) const override;
@@ -182,8 +194,10 @@ protected:
 	UFUNCTION(BlueprintImplementableEvent, Category = Ability, DisplayName = "OnPawnAvatarSet")
 	void K2_OnPawnAvatarSet();
 
-protected:
+	UFUNCTION(BlueprintCallable, Category = "Lyra|Ability")
+	void GetMovementDirection(EA1Direction& OutDirection, FVector& OutMovementVector) const;
 
+protected:
 	// Defines how this ability is meant to activate.
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Lyra|Ability Activation")
 	ELyraAbilityActivationPolicy ActivationPolicy;
@@ -210,4 +224,24 @@ protected:
 
 	// Current camera mode set by the ability.
 	TSubclassOf<ULyraCameraMode> ActiveCameraMode;
+
+public:
+	UFUNCTION(BlueprintCallable)
+	void FlushPressedKeys();
+
+	UFUNCTION(BlueprintCallable)
+	void FlushPressedInput(UInputAction* InputAction);
+
+public:
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "A1|Ability")
+	TObjectPtr<UInputMappingContext> InputMappingContext;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "A1|Ability")
+	TObjectPtr<UTexture2D> Icon;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "A1|Ability")
+	FText Name;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "A1|Ability")
+	FText Description;
 };

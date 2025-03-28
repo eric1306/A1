@@ -41,9 +41,6 @@ enum class EBodyType : uint8
 UENUM(BlueprintType)
 enum class EEquipmentSlotType : uint8
 {
-	Unarmed_LeftHand,
-	Unarmed_RightHand,
-
 	LeftHand,
 	RightHand,
 	TwoHand,
@@ -51,12 +48,11 @@ enum class EEquipmentSlotType : uint8
 	Count	UMETA(Hidden)
 };
 
-// 메인으로 사용하는 손이 무엇인지
+// 손 사용 여부
 UENUM(BlueprintType)
 enum class EEquipState : uint8
 {
 	Unarmed,
-
 	Left,
 	Right,
 	Both,
@@ -64,6 +60,13 @@ enum class EEquipState : uint8
 	Count	UMETA(Hidden)
 };
 
+enum class EMainHandState : uint8
+{
+	Left,
+	Right,
+
+	Count	UMETA(Hidden)
+};
 
 /*---------------------------------------
 *    Item이 가지고 있어야 할 정보

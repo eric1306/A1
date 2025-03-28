@@ -2,13 +2,14 @@
 
 #include "LyraAbilitySystemComponent.h"
 
+#include "Input/LyraMappableConfigPair.h"
 #include "AbilitySystem/Abilities/LyraGameplayAbility.h"
 #include "AbilitySystem/LyraAbilityTagRelationshipMapping.h"
 #include "Animation/LyraAnimInstance.h"
 #include "Engine/World.h"
 #include "GameFramework/Pawn.h"
 #include "LyraGlobalAbilitySystem.h"
-#include "LyraLogChannels.h"
+#include "A1LogChannels.h"
 #include "System/LyraAssetManager.h"
 #include "System/LyraGameData.h"
 
@@ -91,6 +92,26 @@ void ULyraAbilitySystemComponent::InitAbilityActorInfo(AActor* InOwnerActor, AAc
 	}
 }
 
+void ULyraAbilitySystemComponent::OnGiveAbility(FGameplayAbilitySpec& AbilitySpec)
+{
+	Super::OnGiveAbility(AbilitySpec);
+
+	if (AbilityChangedDelegate.IsBound())
+	{
+		AbilityChangedDelegate.Broadcast(AbilitySpec.Handle, true);
+	}
+}
+
+void ULyraAbilitySystemComponent::OnRemoveAbility(FGameplayAbilitySpec& AbilitySpec)
+{
+	if (AbilityChangedDelegate.IsBound())
+	{
+		AbilityChangedDelegate.Broadcast(AbilitySpec.Handle, false);
+	}
+	
+	Super::OnRemoveAbility(AbilitySpec);
+}
+
 void ULyraAbilitySystemComponent::TryActivateAbilitiesOnSpawn()
 {
 	ABILITYLIST_SCOPE_LOCK();
@@ -116,7 +137,7 @@ void ULyraAbilitySystemComponent::CancelAbilitiesByFunc(TShouldCancelAbilityFunc
 		ULyraGameplayAbility* LyraAbilityCDO = Cast<ULyraGameplayAbility>(AbilitySpec.Ability);
 		if (!LyraAbilityCDO)
 		{
-			UE_LOG(LogLyraAbilitySystem, Error, TEXT("CancelAbilitiesByFunc: Non-LyraGameplayAbility %s was Granted to ASC. Skipping."), *AbilitySpec.Ability.GetName());
+			UE_LOG(LogA1AbilitySystem, Error, TEXT("CancelAbilitiesByFunc: Non-LyraGameplayAbility %s was Granted to ASC. Skipping."), *AbilitySpec.Ability.GetName());
 			continue;
 		}
 
@@ -136,7 +157,7 @@ void ULyraAbilitySystemComponent::CancelAbilitiesByFunc(TShouldCancelAbilityFunc
 					}
 					else
 					{
-						UE_LOG(LogLyraAbilitySystem, Error, TEXT("CancelAbilitiesByFunc: Can't cancel ability [%s] because CanBeCanceled is false."), *LyraAbilityInstance->GetName());
+						UE_LOG(LogA1AbilitySystem, Error, TEXT("CancelAbilitiesByFunc: Can't cancel ability [%s] because CanBeCanceled is false."), *LyraAbilityInstance->GetName());
 					}
 				}
 			}
@@ -165,6 +186,14 @@ void ULyraAbilitySystemComponent::CancelInputActivatedAbilities(bool bReplicateC
 	CancelAbilitiesByFunc(ShouldCancelFunc, bReplicateCancelAbility);
 }
 
+void ULyraAbilitySystemComponent::AbilitySecInputStarted(FGameplayAbilitySpec& Spec)
+{
+	if (Spec.IsActive())
+	{
+		InvokeReplicatedEvent(EAbilityGenericReplicatedEvent::GameCustom1, Spec.Handle, Spec.ActivationInfo.GetActivationPredictionKey());
+	}
+}
+
 void ULyraAbilitySystemComponent::AbilitySpecInputPressed(FGameplayAbilitySpec& Spec)
 {
 	Super::AbilitySpecInputPressed(Spec);
@@ -188,6 +217,20 @@ void ULyraAbilitySystemComponent::AbilitySpecInputReleased(FGameplayAbilitySpec&
 	{
 		// Invoke the InputReleased event. This is not replicated here. If someone is listening, they may replicate the InputReleased event to the server.
 		InvokeReplicatedEvent(EAbilityGenericReplicatedEvent::InputReleased, Spec.Handle, Spec.ActivationInfo.GetActivationPredictionKey());
+	}
+}
+
+void ULyraAbilitySystemComponent::AbilityInputTagStarted(const FGameplayTag& InputTag)
+{
+	if (InputTag.IsValid())
+	{
+		for (const FGameplayAbilitySpec& AbilitySpec : ActivatableAbilities.Items)
+		{
+			if (AbilitySpec.Ability && (AbilitySpec.DynamicAbilityTags.HasTagExact(InputTag)))
+			{
+				InputStartedSpecHandles.AddUnique(AbilitySpec.Handle);
+			}
+		}
 	}
 }
 
@@ -247,6 +290,23 @@ void ULyraAbilitySystemComponent::ProcessAbilityInput(float DeltaTime, bool bGam
 				if (LyraAbilityCDO && LyraAbilityCDO->GetActivationPolicy() == ELyraAbilityActivationPolicy::WhileInputActive)
 				{
 					AbilitiesToActivate.AddUnique(AbilitySpec->Handle);
+				}
+			}
+		}
+	}
+
+	//
+	// Process all abilities that had their input started this frame.
+	//
+	for (const FGameplayAbilitySpecHandle& SpecHandle : InputStartedSpecHandles)
+	{
+		if (FGameplayAbilitySpec* AbilitySpec = FindAbilitySpecFromHandle(SpecHandle))
+		{
+			if (AbilitySpec->Ability)
+			{
+				if (AbilitySpec->IsActive())
+				{
+					AbilitySecInputStarted(*AbilitySpec);
 				}
 			}
 		}
@@ -314,12 +374,14 @@ void ULyraAbilitySystemComponent::ProcessAbilityInput(float DeltaTime, bool bGam
 	//
 	// Clear the cached ability handles.
 	//
+	InputStartedSpecHandles.Reset();
 	InputPressedSpecHandles.Reset();
 	InputReleasedSpecHandles.Reset();
 }
 
 void ULyraAbilitySystemComponent::ClearAbilityInput()
 {
+	InputStartedSpecHandles.Reset();
 	InputPressedSpecHandles.Reset();
 	InputReleasedSpecHandles.Reset();
 	InputHeldSpecHandles.Reset();
@@ -404,12 +466,83 @@ void ULyraAbilitySystemComponent::ClientNotifyAbilityFailed_Implementation(const
 
 void ULyraAbilitySystemComponent::HandleAbilityFailed(const UGameplayAbility* Ability, const FGameplayTagContainer& FailureReason)
 {
-	//UE_LOG(LogLyraAbilitySystem, Warning, TEXT("Ability %s failed to activate (tags: %s)"), *GetPathNameSafe(Ability), *FailureReason.ToString());
+	//UE_LOG(LogA1AbilitySystem, Warning, TEXT("Ability %s failed to activate (tags: %s)"), *GetPathNameSafe(Ability), *FailureReason.ToString());
 
 	if (const ULyraGameplayAbility* LyraAbility = Cast<const ULyraGameplayAbility>(Ability))
 	{
 		LyraAbility->OnAbilityFailedToActivate(FailureReason);
-	}	
+	}
+}
+
+void ULyraAbilitySystemComponent::BlockAnimMontageForSeconds(UAnimMontage* BackwardMontage)
+{
+	bool bHasAuthority = IsOwnerActorAuthoritative();
+	bool bLocalPredictionKey = ScopedPredictionKey.IsLocalClientKey();
+	
+	if (bHasAuthority)
+	{
+		Multicast_BlockAnimMontageForSeconds(BackwardMontage, ScopedPredictionKey);
+	}
+	else if (bLocalPredictionKey)
+	{
+		InvokeBlockAnimMontageForSeconds(BackwardMontage);
+	}
+}
+
+void ULyraAbilitySystemComponent::Multicast_BlockAnimMontageForSeconds_Implementation(UAnimMontage* BackwardMontage, FPredictionKey PredictionKey)
+{
+	if (IsOwnerActorAuthoritative() || PredictionKey.IsLocalClientKey() == false)
+	{
+		InvokeBlockAnimMontageForSeconds(BackwardMontage);
+	}
+}
+
+void ULyraAbilitySystemComponent::InvokeBlockAnimMontageForSeconds(UAnimMontage* BackwardMontage)
+{
+	if (BackwardMontage == nullptr)
+		return;
+	
+	UAnimInstance* AnimInstance = AbilityActorInfo->GetAnimInstance();
+	if (AnimInstance == nullptr)
+		return;
+
+	UAnimMontage* CurrentMontage = AnimInstance->GetCurrentActiveMontage();
+	if (CurrentMontage == nullptr || CurrentMontage == BackwardMontage)
+		return;
+	
+	float EffectivePlayRate = AnimInstance->Montage_GetEffectivePlayRate(CurrentMontage);
+	float Position = AnimInstance->Montage_GetPosition(CurrentMontage);
+	float MontageLength = CurrentMontage->GetPlayLength();
+	float MontageDuration = MontageLength / EffectivePlayRate;
+	
+	AnimInstance->Montage_PlayWithBlendSettings(BackwardMontage, FMontageBlendSettings(0.f), EffectivePlayRate / 5.f, EMontagePlayReturnType::MontageLength, Position);
+	GetWorld()->GetTimerManager().SetTimer(BlockAnimMontageTimerHandle, [AnimInstance, BackwardMontage, MontageDuration]()
+	{
+		AnimInstance->Montage_Stop(FMath::Min(MontageDuration / 5.f, 0.35f), BackwardMontage);
+	}, 0.25f, false);
+}
+
+void ULyraAbilitySystemComponent::MarkActiveGameplayEffectDirty(FActiveGameplayEffect* ActiveGameplayEffect)
+{
+	if (ActiveGameplayEffect)
+	{
+		ActiveGameplayEffects.MarkItemDirty(*ActiveGameplayEffect);
+	}
+}
+
+void ULyraAbilitySystemComponent::CheckActiveEffectDuration(const FActiveGameplayEffectHandle& Handle)
+{
+	ActiveGameplayEffects.CheckDuration(Handle);
+}
+
+FActiveGameplayEffect* ULyraAbilitySystemComponent::GetActiveGameplayEffect_Mutable(const FActiveGameplayEffectHandle Handle)
+{
+	return ActiveGameplayEffects.GetActiveGameplayEffect(Handle);
+}
+
+TArray<FActiveGameplayEffectHandle> ULyraAbilitySystemComponent::GetAllActiveEffectHandles() const
+{
+	return ActiveGameplayEffects.GetAllActiveEffectHandles();
 }
 
 bool ULyraAbilitySystemComponent::IsActivationGroupBlocked(ELyraAbilityActivationGroup Group) const
@@ -465,7 +598,7 @@ void ULyraAbilitySystemComponent::AddAbilityToActivationGroup(ELyraAbilityActiva
 	const int32 ExclusiveCount = ActivationGroupCounts[(uint8)ELyraAbilityActivationGroup::Exclusive_Replaceable] + ActivationGroupCounts[(uint8)ELyraAbilityActivationGroup::Exclusive_Blocking];
 	if (!ensure(ExclusiveCount <= 1))
 	{
-		UE_LOG(LogLyraAbilitySystem, Error, TEXT("AddAbilityToActivationGroup: Multiple exclusive abilities are running."));
+		UE_LOG(LogA1AbilitySystem, Error, TEXT("AddAbilityToActivationGroup: Multiple exclusive abilities are running."));
 	}
 }
 
@@ -487,12 +620,12 @@ void ULyraAbilitySystemComponent::CancelActivationGroupAbilities(ELyraAbilityAct
 	CancelAbilitiesByFunc(ShouldCancelFunc, bReplicateCancelAbility);
 }
 
-void ULyraAbilitySystemComponent::AddDynamicTagGameplayEffect(const FGameplayTag& Tag)
+void ULyraAbilitySystemComponent::AddDynamicTagGameplayEffect(FGameplayTag Tag)
 {
 	const TSubclassOf<UGameplayEffect> DynamicTagGE = ULyraAssetManager::GetSubclassByPath(ULyraGameData::Get().DynamicTagGameplayEffect);
 	if (!DynamicTagGE)
 	{
-		UE_LOG(LogLyraAbilitySystem, Warning, TEXT("AddDynamicTagGameplayEffect: Unable to find DynamicTagGameplayEffect [%s]."), *ULyraGameData::Get().DynamicTagGameplayEffect.GetAssetName());
+		UE_LOG(LogA1AbilitySystem, Warning, TEXT("AddDynamicTagGameplayEffect: Unable to find DynamicTagGameplayEffect [%s]."), *ULyraGameData::Get().DynamicTagGameplayEffect.GetAssetName());
 		return;
 	}
 
@@ -501,7 +634,7 @@ void ULyraAbilitySystemComponent::AddDynamicTagGameplayEffect(const FGameplayTag
 
 	if (!Spec)
 	{
-		UE_LOG(LogLyraAbilitySystem, Warning, TEXT("AddDynamicTagGameplayEffect: Unable to make outgoing spec for [%s]."), *GetNameSafe(DynamicTagGE));
+		UE_LOG(LogA1AbilitySystem, Warning, TEXT("AddDynamicTagGameplayEffect: Unable to make outgoing spec for [%s]."), *GetNameSafe(DynamicTagGE));
 		return;
 	}
 
@@ -510,12 +643,12 @@ void ULyraAbilitySystemComponent::AddDynamicTagGameplayEffect(const FGameplayTag
 	ApplyGameplayEffectSpecToSelf(*Spec);
 }
 
-void ULyraAbilitySystemComponent::RemoveDynamicTagGameplayEffect(const FGameplayTag& Tag)
+void ULyraAbilitySystemComponent::RemoveDynamicTagGameplayEffect(FGameplayTag Tag)
 {
 	const TSubclassOf<UGameplayEffect> DynamicTagGE = ULyraAssetManager::GetSubclassByPath(ULyraGameData::Get().DynamicTagGameplayEffect);
 	if (!DynamicTagGE)
 	{
-		UE_LOG(LogLyraAbilitySystem, Warning, TEXT("RemoveDynamicTagGameplayEffect: Unable to find gameplay effect [%s]."), *ULyraGameData::Get().DynamicTagGameplayEffect.GetAssetName());
+		UE_LOG(LogA1AbilitySystem, Warning, TEXT("RemoveDynamicTagGameplayEffect: Unable to find gameplay effect [%s]."), *ULyraGameData::Get().DynamicTagGameplayEffect.GetAssetName());
 		return;
 	}
 
@@ -533,4 +666,3 @@ void ULyraAbilitySystemComponent::GetAbilityTargetData(const FGameplayAbilitySpe
 		OutTargetDataHandle = ReplicatedData->TargetData;
 	}
 }
-

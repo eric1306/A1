@@ -30,7 +30,7 @@ struct FLyraAbilityGrant
 };
 
 USTRUCT(BlueprintType)
-struct FLyraAttributeSetGrant
+struct FA1AttributeSetGrant
 {
 	GENERATED_BODY()
 
@@ -58,7 +58,7 @@ struct FGameFeatureAbilitiesEntry
 
 	// List of attribute sets to grant to actors of the specified class 
 	UPROPERTY(EditAnywhere, Category="Attributes")
-	TArray<FLyraAttributeSetGrant> GrantedAttributes;
+	TArray<FA1AttributeSetGrant> GrantedAttributes;
 
 	// List of ability sets to grant to actors of the specified class
 	UPROPERTY(EditAnywhere, Category="Attributes", meta=(AssetBundles="Client,Server"))

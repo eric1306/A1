@@ -3,7 +3,7 @@
 #include "AbilitySystemGlobals.h"
 #include "A1CosmeticManagerComponent.h"
 #include "A1EquipmentManagerComponent.h"
-#include "LyraGameplayTags.h"
+#include "A1GameplayTags.h"
 #include "Engine/ActorChannel.h"
 #include "Item/A1ItemInstance.h"
 #include "Item/Fragments/A1ItemFragment_Equipable.h"
@@ -12,7 +12,7 @@
 #include "Net/UnrealNetwork.h"
 #include "Actors/A1EquipmentBase.h"
 #include "AbilitySystem/LyraAbilitySystemComponent.h"
-//#include "AbilitySystem/Attributes/A1CombatSet.h"
+#include "AbilitySystem/Attributes/A1CombatSet.h"
 #include "Character/LyraCharacter.h"
 #include "Player/LyraPlayerController.h"
 //#include "PocketWorld/A1PocketStage.h"
@@ -47,7 +47,6 @@ void FA1EquipEntry::Equip()
 
 	if (EquipManager->GetOwner()->HasAuthority())
 	{
-		/* - TEMP
 		if (ULyraAbilitySystemComponent* ASC = Cast<ULyraAbilitySystemComponent>(EquipManager->GetAbilitySystemComponent()))
 		{
 			// Remove Previous Ability
@@ -64,9 +63,11 @@ void FA1EquipEntry::Equip()
 			BaseStatHandle.Invalidate();
 	
 			// Add Current Stat
+			/* TEMP Jerry
+			*  ULyraGameData(GE)
 			const TSubclassOf<UGameplayEffect> AttributeModifierGE = ULyraAssetManager::GetSubclassByPath(ULyraGameData::Get().AttributeModifierGameplayEffect);
 			check(AttributeModifierGE);
-		
+			
 			const FGameplayEffectContextHandle ContextHandle = ASC->MakeEffectContext();
 			const FGameplayEffectSpecHandle SpecHandle = ASC->MakeOutgoingSpec(AttributeModifierGE, 1.f, ContextHandle);
 			const TSharedPtr<FGameplayEffectSpec>& SpecData = SpecHandle.Data;
@@ -82,8 +83,8 @@ void FA1EquipEntry::Equip()
 			}
 			
 			BaseStatHandle = ASC->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data);
+			*/
 		}
-		*/
 
 		if (EquippableFragment->EquipmentType == EEquipmentType::Weapon || EquippableFragment->EquipmentType == EEquipmentType::Utility)
 		{
@@ -199,7 +200,7 @@ void FA1EquipEntry::Equip()
 			}
 
 			UAbilitySystemComponent* ASC = Character->GetAbilitySystemComponent();
-			if (ASC && ASC->HasMatchingGameplayTag(LyraGameplayTags::Status_Interact) == false)
+			if (ASC && ASC->HasMatchingGameplayTag(A1GameplayTags::Status_Interact) == false)
 			{
 				UAnimMontage* EquipMontage = ULyraAssetManager::GetAssetByPath<UAnimMontage>(AttachmentFragment->EquipMontage);
 				if (UAnimInstance* AnimInstance = MeshComponent->GetAnimInstance())
@@ -466,9 +467,9 @@ void UA1EquipManagerComponent::ChangeEquipState(EEquipState NewEquipState)
 
 	if (CanChangeEquipState(NewEquipState))
 	{
-		if (CurrentEquipState == NewEquipState)
+		if (CurrentEquipState == EEquipState::Left && CurrentEquipState == EEquipState::Right)
 		{
-			NewEquipState = EEquipState::Unarmed;
+			NewEquipState = EEquipState::Both;
 		}
 		
 		CurrentEquipState = NewEquipState;
@@ -480,17 +481,13 @@ bool UA1EquipManagerComponent::CanChangeEquipState(EEquipState NewEquipState) co
 	if (NewEquipState == EEquipState::Count)
 		return false;
 
-	if (CurrentEquipState == EEquipState::Unarmed && NewEquipState == EEquipState::Unarmed)
+	if (CurrentEquipState == NewEquipState)
+		return false;
+	
+	if (NewEquipState == EEquipState::Both && CurrentEquipState != EEquipState::Unarmed)
 		return false;
 
-	if (CurrentEquipState == NewEquipState)
-		return true;
-	
-	UA1EquipmentManagerComponent* EquipmentManager = GetEquipmentManager();
-	if (EquipmentManager == nullptr)
-		return false;
-	
-	return (EquipmentManager->IsAllEmpty(NewEquipState) == false);
+	return true;
 }
 
 AA1EquipmentBase* UA1EquipManagerComponent::GetEquippedActor(EItemHandType ItemHandType) const
@@ -499,7 +496,7 @@ AA1EquipmentBase* UA1EquipManagerComponent::GetEquippedActor(EItemHandType ItemH
 		return nullptr;
 	
 	const TArray<FA1EquipEntry>& Entries = EquipList.Entries;
-	const int32 EntryIndex = (int32)ConvertToEquipmentSlotType(ItemHandType, CurrentEquipState);
+	const int32 EntryIndex = (int32)ConvertToEquipmentSlotType(ItemHandType);
 	return Entries.IsValidIndex(EntryIndex) ? Entries[EntryIndex].GetEquipmentActor() : nullptr;
 }
 
@@ -509,7 +506,7 @@ UA1ItemInstance* UA1EquipManagerComponent::GetEquippedItemInstance(EItemHandType
 		return nullptr;
 	
 	const TArray<FA1EquipEntry>& Entries = EquipList.Entries;
-	const int32 EntryIndex = (int32)ConvertToEquipmentSlotType(WeaponHandType, CurrentEquipState);
+	const int32 EntryIndex = (int32)ConvertToEquipmentSlotType(WeaponHandType);
 	return Entries.IsValidIndex(EntryIndex) ? Entries[EntryIndex].GetItemInstance() : nullptr;
 }
 
@@ -583,24 +580,6 @@ EEquipmentSlotType UA1EquipManagerComponent::ConvertToEquipmentSlotType(EEquipSt
 	return EquipmentSlotType;
 }
 
-EEquipmentSlotType UA1EquipManagerComponent::ConvertToEquipmentSlotType(EItemHandType ItemHandType, EEquipState EquipState)
-{
-	EEquipmentSlotType EquipmentSlotType = EEquipmentSlotType::Count;
-
-	if (EquipState == EEquipState::Unarmed)
-	{
-		switch (ItemHandType)
-		{
-		case EItemHandType::LeftHand:  EquipmentSlotType = EEquipmentSlotType::Unarmed_LeftHand;  break;
-		case EItemHandType::RightHand: EquipmentSlotType = EEquipmentSlotType::Unarmed_RightHand; break;
-		}
-	}
-	else
-		EquipmentSlotType = ConvertToEquipmentSlotType(ItemHandType);
-
-	return EquipmentSlotType;
-}
-
 EEquipmentSlotType UA1EquipManagerComponent::ConvertToEquipmentSlotType(EItemHandType ItemHandType)
 {
 	EEquipmentSlotType EquipmentSlotType = EEquipmentSlotType::Count;
@@ -628,6 +607,20 @@ EEquipmentSlotType UA1EquipManagerComponent::ConvertToEquipmentSlotType(EItemSlo
 	return EquipmentSlotType;
 }
 
+EEquipState UA1EquipManagerComponent::ConvertToAnotherHand(EEquipmentSlotType EquipmentSlotType)
+{
+	EEquipState EquipState = EEquipState::Count;
+
+	switch (EquipmentSlotType)
+	{
+	case EEquipmentSlotType::LeftHand:  EquipState = EEquipState::Right;  break;
+	case EEquipmentSlotType::RightHand: EquipState = EEquipState::Left; break;
+	case EEquipmentSlotType::TwoHand:   EquipState = EEquipState::Unarmed;   break;
+	}
+
+	return EquipState;
+}
+
 EEquipState UA1EquipManagerComponent::ConvertToEquipState(EEquipmentSlotType EquipmentSlotType)
 {
 	EEquipState EquipState = EEquipState::Count;
@@ -648,11 +641,9 @@ EItemHandType UA1EquipManagerComponent::ConvertToItemHandType(EEquipmentSlotType
 	
 	switch (EquipmentSlotType)
 	{
-	case EEquipmentSlotType::Unarmed_LeftHand:
 	case EEquipmentSlotType::LeftHand:
 		ItemHandType = EItemHandType::LeftHand;
 		break;
-	case EEquipmentSlotType::Unarmed_RightHand:
 	case EEquipmentSlotType::RightHand:
 		ItemHandType = EItemHandType::RightHand;
 		break;
@@ -662,24 +653,6 @@ EItemHandType UA1EquipManagerComponent::ConvertToItemHandType(EEquipmentSlotType
 	}
 
 	return ItemHandType;
-}
-
-const TArray<EEquipmentSlotType>& UA1EquipManagerComponent::GetEquipmentSlotsByEquipState(EEquipState EquipState)
-{
-	static const TArray<TArray<EEquipmentSlotType>> EquipmentSlotsByEquipState = {
-		{ EEquipmentSlotType::Unarmed_LeftHand,    EEquipmentSlotType::Unarmed_RightHand                                            },
-		{ EEquipmentSlotType::LeftHand,    EEquipmentSlotType::RightHand,    EEquipmentSlotType::TwoHand    },
-	};
-
-	if (EquipmentSlotsByEquipState.IsValidIndex((int32)EquipState))
-	{
-		return EquipmentSlotsByEquipState[(int32)EquipState];
-	}
-	else
-	{
-		static const TArray<EEquipmentSlotType> EmptyEquipmentSlots;
-		return EmptyEquipmentSlots;
-	}
 }
 
 void UA1EquipManagerComponent::ChangeShouldHiddenEquipments(bool bNewShouldHiddenEquipments)

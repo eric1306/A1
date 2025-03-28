@@ -6,7 +6,7 @@
 #include "CommonUserSubsystem.h"
 #include "Components/GameFrameworkComponentManager.h"
 #include "HAL/IConsoleManager.h"
-#include "LyraGameplayTags.h"
+#include "A1GameplayTags.h"
 #include "Player/LyraPlayerController.h"
 #include "Player/LyraLocalPlayer.h"
 #include "GameFramework/PlayerState.h"
@@ -93,10 +93,10 @@ void ULyraGameInstance::Init()
 
 	if (ensure(ComponentManager))
 	{
-		ComponentManager->RegisterInitState(LyraGameplayTags::InitState_Spawned, false, FGameplayTag());
-		ComponentManager->RegisterInitState(LyraGameplayTags::InitState_DataAvailable, false, LyraGameplayTags::InitState_Spawned);
-		ComponentManager->RegisterInitState(LyraGameplayTags::InitState_DataInitialized, false, LyraGameplayTags::InitState_DataAvailable);
-		ComponentManager->RegisterInitState(LyraGameplayTags::InitState_GameplayReady, false, LyraGameplayTags::InitState_DataInitialized);
+		ComponentManager->RegisterInitState(A1GameplayTags::InitState_Spawned, false, FGameplayTag());
+		ComponentManager->RegisterInitState(A1GameplayTags::InitState_DataAvailable, false, A1GameplayTags::InitState_Spawned);
+		ComponentManager->RegisterInitState(A1GameplayTags::InitState_DataInitialized, false, A1GameplayTags::InitState_DataAvailable);
+		ComponentManager->RegisterInitState(A1GameplayTags::InitState_GameplayReady, false, A1GameplayTags::InitState_DataInitialized);
 	}
 
 	// Initialize the debug key with a set value for AES256. This is not secure and for example purposes only.

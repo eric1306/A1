@@ -6,7 +6,7 @@
 #include "GameplayCueInterface.h"
 #include "GameplayTagAssetInterface.h"
 #include "ModularCharacter.h"
-#include "Teams/LyraTeamAgentInterface.h"
+#include "Teams/A1TeamAgentInterface.h"
 
 #include "LyraCharacter.generated.h"
 
@@ -93,7 +93,7 @@ struct TStructOpsTypeTraits<FSharedRepMovement> : public TStructOpsTypeTraitsBas
  *	New behavior should be added via pawn components when possible.
  */
 UCLASS(Config = Game, Meta = (ShortTooltip = "The base character pawn class used by this project."))
-class A1GAME_API ALyraCharacter : public AModularCharacter, public IAbilitySystemInterface, public IGameplayCueInterface, public IGameplayTagAssetInterface, public ILyraTeamAgentInterface
+class A1GAME_API ALyraCharacter : public AModularCharacter, public IAbilitySystemInterface, public IGameplayCueInterface, public IGameplayTagAssetInterface, public IA1TeamAgentInterface
 {
 	GENERATED_BODY()
 
@@ -131,11 +131,11 @@ public:
 	virtual void NotifyControllerChanged() override;
 	//~End of APawn interface
 
-	//~ILyraTeamAgentInterface interface
+	//~IA1TeamAgentInterface interface
 	virtual void SetGenericTeamId(const FGenericTeamId& NewTeamID) override;
 	virtual FGenericTeamId GetGenericTeamId() const override;
-	virtual FOnLyraTeamIndexChangedDelegate* GetOnTeamIndexChangedDelegate() override;
-	//~End of ILyraTeamAgentInterface interface
+	virtual FOnA1TeamIndexChangedDelegate* GetOnTeamIndexChangedDelegate() override;
+	//~End of IA1TeamAgentInterface interface
 
 	/** RPCs that is called on frames when default property replication is skipped. This replicates a single movement update to everyone. */
 	UFUNCTION(NetMulticast, unreliable)
@@ -205,7 +205,7 @@ private:
 	FGenericTeamId MyTeamID;
 
 	UPROPERTY()
-	FOnLyraTeamIndexChangedDelegate OnTeamChangedDelegate;
+	FOnA1TeamIndexChangedDelegate OnTeamChangedDelegate;
 
 protected:
 	// Called to determine what happens to the team ID when possession ends

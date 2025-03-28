@@ -238,7 +238,7 @@ int32 UA1InventoryManagerComponent::CanMoveOrMergeItem(UA1EquipmentManagerCompon
 	if (OtherComponent == nullptr)
 		return 0;
 
-	if (FromEquipmentSlotType == EEquipmentSlotType::Unarmed_LeftHand || FromEquipmentSlotType == EEquipmentSlotType::Unarmed_RightHand || FromEquipmentSlotType == EEquipmentSlotType::Count)
+	if (FromEquipmentSlotType == EEquipmentSlotType::Count)
 		return 0;
 	
 	if (ToItemSlotPos.X < 0 || ToItemSlotPos.Y < 0 || ToItemSlotPos.X >= InventorySlotCount.X || ToItemSlotPos.Y >= InventorySlotCount.Y)
@@ -309,7 +309,7 @@ int32 UA1InventoryManagerComponent::CanMoveOrMergeItem_Quick(UA1EquipmentManager
 	if (OtherComponent == nullptr)
 		return 0;
 
-	if (FromEquipmentSlotType == EEquipmentSlotType::Unarmed_LeftHand || FromEquipmentSlotType == EEquipmentSlotType::Unarmed_RightHand || FromEquipmentSlotType == EEquipmentSlotType::Count)
+	if (FromEquipmentSlotType == EEquipmentSlotType::Count)
 		return 0;
 	
 	const UA1ItemInstance* FromItemInstance = OtherComponent->GetItemInstance(FromEquipmentSlotType);

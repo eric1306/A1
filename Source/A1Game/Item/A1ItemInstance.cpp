@@ -5,7 +5,7 @@
 #endif // UE_WITH_IRIS
 
 #include "A1ItemTemplate.h"
-#include "LyraLogChannels.h"
+#include "A1LogChannels.h"
 #include "Data/A1ItemData.h"
 #include "Net/UnrealNetwork.h"
 
