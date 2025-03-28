@@ -1,12 +1,10 @@
-// Copyright Epic Games, Inc. All Rights Reserved.
-
-#include "LyraLogChannels.h"
+#include "A1LogChannels.h"
 #include "GameFramework/Actor.h"
 
-DEFINE_LOG_CATEGORY(LogLyra);
-DEFINE_LOG_CATEGORY(LogLyraExperience);
-DEFINE_LOG_CATEGORY(LogLyraAbilitySystem);
-DEFINE_LOG_CATEGORY(LogLyraTeams);
+DEFINE_LOG_CATEGORY(LogA1);
+DEFINE_LOG_CATEGORY(LogA1Experience);
+DEFINE_LOG_CATEGORY(LogA1AbilitySystem);
+DEFINE_LOG_CATEGORY(LogA1Teams);
 
 FString GetClientServerContextString(UObject* ContextObject)
 {
@@ -23,7 +21,7 @@ FString GetClientServerContextString(UObject* ContextObject)
 
 	if (Role != ROLE_None)
 	{
-		return (Role == ROLE_Authority) ? TEXT("Server") : TEXT("Client");
+		return (Role == ROLE_Authority) ? TEXT("[Server]") : TEXT("[Client]");
 	}
 	else
 	{
@@ -36,5 +34,5 @@ FString GetClientServerContextString(UObject* ContextObject)
 #endif
 	}
 
-	return TEXT("[]");
+	return TEXT("[None]");
 }

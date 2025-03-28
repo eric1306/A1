@@ -1,12 +1,12 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "LyraGameplayAbility.h"
-#include "LyraLogChannels.h"
+#include "A1LogChannels.h"
 #include "AbilitySystem/LyraAbilitySystemComponent.h"
 #include "AbilitySystemLog.h"
 #include "Player/LyraPlayerController.h"
 #include "Character/LyraCharacter.h"
-#include "LyraGameplayTags.h"
+#include "A1GameplayTags.h"
 #include "LyraAbilityCost.h"
 #include "Character/LyraHeroComponent.h"
 #include "AbilitySystemBlueprintLibrary.h"
@@ -150,7 +150,7 @@ bool ULyraGameplayAbility::CanActivateAbility(const FGameplayAbilitySpecHandle H
 	{
 		if (OptionalRelevantTags)
 		{
-			OptionalRelevantTags->AddTag(LyraGameplayTags::Ability_ActivateFail_ActivationGroup);
+			OptionalRelevantTags->AddTag(A1GameplayTags::Ability_ActivateFail_ActivationGroup);
 		}
 		return false;
 	}
@@ -163,7 +163,7 @@ void ULyraGameplayAbility::SetCanBeCanceled(bool bCanBeCanceled)
 	// The ability can not block canceling if it's replaceable.
 	if (!bCanBeCanceled && (ActivationGroup == ELyraAbilityActivationGroup::Exclusive_Replaceable))
 	{
-		UE_LOG(LogLyraAbilitySystem, Error, TEXT("SetCanBeCanceled: Ability [%s] can not block canceling because its activation group is replaceable."), *GetName());
+		UE_LOG(LogA1AbilitySystem, Error, TEXT("SetCanBeCanceled: Ability [%s] can not block canceling because its activation group is replaceable."), *GetName());
 		return;
 	}
 
@@ -352,10 +352,10 @@ bool ULyraGameplayAbility::DoesAbilitySatisfyTagRequirements(const UAbilitySyste
 
 		if (AbilitySystemComponentTags.HasAny(AllBlockedTags))
 		{
-			if (OptionalRelevantTags && AbilitySystemComponentTags.HasTag(LyraGameplayTags::Status_Death))
+			if (OptionalRelevantTags && AbilitySystemComponentTags.HasTag(A1GameplayTags::Status_Death))
 			{
 				// If player is dead and was rejected due to blocking tags, give that feedback
-				OptionalRelevantTags->AddTag(LyraGameplayTags::Ability_ActivateFail_IsDead);
+				OptionalRelevantTags->AddTag(A1GameplayTags::Ability_ActivateFail_IsDead);
 			}
 
 			bBlocked = true;

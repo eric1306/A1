@@ -3,7 +3,7 @@
 #include "AbilitySystemGlobals.h"
 #include "A1CosmeticManagerComponent.h"
 #include "A1EquipmentManagerComponent.h"
-#include "LyraGameplayTags.h"
+#include "A1GameplayTags.h"
 #include "Engine/ActorChannel.h"
 #include "Item/A1ItemInstance.h"
 #include "Item/Fragments/A1ItemFragment_Equipable.h"
@@ -199,7 +199,7 @@ void FA1EquipEntry::Equip()
 			}
 
 			UAbilitySystemComponent* ASC = Character->GetAbilitySystemComponent();
-			if (ASC && ASC->HasMatchingGameplayTag(LyraGameplayTags::Status_Interact) == false)
+			if (ASC && ASC->HasMatchingGameplayTag(A1GameplayTags::Status_Interact) == false)
 			{
 				UAnimMontage* EquipMontage = ULyraAssetManager::GetAssetByPath<UAnimMontage>(AttachmentFragment->EquipMontage);
 				if (UAnimInstance* AnimInstance = MeshComponent->GetAnimInstance())

@@ -9,8 +9,8 @@
 #include "Components/CapsuleComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "LyraCharacterMovementComponent.h"
-#include "LyraGameplayTags.h"
-#include "LyraLogChannels.h"
+#include "A1GameplayTags.h"
+#include "A1LogChannels.h"
 #include "Net/UnrealNetwork.h"
 #include "Player/LyraPlayerController.h"
 #include "Player/LyraPlayerState.h"
@@ -162,7 +162,7 @@ void ALyraCharacter::NotifyControllerChanged()
 	// Update our team ID based on the controller
 	if (HasAuthority() && (Controller != nullptr))
 	{
-		if (ILyraTeamAgentInterface* ControllerWithTeam = Cast<ILyraTeamAgentInterface>(Controller))
+		if (IA1TeamAgentInterface* ControllerWithTeam = Cast<IA1TeamAgentInterface>(Controller))
 		{
 			MyTeamID = ControllerWithTeam->GetGenericTeamId();
 			ConditionalBroadcastTeamChanged(this, OldTeamId, MyTeamID);
@@ -219,7 +219,7 @@ void ALyraCharacter::PossessedBy(AController* NewController)
 	PawnExtComponent->HandleControllerChanged();
 
 	// Grab the current team ID and listen for future changes
-	if (ILyraTeamAgentInterface* ControllerAsTeamProvider = Cast<ILyraTeamAgentInterface>(NewController))
+	if (IA1TeamAgentInterface* ControllerAsTeamProvider = Cast<IA1TeamAgentInterface>(NewController))
 	{
 		MyTeamID = ControllerAsTeamProvider->GetGenericTeamId();
 		ControllerAsTeamProvider->GetTeamChangedDelegateChecked().AddDynamic(this, &ThisClass::OnControllerChangedTeam);
@@ -233,7 +233,7 @@ void ALyraCharacter::UnPossessed()
 
 	// Stop listening for changes from the old controller
 	const FGenericTeamId OldTeamID = MyTeamID;
-	if (ILyraTeamAgentInterface* ControllerAsTeamProvider = Cast<ILyraTeamAgentInterface>(OldController))
+	if (IA1TeamAgentInterface* ControllerAsTeamProvider = Cast<IA1TeamAgentInterface>(OldController))
 	{
 		ControllerAsTeamProvider->GetTeamChangedDelegateChecked().RemoveAll(this);
 	}
@@ -273,7 +273,7 @@ void ALyraCharacter::InitializeGameplayTags()
 	// Clear tags that may be lingering on the ability system from the previous pawn.
 	if (ULyraAbilitySystemComponent* LyraASC = GetLyraAbilitySystemComponent())
 	{
-		for (const TPair<uint8, FGameplayTag>& TagMapping : LyraGameplayTags::MovementModeTagMap)
+		for (const TPair<uint8, FGameplayTag>& TagMapping : A1GameplayTags::MovementModeTagMap)
 		{
 			if (TagMapping.Value.IsValid())
 			{
@@ -281,7 +281,7 @@ void ALyraCharacter::InitializeGameplayTags()
 			}
 		}
 
-		for (const TPair<uint8, FGameplayTag>& TagMapping : LyraGameplayTags::CustomMovementModeTagMap)
+		for (const TPair<uint8, FGameplayTag>& TagMapping : A1GameplayTags::CustomMovementModeTagMap)
 		{
 			if (TagMapping.Value.IsValid())
 			{
@@ -410,11 +410,11 @@ void ALyraCharacter::SetMovementModeTag(EMovementMode MovementMode, uint8 Custom
 		const FGameplayTag* MovementModeTag = nullptr;
 		if (MovementMode == MOVE_Custom)
 		{
-			MovementModeTag = LyraGameplayTags::CustomMovementModeTagMap.Find(CustomMovementMode);
+			MovementModeTag = A1GameplayTags::CustomMovementModeTagMap.Find(CustomMovementMode);
 		}
 		else
 		{
-			MovementModeTag = LyraGameplayTags::MovementModeTagMap.Find(MovementMode);
+			MovementModeTag = A1GameplayTags::MovementModeTagMap.Find(MovementMode);
 		}
 
 		if (MovementModeTag && MovementModeTag->IsValid())
@@ -442,7 +442,7 @@ void ALyraCharacter::OnStartCrouch(float HalfHeightAdjust, float ScaledHalfHeigh
 {
 	if (ULyraAbilitySystemComponent* LyraASC = GetLyraAbilitySystemComponent())
 	{
-		LyraASC->SetLooseGameplayTagCount(LyraGameplayTags::Status_Crouch, 1);
+		LyraASC->SetLooseGameplayTagCount(A1GameplayTags::Status_Crouch, 1);
 	}
 
 
@@ -453,7 +453,7 @@ void ALyraCharacter::OnEndCrouch(float HalfHeightAdjust, float ScaledHalfHeightA
 {
 	if (ULyraAbilitySystemComponent* LyraASC = GetLyraAbilitySystemComponent())
 	{
-		LyraASC->SetLooseGameplayTagCount(LyraGameplayTags::Status_Crouch, 0);
+		LyraASC->SetLooseGameplayTagCount(A1GameplayTags::Status_Crouch, 0);
 	}
 
 	Super::OnEndCrouch(HalfHeightAdjust, ScaledHalfHeightAdjust);
@@ -494,12 +494,12 @@ void ALyraCharacter::SetGenericTeamId(const FGenericTeamId& NewTeamID)
 		}
 		else
 		{
-			UE_LOG(LogLyraTeams, Error, TEXT("You can't set the team ID on a character (%s) except on the authority"), *GetPathNameSafe(this));
+			UE_LOG(LogA1Teams, Error, TEXT("You can't set the team ID on a character (%s) except on the authority"), *GetPathNameSafe(this));
 		}
 	}
 	else
 	{
-		UE_LOG(LogLyraTeams, Error, TEXT("You can't set the team ID on a possessed character (%s); it's driven by the associated controller"), *GetPathNameSafe(this));
+		UE_LOG(LogA1Teams, Error, TEXT("You can't set the team ID on a possessed character (%s); it's driven by the associated controller"), *GetPathNameSafe(this));
 	}
 }
 
@@ -508,7 +508,7 @@ FGenericTeamId ALyraCharacter::GetGenericTeamId() const
 	return MyTeamID;
 }
 
-FOnLyraTeamIndexChangedDelegate* ALyraCharacter::GetOnTeamIndexChangedDelegate()
+FOnA1TeamIndexChangedDelegate* ALyraCharacter::GetOnTeamIndexChangedDelegate()
 {
 	return &OnTeamChangedDelegate;
 }
