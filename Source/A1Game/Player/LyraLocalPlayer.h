@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CommonLocalPlayer.h"
-#include "Teams/LyraTeamAgentInterface.h"
+#include "Teams/A1TeamAgentInterface.h"
 
 #include "LyraLocalPlayer.generated.h"
 
@@ -22,7 +22,7 @@ struct FSwapAudioOutputResult;
  * ULyraLocalPlayer
  */
 UCLASS()
-class A1GAME_API ULyraLocalPlayer : public UCommonLocalPlayer, public ILyraTeamAgentInterface
+class A1GAME_API ULyraLocalPlayer : public UCommonLocalPlayer, public IA1TeamAgentInterface
 {
 	GENERATED_BODY()
 
@@ -43,11 +43,11 @@ public:
 	virtual void InitOnlineSession() override;
 	//~End of ULocalPlayer interface
 
-	//~ILyraTeamAgentInterface interface
+	//~IA1TeamAgentInterface interface
 	virtual void SetGenericTeamId(const FGenericTeamId& NewTeamID) override;
 	virtual FGenericTeamId GetGenericTeamId() const override;
-	virtual FOnLyraTeamIndexChangedDelegate* GetOnTeamIndexChangedDelegate() override;
-	//~End of ILyraTeamAgentInterface interface
+	virtual FOnA1TeamIndexChangedDelegate* GetOnTeamIndexChangedDelegate() override;
+	//~End of IA1TeamAgentInterface interface
 
 	/** Gets the local settings for this player, this is read from config files at process startup and is always valid */
 	UFUNCTION()
@@ -83,7 +83,7 @@ private:
 	mutable TObjectPtr<const UInputMappingContext> InputMappingContext;
 
 	UPROPERTY()
-	FOnLyraTeamIndexChangedDelegate OnTeamChangedDelegate;
+	FOnA1TeamIndexChangedDelegate OnTeamChangedDelegate;
 
 	UPROPERTY()
 	TWeakObjectPtr<APlayerController> LastBoundPC;

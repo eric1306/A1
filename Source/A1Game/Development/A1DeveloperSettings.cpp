@@ -1,50 +1,50 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
-#include "LyraDeveloperSettings.h"
+#include "A1DeveloperSettings.h"
 #include "Misc/App.h"
 #include "Widgets/Notifications/SNotificationList.h"
 #include "Framework/Notifications/NotificationManager.h"
 
-#include UE_INLINE_GENERATED_CPP_BY_NAME(LyraDeveloperSettings)
+#include UE_INLINE_GENERATED_CPP_BY_NAME(A1DeveloperSettings)
 
-#define LOCTEXT_NAMESPACE "LyraCheats"
+#define LOCTEXT_NAMESPACE "A1Cheats"
 
-ULyraDeveloperSettings::ULyraDeveloperSettings()
+UA1DeveloperSettings::UA1DeveloperSettings()
 {
 }
 
-FName ULyraDeveloperSettings::GetCategoryName() const
+FName UA1DeveloperSettings::GetCategoryName() const
 {
 	return FApp::GetProjectName();
 }
 
 #if WITH_EDITOR
-void ULyraDeveloperSettings::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
+void UA1DeveloperSettings::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
 {
 	Super::PostEditChangeProperty(PropertyChangedEvent);
 
 	ApplySettings();
 }
 
-void ULyraDeveloperSettings::PostReloadConfig(FProperty* PropertyThatWasLoaded)
+void UA1DeveloperSettings::PostReloadConfig(FProperty* PropertyThatWasLoaded)
 {
 	Super::PostReloadConfig(PropertyThatWasLoaded);
 
 	ApplySettings();
 }
 
-void ULyraDeveloperSettings::PostInitProperties()
+void UA1DeveloperSettings::PostInitProperties()
 {
 	Super::PostInitProperties();
 
 	ApplySettings();
 }
 
-void ULyraDeveloperSettings::ApplySettings()
+void UA1DeveloperSettings::ApplySettings()
 {
 }
 
-void ULyraDeveloperSettings::OnPlayInEditorStarted() const
+void UA1DeveloperSettings::OnPlayInEditorStarted() const
 {
 	// Show a notification toast to remind the user that there's an experience override set
 	if (ExperienceOverride.IsValid())

@@ -7,7 +7,7 @@
 
 #include "AsyncAction_ObserveTeamColors.generated.h"
 
-class ILyraTeamAgentInterface;
+class IA1TeamAgentInterface;
 class ULyraTeamDisplayAsset;
 struct FFrame;
 
@@ -24,7 +24,7 @@ class UAsyncAction_ObserveTeamColors : public UCancellableAsyncAction
 public:
 	// Watches for team changes on the specified team agent
 	//  - It will will fire once immediately to give the current team assignment
-	//  - For anything that can ever belong to a team (implements ILyraTeamAgentInterface),
+	//  - For anything that can ever belong to a team (implements IA1TeamAgentInterface),
 	//    it will also listen for team assignment changes in the future
 	UFUNCTION(BlueprintCallable, meta=(BlueprintInternalUseOnly="true", Keywords="Watch"))
 	static UAsyncAction_ObserveTeamColors* ObserveTeamColors(UObject* TeamAgent);
@@ -48,7 +48,7 @@ private:
 	UFUNCTION()
 	void OnDisplayAssetChanged(const ULyraTeamDisplayAsset* DisplayAsset);
 
-	TWeakInterfacePtr<ILyraTeamAgentInterface> TeamInterfacePtr;
+	TWeakInterfacePtr<IA1TeamAgentInterface> TeamInterfacePtr;
 	TWeakObjectPtr<UObject> TeamInterfaceObj;
 
 	int32 LastBroadcastTeamId = INDEX_NONE;

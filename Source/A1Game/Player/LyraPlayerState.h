@@ -5,7 +5,7 @@
 #include "AbilitySystemInterface.h"
 #include "ModularPlayerState.h"
 #include "System/GameplayTagStack.h"
-#include "Teams/LyraTeamAgentInterface.h"
+#include "Teams/A1TeamAgentInterface.h"
 
 #include "LyraPlayerState.generated.h"
 
@@ -46,7 +46,7 @@ enum class ELyraPlayerConnectionType : uint8
  *	Base player state class used by this project.
  */
 UCLASS(Config = Game)
-class A1GAME_API ALyraPlayerState : public AModularPlayerState, public IAbilitySystemInterface, public ILyraTeamAgentInterface
+class A1GAME_API ALyraPlayerState : public AModularPlayerState, public IAbilitySystemInterface, public IA1TeamAgentInterface
 {
 	GENERATED_BODY()
 
@@ -78,11 +78,11 @@ public:
 	virtual void OnReactivated() override;
 	//~End of APlayerState interface
 
-	//~ILyraTeamAgentInterface interface
+	//~IA1TeamAgentInterface interface
 	virtual void SetGenericTeamId(const FGenericTeamId& NewTeamID) override;
 	virtual FGenericTeamId GetGenericTeamId() const override;
-	virtual FOnLyraTeamIndexChangedDelegate* GetOnTeamIndexChangedDelegate() override;
-	//~End of ILyraTeamAgentInterface interface
+	virtual FOnA1TeamIndexChangedDelegate* GetOnTeamIndexChangedDelegate() override;
+	//~End of IA1TeamAgentInterface interface
 
 	static const FName NAME_LyraAbilityReady;
 
@@ -152,16 +152,16 @@ private:
 
 	// Health attribute set used by this actor.
 	UPROPERTY()
-	TObjectPtr<const class ULyraHealthSet> HealthSet;
+	TObjectPtr<const class UA1VitalSet> HealthSet;
 	// Combat attribute set used by this actor.
 	UPROPERTY()
-	TObjectPtr<const class ULyraCombatSet> CombatSet;
+	TObjectPtr<const class UA1CombatSet> CombatSet;
 
 	UPROPERTY(Replicated)
 	ELyraPlayerConnectionType MyPlayerConnectionType;
 
 	UPROPERTY()
-	FOnLyraTeamIndexChangedDelegate OnTeamChangedDelegate;
+	FOnA1TeamIndexChangedDelegate OnTeamChangedDelegate;
 
 	UPROPERTY(ReplicatedUsing=OnRep_MyTeamID)
 	FGenericTeamId MyTeamID;

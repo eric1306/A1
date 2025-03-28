@@ -7,7 +7,7 @@
 #include "Engine/World.h"
 #include "GameFramework/PlayerState.h"
 #include "GameModes/LyraGameMode.h"
-#include "LyraLogChannels.h"
+#include "A1LogChannels.h"
 #include "Perception/AIPerceptionComponent.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(LyraPlayerBotController)
@@ -39,7 +39,7 @@ void ALyraPlayerBotController::BroadcastOnPlayerStateChanged()
 	FGenericTeamId OldTeamID = FGenericTeamId::NoTeam;
 	if (LastSeenPlayerState != nullptr)
 	{
-		if (ILyraTeamAgentInterface* PlayerStateTeamInterface = Cast<ILyraTeamAgentInterface>(LastSeenPlayerState))
+		if (IA1TeamAgentInterface* PlayerStateTeamInterface = Cast<IA1TeamAgentInterface>(LastSeenPlayerState))
 		{
 			OldTeamID = PlayerStateTeamInterface->GetGenericTeamId();
 			PlayerStateTeamInterface->GetTeamChangedDelegateChecked().RemoveAll(this);
@@ -50,7 +50,7 @@ void ALyraPlayerBotController::BroadcastOnPlayerStateChanged()
 	FGenericTeamId NewTeamID = FGenericTeamId::NoTeam;
 	if (PlayerState != nullptr)
 	{
-		if (ILyraTeamAgentInterface* PlayerStateTeamInterface = Cast<ILyraTeamAgentInterface>(PlayerState))
+		if (IA1TeamAgentInterface* PlayerStateTeamInterface = Cast<IA1TeamAgentInterface>(PlayerState))
 		{
 			NewTeamID = PlayerStateTeamInterface->GetGenericTeamId();
 			PlayerStateTeamInterface->GetTeamChangedDelegateChecked().AddDynamic(this, &ThisClass::OnPlayerStateChangedTeam);
@@ -83,19 +83,19 @@ void ALyraPlayerBotController::OnRep_PlayerState()
 
 void ALyraPlayerBotController::SetGenericTeamId(const FGenericTeamId& NewTeamID)
 {
-	UE_LOG(LogLyraTeams, Error, TEXT("You can't set the team ID on a player bot controller (%s); it's driven by the associated player state"), *GetPathNameSafe(this));
+	UE_LOG(LogA1Teams, Error, TEXT("You can't set the team ID on a player bot controller (%s); it's driven by the associated player state"), *GetPathNameSafe(this));
 }
 
 FGenericTeamId ALyraPlayerBotController::GetGenericTeamId() const
 {
-	if (ILyraTeamAgentInterface* PSWithTeamInterface = Cast<ILyraTeamAgentInterface>(PlayerState))
+	if (IA1TeamAgentInterface* PSWithTeamInterface = Cast<IA1TeamAgentInterface>(PlayerState))
 	{
 		return PSWithTeamInterface->GetGenericTeamId();
 	}
 	return FGenericTeamId::NoTeam;
 }
 
-FOnLyraTeamIndexChangedDelegate* ALyraPlayerBotController::GetOnTeamIndexChangedDelegate()
+FOnA1TeamIndexChangedDelegate* ALyraPlayerBotController::GetOnTeamIndexChangedDelegate()
 {
 	return &OnTeamChangedDelegate;
 }
@@ -136,7 +136,7 @@ ETeamAttitude::Type ALyraPlayerBotController::GetTeamAttitudeTowards(const AActo
 {
 	if (const APawn* OtherPawn = Cast<APawn>(&Other)) {
 
-		if (const ILyraTeamAgentInterface* TeamAgent = Cast<ILyraTeamAgentInterface>(OtherPawn->GetController()))
+		if (const IA1TeamAgentInterface* TeamAgent = Cast<IA1TeamAgentInterface>(OtherPawn->GetController()))
 		{
 			FGenericTeamId OtherTeamID = TeamAgent->GetGenericTeamId();
 
