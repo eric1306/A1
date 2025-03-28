@@ -132,7 +132,6 @@ public:
 public:
 	const UA1ItemInstance* FindPairItemInstance(const UA1ItemInstance* InBaseItemInstance, EEquipmentSlotType& OutEquipmentSlotType) const;
 	static bool IsSameEquipState(EEquipmentSlotType EquipmentSlotType, EEquipState WeaponEquipState);
-	bool IsAllEmpty(EEquipState EquipState) const;
 
 public:
 	ALyraCharacter* GetCharacter() const;

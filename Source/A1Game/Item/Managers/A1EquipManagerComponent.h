@@ -145,14 +145,12 @@ public:
 	UA1EquipmentManagerComponent* GetEquipmentManager() const;
 
 	static EEquipmentSlotType ConvertToEquipmentSlotType(EEquipState EquipState);
-	static EEquipmentSlotType ConvertToEquipmentSlotType(EItemHandType ItemHandType, EEquipState EquipState);
 	static EEquipmentSlotType ConvertToEquipmentSlotType(EItemHandType ItemHandType);
 	static EEquipmentSlotType ConvertToEquipmentSlotType(EItemSlotType ItemSlotType);
 
+	static EEquipState ConvertToAnotherHand(EEquipmentSlotType EquipmentSlotType);
 	static EEquipState ConvertToEquipState(EEquipmentSlotType EquipmentSlotType);
 	static EItemHandType ConvertToItemHandType(EEquipmentSlotType EquipmentSlotType);
-
-	static const TArray<EEquipmentSlotType>& GetEquipmentSlotsByEquipState(EEquipState EquipState);
 	
 	UFUNCTION(BlueprintCallable)
 	void ChangeShouldHiddenEquipments(bool bNewShouldHiddenEquipments);

@@ -11,13 +11,19 @@
 #include "Character/LyraHeroComponent.h"
 #include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystemGlobals.h"
+#include "EnhancedInputSubsystems.h"
 #include "LyraAbilitySimpleFailureMessage.h"
+#include "NavigationSystem.h"
 #include "GameFramework/GameplayMessageSubsystem.h"
 #include "AbilitySystem/LyraAbilitySourceInterface.h"
 #include "AbilitySystem/LyraGameplayEffectContext.h"
+#include "Blueprint/AIBlueprintHelperLibrary.h"
 #include "Physics/PhysicalMaterialWithTags.h"
-#include "GameFramework/PlayerState.h"
 #include "Camera/LyraCameraMode.h"
+#include "Development/A1DeveloperSettings.h"
+#include "Input/A1EnhancedPlayerInput.h"
+#include "Kismet/KismetMathLibrary.h"
+#include "Player/LyraLocalPlayer.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(LyraGameplayAbility)
 
@@ -189,11 +195,45 @@ void ULyraGameplayAbility::OnRemoveAbility(const FGameplayAbilityActorInfo* Acto
 void ULyraGameplayAbility::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
+	
+	if (InputMappingContext)
+	{
+		if (const APlayerController* PC = GetLyraPlayerControllerFromActorInfo())
+		{
+			if (const ULyraLocalPlayer* LP = Cast<ULyraLocalPlayer>(PC->GetLocalPlayer()))
+			{
+				if (UEnhancedInputLocalPlayerSubsystem* Subsystem = LP->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>())
+				{
+					FModifyContextOptions Options;
+					Options.bForceImmediately = true;
+					Options.bIgnoreAllPressedKeysUntilRelease = true;
+					Subsystem->AddMappingContext(InputMappingContext, 1, Options);
+				}
+			}
+		}
+	}
 }
 
 void ULyraGameplayAbility::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
 {
 	ClearCameraMode();
+
+	if (InputMappingContext)
+	{
+		if (const APlayerController* PC = GetLyraPlayerControllerFromActorInfo())
+		{
+			if (const ULyraLocalPlayer* LP = Cast<ULyraLocalPlayer>(PC->GetLocalPlayer()))
+			{
+				if (UEnhancedInputLocalPlayerSubsystem* Subsystem = LP->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>())
+				{
+					FModifyContextOptions Options;
+					Options.bForceImmediately = true;
+					Options.bIgnoreAllPressedKeysUntilRelease = false;
+					Subsystem->RemoveMappingContext(InputMappingContext, Options);
+				}
+			}
+		}
+	}
 
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }
@@ -222,8 +262,11 @@ bool ULyraGameplayAbility::CheckCost(const FGameplayAbilitySpecHandle Handle, co
 
 void ULyraGameplayAbility::ApplyCost(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo) const
 {
-	Super::ApplyCost(Handle, ActorInfo, ActivationInfo);
-
+	if (GIsEditor == false || GetDefault<UA1DeveloperSettings>()->bForceDisableCost == false)
+	{
+		Super::ApplyCost(Handle, ActorInfo, ActivationInfo);
+	}
+	
 	check(ActorInfo);
 
 	// Used to determine if the ability actually hit a target (as some costs are only spent on successful attempts)
@@ -272,6 +315,18 @@ void ULyraGameplayAbility::ApplyCost(const FGameplayAbilitySpecHandle Handle, co
 			AdditionalCost->ApplyCost(this, Handle, ActorInfo, ActivationInfo);
 		}
 	}
+}
+
+void ULyraGameplayAbility::ApplyCooldown(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo) const
+{
+	if (GIsEditor)
+	{
+		const UA1DeveloperSettings* DeveloperSettings = GetDefault<UA1DeveloperSettings>();
+		if (DeveloperSettings->bForceDisableCooldown)
+			return;
+	}
+	
+	Super::ApplyCooldown(Handle, ActorInfo, ActivationInfo);
 }
 
 FGameplayEffectContextHandle ULyraGameplayAbility::MakeEffectContext(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo) const
@@ -436,6 +491,86 @@ void ULyraGameplayAbility::GetAbilitySource(FGameplayAbilitySpecHandle Handle, c
 	UObject* SourceObject = GetSourceObject(Handle, ActorInfo);
 
 	OutAbilitySource = Cast<ILyraAbilitySourceInterface>(SourceObject);
+}
+
+void ULyraGameplayAbility::GetMovementDirection(EA1Direction& OutDirection, FVector& OutMovementVector) const
+{
+	FVector FacingVector;
+	
+	if (ALyraCharacter* LyraCharacter = GetLyraCharacterFromActorInfo())
+	{
+		FacingVector = LyraCharacter->GetActorForwardVector();
+		
+		if (UAIBlueprintHelperLibrary::GetAIController(LyraCharacter))
+		{
+			if (UNavigationSystemV1* NavigationSystemV1 = FNavigationSystem::GetCurrent<UNavigationSystemV1>(GetWorld()))
+			{
+				FNavLocation OutProjectedLocation;
+				const FVector CharacterLocation = LyraCharacter->GetActorLocation();
+				const FVector QueryExtent = FVector(500.f, 500.f, 500.f);
+				NavigationSystemV1->ProjectPointToNavigation(CharacterLocation, OutProjectedLocation, QueryExtent);
+
+				FVector CharacterToProjectedXY = (OutProjectedLocation.Location - CharacterLocation) * FVector(1.f, 1.f, 0.f);
+				OutMovementVector = CharacterToProjectedXY.GetSafeNormal();
+			}
+		}
+		else
+		{
+			OutMovementVector = LyraCharacter->GetLastMovementInputVector();
+		}
+	}
+
+	const FRotator& FacingRotator = UKismetMathLibrary::Conv_VectorToRotator(FacingVector);
+	const FRotator& MovementRotator = UKismetMathLibrary::Conv_VectorToRotator(OutMovementVector);
+
+	const FRotator& DeltaRotator = UKismetMathLibrary::NormalizedDeltaRotator(MovementRotator, FacingRotator);
+	float YawAbs = FMath::Abs(DeltaRotator.Yaw);
+
+	if (OutMovementVector.IsNearlyZero())
+	{
+		OutDirection = EA1Direction::None;
+	}
+	else
+	{
+		if (YawAbs < 60.f)
+		{
+			OutDirection = EA1Direction::Forward;
+		}
+		else if (YawAbs > 120.f)
+		{
+			OutDirection = EA1Direction::Backward;
+		}
+		else if (DeltaRotator.Yaw < 0.f)
+		{
+			OutDirection = EA1Direction::Left;
+		}
+		else
+		{
+			OutDirection = EA1Direction::Right;
+		}
+	}
+}
+
+void ULyraGameplayAbility::FlushPressedKeys()
+{
+	if (ALyraPlayerController* PC = GetLyraPlayerControllerFromActorInfo())
+	{
+		PC->FlushPressedKeys();
+	}
+}
+
+void ULyraGameplayAbility::FlushPressedInput(UInputAction* InputAction)
+{
+	if (CurrentActorInfo)
+	{
+		if (APlayerController* PlayerController = CurrentActorInfo->PlayerController.Get())
+		{
+			if (UA1EnhancedPlayerInput* PlayerInput = Cast<UA1EnhancedPlayerInput>(PlayerController->PlayerInput))
+			{
+				PlayerInput->FlushPressedInput(InputAction);
+			}
+		}
+	}
 }
 
 void ULyraGameplayAbility::TryActivateAbilityOnSpawn(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec) const

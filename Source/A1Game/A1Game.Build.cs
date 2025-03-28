@@ -73,6 +73,7 @@ public class A1Game : ModuleRules
 				"AudioModulation",
 				"EngineSettings",
 				"DTLSHandlerComponent",
+                "NavigationSystem",
                 "NiagaraAnimNotifies",
 				"GameplayCameras",
             }

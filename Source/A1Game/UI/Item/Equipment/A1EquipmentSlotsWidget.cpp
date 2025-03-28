@@ -94,7 +94,7 @@ void UA1EquipmentSlotsWidget::DestructUI()
 
 void UA1EquipmentSlotsWidget::OnEquipmentEntryChanged(EEquipmentSlotType EquipmentSlotType, UA1ItemInstance* ItemInstance, int32 ItemCount)
 {
-	if (EquipmentSlotType == EEquipmentSlotType::Unarmed_LeftHand || EquipmentSlotType == EEquipmentSlotType::Unarmed_RightHand || EquipmentSlotType == EEquipmentSlotType::Count)
+	if (EquipmentSlotType == EEquipmentSlotType::Count)
 		return;
 
 	const int32 SlotIndex = (int32)UA1EquipManagerComponent::ConvertToEquipState(EquipmentSlotType) - 1;

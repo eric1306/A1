@@ -21,21 +21,15 @@ namespace A1GameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(InputTag_Sprint,									"InputTag.Sprint");
 	UE_DEFINE_GAMEPLAY_TAG(InputTag_Crouch,									"InputTag.Crouch");
 	UE_DEFINE_GAMEPLAY_TAG(InputTag_Interact,								"InputTag.Interact");
-	UE_DEFINE_GAMEPLAY_TAG(InputTag_ChangeEquip_Primary,					"InputTag.ChangeEquip.Primary");
-	UE_DEFINE_GAMEPLAY_TAG(InputTag_ChangeEquip_Secondary,					"InputTag.ChangeEquip.Secondary");
-	UE_DEFINE_GAMEPLAY_TAG(InputTag_ChangeEquip_Tertiary,					"InputTag.ChangeEquip.Tertiary");
-	UE_DEFINE_GAMEPLAY_TAG(InputTag_ChangeEquip_Quaternary,					"InputTag.ChangeEquip.Quaternary");
-	UE_DEFINE_GAMEPLAY_TAG(InputTag_ChangeEquip_Quinary,					"InputTag.ChangeEquip.Quinary");
-	UE_DEFINE_GAMEPLAY_TAG(InputTag_ChangeEquip_Senary,						"InputTag.ChangeEquip.Senary");
+	UE_DEFINE_GAMEPLAY_TAG(InputTag_ChangeEquip_Left,					"InputTag.ChangeEquip.Left");
+	UE_DEFINE_GAMEPLAY_TAG(InputTag_ChangeEquip_Right,					"InputTag.ChangeEquip.Right");
 	UE_DEFINE_GAMEPLAY_TAG(InputTag_Ability_Confirm,						"InputTag.Ability.Confirm");
 	UE_DEFINE_GAMEPLAY_TAG(InputTag_Ability_Cancel,							"InputTag.Ability.Cancel");
-	UE_DEFINE_GAMEPLAY_TAG(InputTag_Attack_MainHand,						"InputTag.Attack.MainHand");
-	UE_DEFINE_GAMEPLAY_TAG(InputTag_Attack_OffHand,							"InputTag.Attack.OffHand");
+	UE_DEFINE_GAMEPLAY_TAG(InputTag_Ability_UseItem,						"InputTag.Ability.UseItem");
 	UE_DEFINE_GAMEPLAY_TAG(InputTag_Attack_Skill_1,							"InputTag.Attack.Skill.1");
 	UE_DEFINE_GAMEPLAY_TAG(InputTag_Attack_Skill_2,							"InputTag.Attack.Skill.2");
 	UE_DEFINE_GAMEPLAY_TAG(InputTag_Widget_Inventory,						"InputTag.Widget.Inventory");
-	UE_DEFINE_GAMEPLAY_TAG(InputTag_Widget_WorldMap,						"InputTag.Widget.WorldMap");
-	UE_DEFINE_GAMEPLAY_TAG(InputTag_Widget_ClassSelection,					"InputTag.Widget.ClassSelection");
+	UE_DEFINE_GAMEPLAY_TAG(InputTag_Widget_ClassSelection,					"InputTag.Widget.SkinSelection");
 	
 	// Ability
 	UE_DEFINE_GAMEPLAY_TAG(Ability_ActivateFail_IsDead,						"Ability.ActivateFail.IsDead");
@@ -74,9 +68,11 @@ namespace A1GameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Interact,								"Ability.Interact");
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Interact_Active,							"Ability.Interact.Active");
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Interact_Object,							"Ability.Interact.Object");
+	UE_DEFINE_GAMEPLAY_TAG(Ability_Interact_FlashLight,						"Ability.Interact.FlashLight");
+	UE_DEFINE_GAMEPLAY_TAG(Ability_Interact_DropItem,						"Ability.Interact.DropItem");
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Widget_Inventory,						"Ability.Widget.Inventory");
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Widget_WorldMap,							"Ability.Widget.WorldMap");
-	UE_DEFINE_GAMEPLAY_TAG(Ability_Widget_ClassSelection,					"Ability.Widget.ClassSelection");
+	UE_DEFINE_GAMEPLAY_TAG(Ability_Widget_ClassSelection,					"Ability.Widget.SkinSelection");
 	UE_DEFINE_GAMEPLAY_TAG(Ability_HitReact,								"Ability.HitReact");
 
 	// Status

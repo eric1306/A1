@@ -22,7 +22,7 @@ UA1EquipmentEntryWidget::UA1EquipmentEntryWidget(const FObjectInitializer& Objec
 
 void UA1EquipmentEntryWidget::Init(UA1ItemInstance* InItemInstance, int32 InItemCount, EEquipmentSlotType InEquipmentSlotType, UA1EquipmentManagerComponent* InEquipmentManager)
 {
-	if (InEquipmentSlotType == EEquipmentSlotType::Unarmed_LeftHand || InEquipmentSlotType == EEquipmentSlotType::Unarmed_RightHand || InEquipmentSlotType == EEquipmentSlotType::Count)
+	if (InEquipmentSlotType == EEquipmentSlotType::Count)
 		return;
 
 	RefreshUI(InItemInstance, InItemCount);
