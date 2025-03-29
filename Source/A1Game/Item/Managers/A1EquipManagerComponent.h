@@ -157,6 +157,7 @@ public:
 	
 	bool ShouldHiddenEquipments() const { return bShouldHiddenEquipments; }
 	EEquipState GetCurrentEquipState() const { return CurrentEquipState; }
+	FORCEINLINE EItemHandType GetItemHandType() const { return GetCurrentEquipState() == EEquipState::Both ? EItemHandType::TwoHand : (GetCurrentEquipState() == EEquipState::Left ? EItemHandType::LeftHand : EItemHandType::RightHand); }
 	
 	AA1EquipmentBase* GetEquippedActor(EItemHandType WeaponHandType) const;
 
