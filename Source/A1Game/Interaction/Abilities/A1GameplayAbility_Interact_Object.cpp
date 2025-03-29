@@ -92,7 +92,7 @@ void UA1GameplayAbility_Interact_Object::EndAbility(const FGameplayAbilitySpecHa
 
 				if (EquipManager->GetCurrentEquipState() != EEquipState::Unarmed)
 				{
-					if (AA1EquipmentBase* EquippedActor = EquipManager->GetFirstEquippedActor())
+					if (AA1EquipmentBase* EquippedActor = EquipManager->GetEquippedActor(EquipManager->GetItemHandType()))
 					{
 						if (UAbilityTask_PlayMontageAndWait* PlayMontageTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(this, TEXT("EquipMontage"), EquippedActor->GetEquipMontage(), 1.f, NAME_None, false, 1.f, 0.f, false))
 						{

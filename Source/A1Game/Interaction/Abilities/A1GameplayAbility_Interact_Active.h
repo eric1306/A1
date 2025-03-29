@@ -33,12 +33,12 @@ private:
 	bool TriggerInteraction();
 
 protected:
-	UPROPERTY(EditDefaultsOnly, Category = "D1|Interaction")
+	UPROPERTY(EditDefaultsOnly, Category = "A1|Interaction")
 	TObjectPtr<UInputAction> MoveInputAction;
 
-	UPROPERTY(EditDefaultsOnly, Category = "D1|Interaction")
+	UPROPERTY(EditDefaultsOnly, Category = "A1|Interaction")
 	float AcceptanceAngle = 65.f;
 
-	UPROPERTY(EditDefaultsOnly, Category = "D1|Interaction")
+	UPROPERTY(EditDefaultsOnly, Category = "A1|Interaction")
 	float AcceptanceDistance = 10.f;
 };

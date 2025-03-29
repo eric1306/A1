@@ -50,7 +50,7 @@ void UA1AbilityTask_GrantNearbyInteraction::QueryInteractables()
 		TSet<FObjectKey> RemoveKeys;
 		GrantedInteractionAbilities.GetKeys(RemoveKeys);
 
-		FCollisionQueryParams Params(SCENE_QUERY_STAT(UD1AbilityTask_GrantNearbyInteraction), false);
+		FCollisionQueryParams Params(SCENE_QUERY_STAT(UA1AbilityTask_GrantNearbyInteraction), false);
 
 		TArray<FOverlapResult> OverlapResults;
 		//World->OverlapMultiByChannel(OverlapResults, AvatarActor->GetActorLocation(), FQuat::Identity, A1_TraceChannel_Interaction, FCollisionShape::MakeSphere(InteractionAbilityScanRange), Params);
@@ -60,7 +60,7 @@ void UA1AbilityTask_GrantNearbyInteraction::QueryInteractables()
 			TArray<TScriptInterface<IA1Interactable>> Interactables;
 			for (const FOverlapResult& OverlapResult : OverlapResults)
 			{
-				/*TScriptInterface<IA1Interactable> InteractableActor(OverlapResult.GetActor());
+				TScriptInterface<IA1Interactable> InteractableActor(OverlapResult.GetActor());
 				if (InteractableActor)
 				{
 					Interactables.AddUnique(InteractableActor);
@@ -70,7 +70,7 @@ void UA1AbilityTask_GrantNearbyInteraction::QueryInteractables()
 				if (InteractableComponent)
 				{
 					Interactables.AddUnique(InteractableComponent);
-				}*/
+				}
 			}
 
 			FA1InteractionQuery InteractionQuery;
