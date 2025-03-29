@@ -53,7 +53,7 @@ void UA1AbilityTask_GrantNearbyInteraction::QueryInteractables()
 		FCollisionQueryParams Params(SCENE_QUERY_STAT(UA1AbilityTask_GrantNearbyInteraction), false);
 
 		TArray<FOverlapResult> OverlapResults;
-		//World->OverlapMultiByChannel(OverlapResults, AvatarActor->GetActorLocation(), FQuat::Identity, A1_TraceChannel_Interaction, FCollisionShape::MakeSphere(InteractionAbilityScanRange), Params);
+		World->OverlapMultiByChannel(OverlapResults, AvatarActor->GetActorLocation(), FQuat::Identity, A1_TraceChannel_Interaction, FCollisionShape::MakeSphere(InteractionAbilityScanRange), Params);
 
 		if (OverlapResults.Num() > 0)
 		{
