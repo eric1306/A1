@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # Project-A1
 
 맵 생성 규칙
@@ -37,5 +36,3 @@ Branch 네이밍 규칙
 -
 개발 목록 / 개발 기능
 - ex) Monster/Battle
-=======
->>>>>>> 274dd41 (Add Experience)
