@@ -6,6 +6,7 @@
 #include "GameplayCueInterface.h"
 #include "GameplayTagAssetInterface.h"
 #include "ModularCharacter.h"
+#include "Interaction/A1InteractionInfo.h"
 #include "Teams/A1TeamAgentInterface.h"
 
 #include "LyraCharacter.generated.h"
@@ -227,4 +228,18 @@ private:
 
 //public:
 //	virtual void GetMeshComponents(TArray<UMeshComponent*>& OutMeshComponents) const override;
+
+protected:
+	UPROPERTY(EditDefaultsOnly, Category = "Info")
+	FA1InteractionInfo InteractionInfo;
+
+public:
+	float BaseUnscaledCapsuleHalfHeight = 0.f;
+
+	UPROPERTY(EditDefaultsOnly)
+	float BaseFallDamage = 3.f;
+	UPROPERTY(EditDefaultsOnly)
+	float MaxFallDamage = 10.f;
+	UPROPERTY(EditDefaultsOnly)
+	float FallDamageVelocityZThreshold = 800.f;
 };
