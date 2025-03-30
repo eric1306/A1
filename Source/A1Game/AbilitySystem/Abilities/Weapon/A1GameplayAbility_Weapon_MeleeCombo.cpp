@@ -1,5 +1,6 @@
 ﻿#include "A1GameplayAbility_Weapon_MeleeCombo.h"
 
+#include "A1LogChannels.h"
 #include "AbilitySystemComponent.h"
 #include "Abilities/Tasks/AbilityTask_WaitConfirmCancel.h"
 #include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
