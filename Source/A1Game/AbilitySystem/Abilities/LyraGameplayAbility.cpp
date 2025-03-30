@@ -234,7 +234,6 @@ void ULyraGameplayAbility::EndAbility(const FGameplayAbilitySpecHandle Handle, c
 			}
 		}
 	}
-
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }
 

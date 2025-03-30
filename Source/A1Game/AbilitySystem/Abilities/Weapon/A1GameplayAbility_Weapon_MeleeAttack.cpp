@@ -1,5 +1,6 @@
 ﻿#include "A1GameplayAbility_Weapon_MeleeAttack.h"
 
+#include "A1LogChannels.h"
 #include "A1GameplayTags.h"
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
 #include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
