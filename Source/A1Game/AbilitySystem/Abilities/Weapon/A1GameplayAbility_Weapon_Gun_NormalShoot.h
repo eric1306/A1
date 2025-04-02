@@ -20,12 +20,12 @@ protected:
 	void OnMontageFinished();
 	
 protected:
-	UPROPERTY(EditDefaultsOnly, Category="A1|Bow NormalShoot")
-	TObjectPtr<UAnimMontage> ReleaseMontage;
+	UPROPERTY(EditDefaultsOnly, Category="A1|Gun NormalShoot")
+	TObjectPtr<UAnimMontage> ShootMontage;
 	
-	UPROPERTY(EditDefaultsOnly, Category="A1|Bow NormalShoot")
+	UPROPERTY(EditDefaultsOnly, Category="A1|Gun NormalShoot")
 	TObjectPtr<UAnimMontage> ReloadMontage;
 	
-	UPROPERTY(EditDefaultsOnly, Category="A1|Bow NormalShoot")
+	UPROPERTY(EditDefaultsOnly, Category="A1|Gun NormalShoot")
 	TObjectPtr<UAnimMontage> ReleaseReloadMontage;
 };

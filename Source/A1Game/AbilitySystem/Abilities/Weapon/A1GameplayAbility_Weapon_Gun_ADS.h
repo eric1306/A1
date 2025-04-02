@@ -37,10 +37,10 @@ private:
 	void ResetADS();
 	
 protected:
-	UPROPERTY(EditDefaultsOnly, Category="A1|Bow ADS")
+	UPROPERTY(EditDefaultsOnly, Category="A1|Gun ADS")
 	TObjectPtr<UAnimMontage> ADSStartMontage;
 
-	UPROPERTY(EditDefaultsOnly, Category="A1|Bow ADS")
+	UPROPERTY(EditDefaultsOnly, Category="A1|Gun ADS")
 	TObjectPtr<UAnimMontage> ADSEndMontage;
 	
 private:

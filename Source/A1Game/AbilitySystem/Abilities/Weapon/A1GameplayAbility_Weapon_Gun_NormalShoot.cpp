@@ -37,7 +37,6 @@ void UA1GameplayAbility_Weapon_Gun_NormalShoot::ActivateAbility(const FGameplayA
 	if (HasAuthority(&CurrentActivationInfo))
 	{
 		// TODO  Jerry
-		// SpawnProjectile();
 		// Shoot();
 	}
 
@@ -45,8 +44,8 @@ void UA1GameplayAbility_Weapon_Gun_NormalShoot::ActivateAbility(const FGameplayA
 	TagContainer.AddTag(A1GameplayTags::Status_ADS_Ready);
 	UAbilitySystemBlueprintLibrary::RemoveLooseGameplayTags(GetAvatarActorFromActorInfo(), TagContainer, true);
 
-	UAnimMontage* SelectedMontage = K2_CheckAbilityCost() ? ReleaseReloadMontage : ReleaseMontage;
-	if (UAbilityTask_PlayMontageAndWait* ShootMontageTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(this, TEXT("ShootMontage"), SelectedMontage, GetSnapshottedAttackRate(), NAME_None, true, 1.f, 0.f, false))
+	//UAnimMontage* SelectedMontage = K2_CheckAbilityCost() ? ReleaseReloadMontage : ShootMontage;
+	if (UAbilityTask_PlayMontageAndWait* ShootMontageTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(this, TEXT("ShootMontage"), ShootMontage, GetSnapshottedAttackRate(), NAME_None, true, 1.f, 0.f, false))
 	{
 		ShootMontageTask->OnCompleted.AddDynamic(this, &ThisClass::OnMontageFinished);
 		ShootMontageTask->OnBlendOut.AddDynamic(this, &ThisClass::OnMontageFinished);
