@@ -80,7 +80,6 @@ void AA1EquipmentBase::Destroyed()
 
 		if (UA1EquipManagerComponent* EquipManager = Character->FindComponentByClass<UA1EquipManagerComponent>())
 		{
-			// TODO Jerry : 장착 슬롯을 slotType이 아닌 index 형태로 바꿔야함
 			TArray<FA1EquipEntry>& Entries = EquipManager->GetAllEntries();
 			if (Entries[(int32)EquipmentSlotType].GetEquipmentActor() == this)
 			{

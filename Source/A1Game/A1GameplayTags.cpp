@@ -21,11 +21,13 @@ namespace A1GameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(InputTag_Sprint,									"InputTag.Sprint");
 	UE_DEFINE_GAMEPLAY_TAG(InputTag_Crouch,									"InputTag.Crouch");
 	UE_DEFINE_GAMEPLAY_TAG(InputTag_Interact,								"InputTag.Interact");
-	UE_DEFINE_GAMEPLAY_TAG(InputTag_ChangeEquip_Left,					"InputTag.ChangeEquip.Left");
-	UE_DEFINE_GAMEPLAY_TAG(InputTag_ChangeEquip_Right,					"InputTag.ChangeEquip.Right");
+	UE_DEFINE_GAMEPLAY_TAG(InputTag_ChangeEquip_Left,						"InputTag.ChangeEquip.Left");
+	UE_DEFINE_GAMEPLAY_TAG(InputTag_ChangeEquip_Right,						"InputTag.ChangeEquip.Right");
 	UE_DEFINE_GAMEPLAY_TAG(InputTag_Ability_Confirm,						"InputTag.Ability.Confirm");
 	UE_DEFINE_GAMEPLAY_TAG(InputTag_Ability_Cancel,							"InputTag.Ability.Cancel");
 	UE_DEFINE_GAMEPLAY_TAG(InputTag_Ability_UseItem,						"InputTag.Ability.UseItem");
+	UE_DEFINE_GAMEPLAY_TAG(InputTag_Attack_MainHand,						"InputTag.Attack.Main");
+	UE_DEFINE_GAMEPLAY_TAG(InputTag_Attack_OffHand,							"InputTag.Attack.Sub");
 	UE_DEFINE_GAMEPLAY_TAG(InputTag_Attack_Skill_1,							"InputTag.Attack.Skill.1");
 	UE_DEFINE_GAMEPLAY_TAG(InputTag_Attack_Skill_2,							"InputTag.Attack.Skill.2");
 	UE_DEFINE_GAMEPLAY_TAG(InputTag_Widget_Inventory,						"InputTag.Widget.Inventory");
@@ -55,7 +57,7 @@ namespace A1GameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Attack_1,								"Ability.Attack.1");
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Attack_2,								"Ability.Attack.2");
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Attack_3,								"Ability.Attack.3");
-	UE_DEFINE_GAMEPLAY_TAG(Ability_Attack_Bow,								"Ability.Attack.Bow");
+	UE_DEFINE_GAMEPLAY_TAG(Ability_Attack_Gun,								"Ability.Attack.Gun");
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Attack_Skill,							"Ability.Attack.Skill");
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Attack_Skill_1,							"Ability.Attack.Skill.1");
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Attack_Skill_2,							"Ability.Attack.Skill.2");
@@ -63,7 +65,7 @@ namespace A1GameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Drink,									"Ability.Drink");
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Block,									"Ability.Block");
 	UE_DEFINE_GAMEPLAY_TAG(Ability_ADS,										"Ability.ADS");
-	UE_DEFINE_GAMEPLAY_TAG(Ability_ADS_Bow,									"Ability.ADS.Bow");
+	UE_DEFINE_GAMEPLAY_TAG(Ability_ADS_Gun,									"Ability.ADS.Gun");
 	UE_DEFINE_GAMEPLAY_TAG(Ability_ADS_Throw,								"Ability.ADS.Throw");
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Interact,								"Ability.Interact");
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Interact_Active,							"Ability.Interact.Active");
@@ -90,7 +92,7 @@ namespace A1GameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(Status_Block,									"Status.Block");
 	UE_DEFINE_GAMEPLAY_TAG(Status_ChangeEquip,								"Status.ChangeEquip");
 	UE_DEFINE_GAMEPLAY_TAG(Status_ADS,										"Status.ADS");
-	UE_DEFINE_GAMEPLAY_TAG(Status_ADS_Bow,									"Status.ADS.Bow");
+	UE_DEFINE_GAMEPLAY_TAG(Status_ADS_Gun,									"Status.ADS.Gun");
 	UE_DEFINE_GAMEPLAY_TAG(Status_ADS_Ready,								"Status.ADS.Ready");
 	UE_DEFINE_GAMEPLAY_TAG(Status_ADS_Throw,								"Status.ADS.Throw");
 	UE_DEFINE_GAMEPLAY_TAG(Status_Dash,										"Status.Dash");
@@ -119,7 +121,7 @@ namespace A1GameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(GameplayEvent_Potion_Fill,						"GameplayEvent.Potion.Fill");
 	UE_DEFINE_GAMEPLAY_TAG(GameplayEvent_Knockback,							"GameplayEvent.Knockback");
 	UE_DEFINE_GAMEPLAY_TAG(GameplayEvent_Stun,								"GameplayEvent.Stun");
-	UE_DEFINE_GAMEPLAY_TAG(GameplayEvent_Bow_ADS,							"GameplayEvent.Bow.ADS");
+	UE_DEFINE_GAMEPLAY_TAG(GameplayEvent_Gun_ADS,							"GameplayEvent.Gun.ADS");
 	UE_DEFINE_GAMEPLAY_TAG(GameplayEvent_HitReact,							"GameplayEvent.HitReact");
 	
 	// Cheat
@@ -178,7 +180,7 @@ namespace A1GameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(GameplayCue_Skill_Buff,							"GameplayCue.Skill.Buff");
 
 	// Cooldown
-	UE_DEFINE_GAMEPLAY_TAG(Cooldown_Bow_Fire,								"Cooldown.Bow.Fire");
+	UE_DEFINE_GAMEPLAY_TAG(Cooldown_Gun_Fire,								"Cooldown.Gun.Fire");
 	UE_DEFINE_GAMEPLAY_TAG(Cooldown_Jump,									"Cooldown.Jump");
 	UE_DEFINE_GAMEPLAY_TAG(Cooldown_Dash,									"Cooldown.Dash");
 	UE_DEFINE_GAMEPLAY_TAG(Cooldown_Statue,									"Cooldown.Statue");
