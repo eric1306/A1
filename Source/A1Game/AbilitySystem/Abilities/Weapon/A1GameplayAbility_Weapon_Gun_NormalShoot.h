@@ -18,7 +18,23 @@ protected:
 protected:
 	UFUNCTION()
 	void OnMontageFinished();
+
+protected:
+	void Shoot();
 	
+protected:
+	UPROPERTY(EditDefaultsOnly, Category = "A1|Gun Projectile")
+	FName SpawnSocketName;
+
+	UPROPERTY(EditDefaultsOnly, Category = "A1|Gun Projectile")
+	bool bApplyAimAssist = true;
+
+	UPROPERTY(EditDefaultsOnly, Category = "A1|Gun Projectile", meta = (EditCondition = "bApplyAnimAssist"))
+	float AimAssistMinDistance = 100.f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "A1|Gun Projectile", meta = (EditCondition = "bApplyAnimAssist"))
+	float AimAssistMaxDistance = 10000.f;
+
 protected:
 	UPROPERTY(EditDefaultsOnly, Category="A1|Gun NormalShoot")
 	TObjectPtr<UAnimMontage> ShootMontage;
