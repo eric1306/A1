@@ -1,10 +1,12 @@
 ﻿#include "A1GameplayAbility_Weapon_Gun_NormalShoot.h"
 
 #include "A1GameplayTags.h"
+#include "Actors/A1EquipmentBase.h"
 #include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystemComponent.h"
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
-//#include "Actors/A1ProjectileBase.h"
+#include "Kismet/KismetSystemLibrary.h"
+#include "Physics/LyraCollisionChannels.h"
 #include "Actors/A1EquipmentBase.h"
 #include "Player/LyraPlayerController.h"
 
@@ -36,8 +38,7 @@ void UA1GameplayAbility_Weapon_Gun_NormalShoot::ActivateAbility(const FGameplayA
 
 	if (HasAuthority(&CurrentActivationInfo))
 	{
-		// TODO  Jerry
-		// Shoot();
+		Shoot();
 	}
 
 	FGameplayTagContainer TagContainer;
@@ -64,4 +65,50 @@ void UA1GameplayAbility_Weapon_Gun_NormalShoot::OnMontageFinished()
 	}
 	
 	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
+}
+
+void UA1GameplayAbility_Weapon_Gun_NormalShoot::Shoot()
+{
+	if (HasAuthority(&CurrentActivationInfo) == false)
+		return;
+
+	AA1EquipmentBase* WeaponActor = GetFirstEquipmentActor();
+	if (WeaponActor == nullptr)
+		return;
+
+	ALyraCharacter* LyraCharacter = GetLyraCharacterFromActorInfo();
+	ALyraPlayerController* LyraPlayerController = GetLyraPlayerControllerFromActorInfo();
+
+	if (LyraCharacter && LyraPlayerController)
+	{
+		FTransform SocketTransform = LyraCharacter->GetMesh()->GetSocketTransform(SpawnSocketName, RTS_World);
+		FVector SocketLocation = SocketTransform.GetLocation();
+		FRotator SocketRotation = SocketTransform.GetRotation().Rotator();
+
+		FVector CameraLocation;
+		FRotator CameraRotation;
+		LyraPlayerController->GetPlayerViewPoint(CameraLocation, CameraRotation);
+
+		//FTransform SpawnTransform;
+		if (bApplyAimAssist)
+		{
+			float Distance = (SocketLocation - CameraLocation).Dot(CameraRotation.Vector());
+			FVector StartLocation = CameraLocation + CameraRotation.Vector() * (Distance + AimAssistMinDistance);
+			FVector EndLocation = StartLocation + (CameraRotation.Vector() * AimAssistMaxDistance);
+
+			FHitResult HitResult;
+			TArray<AActor*> ActorsToIgnore = { LyraCharacter, WeaponActor };
+
+			bool bHit = UKismetSystemLibrary::LineTraceSingle(GetWorld(), StartLocation, EndLocation, UEngineTypes::ConvertToTraceType(A1_TraceChannel_AimAssist), false, ActorsToIgnore, EDrawDebugTrace::ForDuration, HitResult, true);
+			SocketRotation = bHit ? (HitResult.ImpactPoint - SocketLocation).Rotation() : (EndLocation - SocketLocation).Rotation();
+
+			//SpawnTransform.SetLocation(SocketLocation);
+			//SpawnTransform.SetRotation(SocketRotation.Quaternion());
+		}
+		else
+		{
+			//SpawnTransform.SetLocation(SocketLocation);
+			//SpawnTransform.SetRotation(CameraRotation.Quaternion());
+		}
+	}
 }
