@@ -26,6 +26,8 @@ namespace A1GameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(InputTag_Ability_Confirm,						"InputTag.Ability.Confirm");
 	UE_DEFINE_GAMEPLAY_TAG(InputTag_Ability_Cancel,							"InputTag.Ability.Cancel");
 	UE_DEFINE_GAMEPLAY_TAG(InputTag_Ability_UseItem,						"InputTag.Ability.UseItem");
+	UE_DEFINE_GAMEPLAY_TAG(InputTag_Attack_MainHand,						"InputTag.Attack.Main");
+	UE_DEFINE_GAMEPLAY_TAG(InputTag_Attack_OffHand,							"InputTag.Attack.Sub");
 	UE_DEFINE_GAMEPLAY_TAG(InputTag_Attack_Skill_1,							"InputTag.Attack.Skill.1");
 	UE_DEFINE_GAMEPLAY_TAG(InputTag_Attack_Skill_2,							"InputTag.Attack.Skill.2");
 	UE_DEFINE_GAMEPLAY_TAG(InputTag_Widget_Inventory,						"InputTag.Widget.Inventory");
