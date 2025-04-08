@@ -15,6 +15,7 @@ class UA1EquipManagerComponent;
 class UA1EquipmentManagerComponent;
 
 DECLARE_MULTICAST_DELEGATE_TwoParams(FOnEquipStateChanged, EEquipState, EEquipState);
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnMainHandChanged, EMainHandState);
 
 USTRUCT(BlueprintType)
 struct FA1EquipEntry : public FFastArraySerializerItem
@@ -127,6 +128,9 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly)
 	void ChangeEquipState(EEquipState NewEquipState);
 
+	UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly)
+	void ChangeMainHand();
+
 	UFUNCTION(BlueprintCallable)
 	bool CanChangeEquipState(EEquipState NewEquipState) const;
 
@@ -134,7 +138,11 @@ private:
 	UFUNCTION()
 	void OnRep_CurrentEquipState(EEquipState PrevEquipState);
 
+	UFUNCTION()
+	void OnRep_CurrentMainHand(EMainHandState NewState);
+
 	void BroadcastChangedMessage(EEquipState PrevEquipState, EEquipState NewEquipState);
+	void BroadcastChangedMessage(EMainHandState NewState);
 
 public:
 	ALyraCharacter* GetCharacter() const;
@@ -150,6 +158,7 @@ public:
 
 	static EEquipState ConvertToAnotherHand(EEquipmentSlotType EquipmentSlotType);
 	static EEquipState ConvertToEquipState(EEquipmentSlotType EquipmentSlotType);
+	static EItemSlotType ConvertToItemSlotType(EEquipmentSlotType EquipmentSlotType);
 	static EItemHandType ConvertToItemHandType(EEquipmentSlotType EquipmentSlotType);
 	
 	UFUNCTION(BlueprintCallable)
@@ -157,6 +166,7 @@ public:
 	
 	bool ShouldHiddenEquipments() const { return bShouldHiddenEquipments; }
 	EEquipState GetCurrentEquipState() const { return CurrentEquipState; }
+	EMainHandState GetCurrentMainHand() const { return CurrentMainHand; }
 	FORCEINLINE EItemHandType GetItemHandType() const { return GetCurrentEquipState() == EEquipState::Both ? EItemHandType::TwoHand : (GetCurrentEquipState() == EEquipState::Left ? EItemHandType::LeftHand : EItemHandType::RightHand); }
 	
 	AA1EquipmentBase* GetEquippedActor(EItemHandType WeaponHandType) const;
@@ -166,6 +176,7 @@ public:
 
 public:
 	FOnEquipStateChanged OnEquipStateChanged;
+	FOnMainHandChanged OnMainHandChanged;
 	
 private:
 	UPROPERTY(Replicated)
@@ -173,6 +184,9 @@ private:
 
 	UPROPERTY(ReplicatedUsing=OnRep_CurrentEquipState)
 	EEquipState CurrentEquipState = EEquipState::Count;
+
+	UPROPERTY(ReplicatedUsing=OnRep_CurrentMainHand)
+	EMainHandState CurrentMainHand = EMainHandState::Right;
 
 	UPROPERTY(Replicated)
 	bool bShouldHiddenEquipments = false;

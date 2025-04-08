@@ -393,6 +393,7 @@ void UA1EquipManagerComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProper
 
 	DOREPLIFETIME(ThisClass, EquipList);
 	DOREPLIFETIME(ThisClass, CurrentEquipState);
+	DOREPLIFETIME(ThisClass, CurrentMainHand);
 	DOREPLIFETIME(ThisClass, bShouldHiddenEquipments);
 }
 
@@ -467,13 +468,32 @@ void UA1EquipManagerComponent::ChangeEquipState(EEquipState NewEquipState)
 
 	if (CanChangeEquipState(NewEquipState))
 	{
-		if (CurrentEquipState == EEquipState::Left && CurrentEquipState == EEquipState::Right)
+		if (CurrentEquipState == EEquipState::Left || CurrentEquipState == EEquipState::Right)
 		{
 			NewEquipState = EEquipState::Both;
 		}
 		
 		CurrentEquipState = NewEquipState;
 	}
+}
+
+void UA1EquipManagerComponent::ChangeMainHand()
+{
+	//check(GetOwner()->HasAuthority());
+
+	switch (CurrentMainHand)
+	{
+	case EMainHandState::Left:
+		CurrentMainHand = EMainHandState::Right;
+		break;
+	case EMainHandState::Right:
+		CurrentMainHand = EMainHandState::Left;
+		break;
+	}
+
+	// TODO Jerry 
+	// 서버에서 호출되도록 구조 변경 예정
+	BroadcastChangedMessage(CurrentMainHand);
 }
 
 bool UA1EquipManagerComponent::CanChangeEquipState(EEquipState NewEquipState) const
@@ -525,11 +545,24 @@ void UA1EquipManagerComponent::OnRep_CurrentEquipState(EEquipState PrevEquipStat
 	BroadcastChangedMessage(PrevEquipState, CurrentEquipState);
 }
 
+void UA1EquipManagerComponent::OnRep_CurrentMainHand(EMainHandState NewState)
+{
+	BroadcastChangedMessage(NewState);
+}
+
 void UA1EquipManagerComponent::BroadcastChangedMessage(EEquipState PrevEquipState, EEquipState NewEquipState)
 {
 	if (OnEquipStateChanged.IsBound())
 	{
 		OnEquipStateChanged.Broadcast(PrevEquipState, NewEquipState);
+	}
+}
+
+void UA1EquipManagerComponent::BroadcastChangedMessage(EMainHandState NewState)
+{
+	if (OnMainHandChanged.IsBound())
+	{
+		OnMainHandChanged.Broadcast(NewState);
 	}
 }
 
@@ -633,6 +666,23 @@ EEquipState UA1EquipManagerComponent::ConvertToEquipState(EEquipmentSlotType Equ
 	}
 
 	return EquipState;
+}
+
+EItemSlotType UA1EquipManagerComponent::ConvertToItemSlotType(EEquipmentSlotType EquipmentSlotType)
+{
+	EItemSlotType ItemSlotType = EItemSlotType::Count;
+
+	switch (EquipmentSlotType)
+	{
+	case EEquipmentSlotType::LeftHand:
+		ItemSlotType = EItemSlotType::Left;
+		break;
+	case EEquipmentSlotType::RightHand:
+		ItemSlotType = EItemSlotType::Right;
+		break;
+	}
+
+	return ItemSlotType;
 }
 
 EItemHandType UA1EquipManagerComponent::ConvertToItemHandType(EEquipmentSlotType EquipmentSlotType)

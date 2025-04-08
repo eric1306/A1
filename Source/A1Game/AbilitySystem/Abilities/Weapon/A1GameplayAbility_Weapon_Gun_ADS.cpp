@@ -16,6 +16,8 @@ UA1GameplayAbility_Weapon_Gun_ADS::UA1GameplayAbility_Weapon_Gun_ADS(const FObje
     AbilityTags.AddTag(A1GameplayTags::Ability_ADS_Gun);
 	ActivationOwnedTags.AddTag(A1GameplayTags::Status_ADS_Gun);
 	ActivationBlockedTags.AddTag(A1GameplayTags::Status_Attack);
+	ActivationBlockedTags.AddTag(A1GameplayTags::Status_MainHand_Left);
+	ActivationRequiredTags.AddTag(A1GameplayTags::Status_MainHand_Right);
 }
 
 void UA1GameplayAbility_Weapon_Gun_ADS::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)

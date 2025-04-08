@@ -61,5 +61,5 @@ private:
 	// TODO 제거할 예정
 public:
 	UPROPERTY(EditDefaultsOnly)
-	FA1DefaultItemEntry DefaultItemEntries;
+	TArray<FA1DefaultItemEntry> DefaultItemEntries;
 };

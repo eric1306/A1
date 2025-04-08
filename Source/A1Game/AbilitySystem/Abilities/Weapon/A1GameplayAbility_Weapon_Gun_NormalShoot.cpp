@@ -17,6 +17,7 @@ UA1GameplayAbility_Weapon_Gun_NormalShoot::UA1GameplayAbility_Weapon_Gun_NormalS
 {
     AbilityTags.AddTag(A1GameplayTags::Ability_Attack_Gun);
 	ActivationOwnedTags.AddTag(A1GameplayTags::Status_Attack);
+	ActivationBlockedTags.AddTag(A1GameplayTags::Status_MainHand_Left);
 	ActivationRequiredTags.AddTag(A1GameplayTags::Status_ADS_Ready);
 }
 
