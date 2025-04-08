@@ -21,8 +21,7 @@ namespace A1GameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(InputTag_Sprint,									"InputTag.Sprint");
 	UE_DEFINE_GAMEPLAY_TAG(InputTag_Crouch,									"InputTag.Crouch");
 	UE_DEFINE_GAMEPLAY_TAG(InputTag_Interact,								"InputTag.Interact");
-	UE_DEFINE_GAMEPLAY_TAG(InputTag_ChangeEquip_Left,						"InputTag.ChangeEquip.Left");
-	UE_DEFINE_GAMEPLAY_TAG(InputTag_ChangeEquip_Right,						"InputTag.ChangeEquip.Right");
+	UE_DEFINE_GAMEPLAY_TAG(InputTag_ChangeMainHand,							"InputTag.ChangeMainHand");
 	UE_DEFINE_GAMEPLAY_TAG(InputTag_Ability_Confirm,						"InputTag.Ability.Confirm");
 	UE_DEFINE_GAMEPLAY_TAG(InputTag_Ability_Cancel,							"InputTag.Ability.Cancel");
 	UE_DEFINE_GAMEPLAY_TAG(InputTag_Ability_UseItem,						"InputTag.Ability.UseItem");
@@ -52,7 +51,7 @@ namespace A1GameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Dash_Active,								"Ability.Dash.Active");
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Sprint_Check,							"Ability.Sprint.Check");
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Sprint_Active,							"Ability.Sprint.Active");
-	UE_DEFINE_GAMEPLAY_TAG(Ability_ChangeEquip,								"Ability.ChangeEquip");
+	UE_DEFINE_GAMEPLAY_TAG(Ability_ChangeHand,								"Ability.ChangeHand");
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Attack,									"Ability.Attack");
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Attack_1,								"Ability.Attack.1");
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Attack_2,								"Ability.Attack.2");
@@ -90,7 +89,8 @@ namespace A1GameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(Status_Throw,									"Status.Throw");
 	UE_DEFINE_GAMEPLAY_TAG(Status_Drink,									"Status.Drink");
 	UE_DEFINE_GAMEPLAY_TAG(Status_Block,									"Status.Block");
-	UE_DEFINE_GAMEPLAY_TAG(Status_ChangeEquip,								"Status.ChangeEquip");
+	UE_DEFINE_GAMEPLAY_TAG(Status_MainHand_Left,							"Status.MainHand.Left");
+	UE_DEFINE_GAMEPLAY_TAG(Status_MainHand_Right,							"Status.MainHand.Right");
 	UE_DEFINE_GAMEPLAY_TAG(Status_ADS,										"Status.ADS");
 	UE_DEFINE_GAMEPLAY_TAG(Status_ADS_Gun,									"Status.ADS.Gun");
 	UE_DEFINE_GAMEPLAY_TAG(Status_ADS_Ready,								"Status.ADS.Ready");

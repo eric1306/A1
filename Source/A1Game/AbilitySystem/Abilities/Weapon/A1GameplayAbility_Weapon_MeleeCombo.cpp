@@ -1,6 +1,7 @@
 ﻿#include "A1GameplayAbility_Weapon_MeleeCombo.h"
 
 #include "A1LogChannels.h"
+#include "A1GameplayTags.h"
 #include "AbilitySystemComponent.h"
 #include "Abilities/Tasks/AbilityTask_WaitConfirmCancel.h"
 #include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
@@ -16,6 +17,8 @@ UA1GameplayAbility_Weapon_MeleeCombo::UA1GameplayAbility_Weapon_MeleeCombo(const
 	: Super(ObjectInitializer)
 {
 	ActivationGroup = ELyraAbilityActivationGroup::Exclusive_Replaceable;
+	ActivationRequiredTags.AddTag(A1GameplayTags::Status_MainHand_Right);
+	ActivationBlockedTags.AddTag(A1GameplayTags::Status_MainHand_Left);
 }
 
 void UA1GameplayAbility_Weapon_MeleeCombo::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)

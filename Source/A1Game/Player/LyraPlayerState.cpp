@@ -15,6 +15,8 @@
 //@TODO: Would like to isolate this a bit better to get the pawn data in here without this having to know about other stuff
 #include "GameModes/LyraGameMode.h"
 #include "A1LogChannels.h"
+#include "A1GameplayTags.h"
+#include "AbilitySystemBlueprintLibrary.h"
 #include "LyraPlayerController.h"
 #include "Messages/LyraVerbMessage.h"
 #include "Net/UnrealNetwork.h"
@@ -307,15 +309,19 @@ void ALyraPlayerState::Server_SelectClass_Implementation(/*ECharacterClassType C
 	if (HasAuthority() == false)
 		return;
 
-	const FA1DefaultItemEntry& DefaultEntry = UA1CharacterData::Get().DefaultItemEntries;
-
 	if (ALyraCharacter* LyraCharacter = GetPawn<ALyraCharacter>())
 	{
 		if (UA1EquipmentManagerComponent* EquipmentManager = LyraCharacter->GetComponentByClass<UA1EquipmentManagerComponent>())
 		{
-			EquipmentManager->SetEquipment(DefaultEntry.EquipmentSlotType, DefaultEntry.ItemTemplateClass, DefaultEntry.ItemRarity, DefaultEntry.ItemCount);	
+			for (const FA1DefaultItemEntry& DefaultEntry : UA1CharacterData::Get().DefaultItemEntries)
+			{
+				EquipmentManager->SetEquipment(DefaultEntry.EquipmentSlotType, DefaultEntry.ItemTemplateClass, DefaultEntry.ItemRarity, DefaultEntry.ItemCount);
+			}
 		}
 	}
+	FGameplayTagContainer TagContainer;
+	TagContainer.AddTag(A1GameplayTags::Status_MainHand_Right);
+	UAbilitySystemBlueprintLibrary::AddLooseGameplayTags(GetPawn(), TagContainer, true);
 
 	/*AbilitySetGrantedHandles.TakeFromAbilitySystem(AbilitySystemComponent);
 	if (ULyraAbilitySet* AbilitySet = ClassEntry.ClassAbilitySet)

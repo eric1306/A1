@@ -60,6 +60,7 @@ enum class EEquipState : uint8
 	Count	UMETA(Hidden)
 };
 
+UENUM(BlueprintType)
 enum class EMainHandState : uint8
 {
 	Left,
