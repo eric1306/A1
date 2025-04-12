@@ -8,6 +8,17 @@ enum class ESlotState : uint8
 	Valid
 };
 
+UENUM(BlueprintType)
+enum class ERaiderType : uint8
+{
+	Despoiler,
+	Barbarian,
+	Explorer,
+	Farmer,
+
+	Count UMETA(Hidden)
+};
+
 /*---------------------------------------
 *   Character가 가지고 있어야 할 정보
 ---------------------------------------*/
