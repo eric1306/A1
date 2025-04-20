@@ -42,7 +42,7 @@ protected:
 	EOverlayTargetType OverlayTargetType = EOverlayTargetType::None;
 
 	UPROPERTY(EditAnywhere, meta=(EditCondition="OverlayTargetType == EOverlayTargetType::Weapon", EditConditionHides))
-	EItemHandType WeaponHandType = EItemHandType::LeftHand;
+	EEquipmentSlotType WeaponHandType = EEquipmentSlotType::LeftHand;
 
 	UPROPERTY(EditAnywhere)
 	TObjectPtr<UCurveLinearColor> LinearColorCurve;

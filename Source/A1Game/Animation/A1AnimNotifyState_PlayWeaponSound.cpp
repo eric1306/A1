@@ -20,7 +20,7 @@ void UA1AnimNotifyState_PlayWeaponSound::NotifyBegin(USkeletalMeshComponent* Mes
 {
 	Super::NotifyBegin(MeshComponent, Animation, TotalDuration, EventReference);
 
-	if (WeaponHandType == EItemHandType::Count || WeaponSoundType == EWeaponSoundType::None)
+	if (WeaponHandType == EEquipmentSlotType::Count || WeaponSoundType == EWeaponSoundType::None)
 		return;
 
 	ALyraCharacter* LyraCharacter = Cast<ALyraCharacter>(MeshComponent->GetOwner());

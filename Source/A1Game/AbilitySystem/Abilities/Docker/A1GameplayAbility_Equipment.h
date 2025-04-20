@@ -19,7 +19,7 @@ public:
 
 public:
 	UPROPERTY(EditAnywhere, Category="A1|Equipment", meta=(EditCondition="EquipmentType!=EEquipmentType::Armor", EditConditionHides))
-	EItemHandType ItemHandType = EItemHandType::Count;
+	EEquipmentSlotType ItemSlotType = EEquipmentSlotType::Count;
 	
 	UPROPERTY(EditAnywhere, Category="A1|Equipment", meta=(EditCondition="EquipmentType==EEquipmentType::Weapon", EditConditionHides))
 	EWeaponType RequiredWeaponType = EWeaponType::Count;

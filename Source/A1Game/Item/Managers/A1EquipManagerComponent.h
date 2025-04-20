@@ -126,13 +126,13 @@ public:
 	
 public:
 	UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly)
-	void ChangeEquipState(EEquipState NewEquipState);
+	void ChangeEquipState(EEquipmentSlotType EquipSlotType, bool bWear);
 
 	UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly)
 	void ChangeMainHand();
 
 	UFUNCTION(BlueprintCallable)
-	bool CanChangeEquipState(EEquipState NewEquipState) const;
+	bool CanChangeEquipState(EEquipState NewEquipState, bool bWear) const;
 
 private:
 	UFUNCTION()
@@ -153,13 +153,8 @@ public:
 	UA1EquipmentManagerComponent* GetEquipmentManager() const;
 
 	static EEquipmentSlotType ConvertToEquipmentSlotType(EEquipState EquipState);
-	static EEquipmentSlotType ConvertToEquipmentSlotType(EItemHandType ItemHandType);
-	static EEquipmentSlotType ConvertToEquipmentSlotType(EItemSlotType ItemSlotType);
-
+	static EEquipState ConvertToEquipState(EEquipmentSlotType ItemSlotType);
 	static EEquipState ConvertToAnotherHand(EEquipmentSlotType EquipmentSlotType);
-	static EEquipState ConvertToEquipState(EEquipmentSlotType EquipmentSlotType);
-	static EItemSlotType ConvertToItemSlotType(EEquipmentSlotType EquipmentSlotType);
-	static EItemHandType ConvertToItemHandType(EEquipmentSlotType EquipmentSlotType);
 	
 	UFUNCTION(BlueprintCallable)
 	void ChangeShouldHiddenEquipments(bool bNewShouldHiddenEquipments);
@@ -167,11 +162,9 @@ public:
 	bool ShouldHiddenEquipments() const { return bShouldHiddenEquipments; }
 	EEquipState GetCurrentEquipState() const { return CurrentEquipState; }
 	EMainHandState GetCurrentMainHand() const { return CurrentMainHand; }
-	FORCEINLINE EItemHandType GetItemHandType() const { return GetCurrentEquipState() == EEquipState::Both ? EItemHandType::TwoHand : (GetCurrentEquipState() == EEquipState::Left ? EItemHandType::LeftHand : EItemHandType::RightHand); }
+	FORCEINLINE EEquipmentSlotType GetItemHandType() const { return GetCurrentEquipState() == EEquipState::Both ? EEquipmentSlotType::TwoHand : (GetCurrentEquipState() == EEquipState::Left ? EEquipmentSlotType::LeftHand : EEquipmentSlotType::RightHand); }
 	
-	AA1EquipmentBase* GetEquippedActor(EItemHandType WeaponHandType) const;
-
-	UA1ItemInstance* GetEquippedItemInstance(EItemHandType WeaponHandType) const;
+	AA1EquipmentBase* GetEquippedActor(EEquipmentSlotType WeaponHandType) const;
 	UA1ItemInstance* GetEquippedItemInstance(EEquipmentSlotType EquipmentSlotType) const;
 
 public:
@@ -183,7 +176,7 @@ private:
 	FA1EquipList EquipList;
 
 	UPROPERTY(ReplicatedUsing=OnRep_CurrentEquipState)
-	EEquipState CurrentEquipState = EEquipState::Count;
+	EEquipState CurrentEquipState = EEquipState::Unarmed;
 
 	UPROPERTY(ReplicatedUsing=OnRep_CurrentMainHand)
 	EMainHandState CurrentMainHand = EMainHandState::Right;

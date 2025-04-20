@@ -71,8 +71,7 @@ void UA1WeaponSlotWidget::NativeDestruct()
 
 void UA1WeaponSlotWidget::OnEquipmentEntryChanged(EEquipmentSlotType EquipmentSlotType, UA1ItemInstance* ItemInstance, int32 ItemCount)
 {
-	EItemHandType EntryItemHandType = UA1EquipManagerComponent::ConvertToItemHandType(EquipmentSlotType);
-	if (EntryItemHandType == EItemHandType::LeftHand)
+	if (EquipmentSlotType == EEquipmentSlotType::LeftHand)
 	{
 		if (ItemInstance)
 		{
@@ -91,7 +90,7 @@ void UA1WeaponSlotWidget::OnEquipmentEntryChanged(EEquipmentSlotType EquipmentSl
 			Image_SlotLeft->SetVisibility(ESlateVisibility::Hidden);
 		}
 	}
-	else if (EntryItemHandType == EItemHandType::RightHand)
+	else if (EquipmentSlotType == EEquipmentSlotType::RightHand)
 	{
 		if (ItemInstance)
 		{
@@ -110,7 +109,7 @@ void UA1WeaponSlotWidget::OnEquipmentEntryChanged(EEquipmentSlotType EquipmentSl
 			Image_SlotRight->SetVisibility(ESlateVisibility::Hidden);
 		}
 	}
-	else if (EntryItemHandType == EItemHandType::TwoHand)
+	else if (EquipmentSlotType == EEquipmentSlotType::TwoHand)
 	{
 		if (ItemInstance)
 		{

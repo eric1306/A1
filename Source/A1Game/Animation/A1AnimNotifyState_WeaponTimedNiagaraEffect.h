@@ -21,5 +21,5 @@ private:
 	
 protected:
 	UPROPERTY(EditAnywhere)
-	EItemHandType WeaponHandType = EItemHandType::RightHand;
+	EEquipmentSlotType WeaponHandType = EEquipmentSlotType::RightHand;
 };

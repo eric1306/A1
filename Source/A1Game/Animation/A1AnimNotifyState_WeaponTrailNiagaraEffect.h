@@ -23,7 +23,7 @@ private:
 	
 protected:
 	UPROPERTY(EditAnywhere)
-	EItemHandType WeaponHandType = EItemHandType::RightHand;
+	EEquipmentSlotType WeaponHandType = EEquipmentSlotType::RightHand;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = NiagaraSystem, meta = (ToolTip = "The socket or bone to attach the system to", AnimNotifyBoneName = "true"))
 	FName StartSocketName;

@@ -79,7 +79,7 @@ void UA1AnimNotifyState_OverlayEffect::NotifyEnd(USkeletalMeshComponent* MeshCom
 
 void UA1AnimNotifyState_OverlayEffect::ApplyWeaponMeshComponent(FOverlayEffectProgressInfo& ProgressInfo, USkeletalMeshComponent* MeshComponent)
 {
-	if (WeaponHandType == EItemHandType::Count)
+	if (WeaponHandType == EEquipmentSlotType::Count)
 		return;
 	
 	if (ALyraCharacter* LyraCharacter = Cast<ALyraCharacter>(MeshComponent->GetOwner()))

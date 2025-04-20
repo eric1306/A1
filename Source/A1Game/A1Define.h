@@ -83,27 +83,6 @@ enum class EMainHandState : uint8
 /*---------------------------------------
 *    Item이 가지고 있어야 할 정보
 ---------------------------------------*/
-UENUM(BlueprintType)
-enum class EItemSlotType : uint8
-{
-	Left,
-	Right,
-
-	Count	UMETA(Hidden)
-};
-
-// 어디에 장착 가능한 건지
-UENUM(BlueprintType)
-enum class EItemHandType : uint8
-{
-	LeftHand,
-	RightHand,
-	TwoHand,
-
-	Count	UMETA(Hidden)
-};
-
-
 // Item 분류
 UENUM(BlueprintType)
 enum class EEquipmentType : uint8

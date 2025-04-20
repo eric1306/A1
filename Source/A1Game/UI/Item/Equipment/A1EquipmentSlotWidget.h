@@ -22,7 +22,7 @@ public:
 	UA1EquipmentSlotWidget(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
 public:
-	void Init(EItemSlotType InItemSlotType, UA1EquipmentManagerComponent* InEquipmentManager);
+	void Init(EEquipmentSlotType InItemSlotType, UA1EquipmentManagerComponent* InEquipmentManager);
 
 protected:
 	virtual void NativePreConstruct() override;
@@ -32,7 +32,7 @@ protected:
 	virtual void OnDragEnded();
 
 public:
-	void OnEquipmentEntryChange(EItemHandType InItemHandType, UA1ItemInstance* InItemInstance, int32 InItemCount);
+	void OnEquipmentEntryChange(EEquipmentSlotType InItemHandType, UA1ItemInstance* InItemInstance, int32 InItemCount);
 
 protected:
 	UPROPERTY()
@@ -59,6 +59,6 @@ protected:
 	TObjectPtr<UImage> Image_Green;
 
 private:
-	EItemSlotType ItemSlotType = EItemSlotType::Count;
+	EEquipmentSlotType ItemSlotType = EEquipmentSlotType::Count;
 	bool bAlreadyHovered = false;
 };

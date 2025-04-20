@@ -38,6 +38,7 @@ void FA1EquipmentEntry::Init(UA1ItemInstance* InItemInstance, int32 InItemCount)
 	ItemCount = FMath::Clamp(InItemCount, 1, ItemTemplate.MaxStackCount);
 	
 	EquipManager->Equip(EquipmentSlotType, ItemInstance);
+	EquipManager->ChangeEquipState(EquipmentSlotType, true);
 }
 
 UA1ItemInstance* FA1EquipmentEntry::Reset()
@@ -54,12 +55,9 @@ UA1ItemInstance* FA1EquipmentEntry::Reset()
 	UA1ItemInstance* RemovedItemInstance = ItemInstance;
 	ItemInstance = nullptr;
 	ItemCount = 0;
-	
-	//한 손만 아이템을 들고 있을 때 아이템을 해제한 경우
-	if (EquipManager->GetCurrentEquipState() != EEquipState::Both)
-		EquipManager->ChangeEquipState(EEquipState::Unarmed);
-	else
-		EquipManager->ChangeEquipState(EquipManager->ConvertToAnotherHand(EquipmentSlotType));
+
+	// 해당 장비 벗었다고 전환
+	EquipManager->ChangeEquipState(EquipmentSlotType, false);
 
 	return RemovedItemInstance;
 }
@@ -265,7 +263,7 @@ int32 UA1EquipmentManagerComponent::CanMoveOrMergeEquipment_Quick(int32 FromItem
 		return 0;
 
 	const UA1ItemFragment_Equipable_Attachment* FromItemFragment = Cast<UA1ItemFragment_Equipable_Attachment>(FromEquippableFragment);
-	EEquipmentSlotType ToEquipmentSlotType = UA1EquipManagerComponent::ConvertToEquipmentSlotType(FromItemFragment->ItemHandType);
+	EEquipmentSlotType ToEquipmentSlotType = FromItemFragment->ItemHandType;
 
 	UA1ItemInstance* ToItemInstance = GetItemInstance(ToEquipmentSlotType);
 
@@ -566,7 +564,7 @@ int32 UA1EquipmentManagerComponent::CanAddEquipment(int32 ItemTemplateID, EItemR
 	else
 	{
 		const UA1ItemFragment_Equipable_Attachment* FromItemFragment = Cast<UA1ItemFragment_Equipable_Attachment>(FromEquippableFragment);
-		EEquipmentSlotType FromEquipSlotType = UA1EquipManagerComponent::ConvertToEquipmentSlotType(FromItemFragment->ItemHandType);
+		EEquipmentSlotType FromEquipSlotType = FromItemFragment->ItemHandType;
 
 		if(FromEquipSlotType == EEquipmentSlotType::LeftHand || FromEquipSlotType == EEquipmentSlotType::RightHand)
 		{
@@ -662,19 +660,17 @@ void UA1EquipmentManagerComponent::SetEquipment(EEquipmentSlotType EquipmentSlot
 	if (EquippableFragment->EquipmentType == EEquipmentType::Weapon)
 	{
 		const UA1ItemFragment_Equipable_Weapon* WeaponFragment = Cast<UA1ItemFragment_Equipable_Weapon>(EquippableFragment);
-		EItemHandType ItemHandType = WeaponFragment->ItemHandType;
+		EEquipmentSlotType ItemHandType = WeaponFragment->ItemHandType;
 
-
-		if (ItemHandType == EItemHandType::LeftHand || ItemHandType == EItemHandType::RightHand)
+		if (ItemHandType == EEquipmentSlotType::LeftHand || ItemHandType == EEquipmentSlotType::RightHand)
 		{
 			RemoveEquipment_Unsafe(EEquipmentSlotType::TwoHand, 1);
 		}
-		else if (ItemHandType == EItemHandType::TwoHand)
+		else if (ItemHandType == EEquipmentSlotType::TwoHand)
 		{
 			RemoveEquipment_Unsafe(EEquipmentSlotType::LeftHand, 1);
 			RemoveEquipment_Unsafe(EEquipmentSlotType::RightHand, 1);
 		}
-		
 	}
 
 	UA1ItemInstance* AddedItemInstance = NewObject<UA1ItemInstance>();
@@ -684,15 +680,6 @@ void UA1EquipmentManagerComponent::SetEquipment(EEquipmentSlotType EquipmentSlot
 	if (IsUsingRegisteredSubObjectList() && IsReadyForReplication() && AddedItemInstance)
 	{
 		AddReplicatedSubObject(AddedItemInstance);
-	}
-
-	if (UA1EquipManagerComponent* EquipManager = GetEquipManager())
-	{
-		EEquipState EquipState = UA1EquipManagerComponent::ConvertToEquipState(EquipmentSlotType);
-		if (EquipManager->GetCurrentEquipState() != EquipState)
-		{
-			EquipManager->ChangeEquipState(EquipState);
-		}
 	}
 
 	EquipmentList.MarkItemDirty(Entry);

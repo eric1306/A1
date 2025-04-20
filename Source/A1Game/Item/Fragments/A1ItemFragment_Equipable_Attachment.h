@@ -31,7 +31,7 @@ public:
 
 public:
 	UPROPERTY(EditDefaultsOnly)
-	EItemHandType ItemHandType = EItemHandType::Count;
+	EEquipmentSlotType ItemHandType = EEquipmentSlotType::Count;
 
 	UPROPERTY(EditDefaultsOnly)
 	FA1ItemAttachInfo ItemAttachInfo;

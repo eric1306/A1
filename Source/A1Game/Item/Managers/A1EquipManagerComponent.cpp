@@ -436,7 +436,7 @@ void UA1EquipManagerComponent::Equip(EEquipmentSlotType EquipmentSlotType, UA1It
 
 	if (EquipmentSlotType == EEquipmentSlotType::Count || ItemInstance == nullptr)
 		return;
-	
+
 	EquipList.Equip(EquipmentSlotType, ItemInstance);
 	if (IsUsingRegisteredSubObjectList() && IsReadyForReplication() && ItemInstance)
 	{
@@ -462,17 +462,25 @@ void UA1EquipManagerComponent::Unequip(EEquipmentSlotType EquipmentSlotType)
 	}
 }
 
-void UA1EquipManagerComponent::ChangeEquipState(EEquipState NewEquipState)
+void UA1EquipManagerComponent::ChangeEquipState(EEquipmentSlotType EquipSlotType, bool bWear)
 {
 	check(GetOwner()->HasAuthority());
 
-	if (CanChangeEquipState(NewEquipState))
-	{
-		if (CurrentEquipState == EEquipState::Left || CurrentEquipState == EEquipState::Right)
+	EEquipState NewEquipState = ConvertToEquipState(EquipSlotType);
+	if (CanChangeEquipState(NewEquipState, bWear))
+	{	
+		if (bWear)													// 장비를 착용하려는 경우
 		{
-			NewEquipState = EEquipState::Both;
+			if (CurrentEquipState != EEquipState::Unarmed)			// 한 손인 상태에서 추가 장착 시
+				NewEquipState = EEquipState::Both;
 		}
-		
+		else														// 장비를 해제하려는 경우
+		{
+			if (CurrentEquipState == EEquipState::Both)				// 두 손이라면	해당 장비의 반대 손으로 상태 변경
+				NewEquipState = ConvertToAnotherHand(EquipSlotType);
+			else
+				NewEquipState = EEquipState::Unarmed;
+		}
 		CurrentEquipState = NewEquipState;
 	}
 }
@@ -496,38 +504,31 @@ void UA1EquipManagerComponent::ChangeMainHand()
 	BroadcastChangedMessage(CurrentMainHand);
 }
 
-bool UA1EquipManagerComponent::CanChangeEquipState(EEquipState NewEquipState) const
+bool UA1EquipManagerComponent::CanChangeEquipState(EEquipState NewEquipState, bool bWear) const
 {
 	if (NewEquipState == EEquipState::Count)
 		return false;
-
-	if (CurrentEquipState == NewEquipState)
+																// 착용 시도 시
+	if (bWear && CurrentEquipState == NewEquipState)			// 이미 착용 중인 상태로 변경 불가
 		return false;
-	
+									
+	if (!bWear && NewEquipState == ConvertToAnotherHand(ConvertToEquipmentSlotType(CurrentEquipState)))
+		return false;											// 해제 시도 시 반대 상태를 해체하려 하면 변경 불가
+
 	if (NewEquipState == EEquipState::Both && CurrentEquipState != EEquipState::Unarmed)
 		return false;
 
 	return true;
 }
 
-AA1EquipmentBase* UA1EquipManagerComponent::GetEquippedActor(EItemHandType ItemHandType) const
+AA1EquipmentBase* UA1EquipManagerComponent::GetEquippedActor(EEquipmentSlotType ItemSlotType) const
 {
-	if (ItemHandType == EItemHandType::Count)
+	if (ItemSlotType == EEquipmentSlotType::Count)
 		return nullptr;
 	
 	const TArray<FA1EquipEntry>& Entries = EquipList.Entries;
-	const int32 EntryIndex = (int32)ConvertToEquipmentSlotType(ItemHandType);
+	const int32 EntryIndex = (int32)ItemSlotType;
 	return Entries.IsValidIndex(EntryIndex) ? Entries[EntryIndex].GetEquipmentActor() : nullptr;
-}
-
-UA1ItemInstance* UA1EquipManagerComponent::GetEquippedItemInstance(EItemHandType WeaponHandType) const
-{
-	if (WeaponHandType == EItemHandType::Count)
-		return nullptr;
-	
-	const TArray<FA1EquipEntry>& Entries = EquipList.Entries;
-	const int32 EntryIndex = (int32)ConvertToEquipmentSlotType(WeaponHandType);
-	return Entries.IsValidIndex(EntryIndex) ? Entries[EntryIndex].GetItemInstance() : nullptr;
 }
 
 UA1ItemInstance* UA1EquipManagerComponent::GetEquippedItemInstance(EEquipmentSlotType EquipmentSlotType) const
@@ -613,28 +614,15 @@ EEquipmentSlotType UA1EquipManagerComponent::ConvertToEquipmentSlotType(EEquipSt
 	return EquipmentSlotType;
 }
 
-EEquipmentSlotType UA1EquipManagerComponent::ConvertToEquipmentSlotType(EItemHandType ItemHandType)
+EEquipState UA1EquipManagerComponent::ConvertToEquipState(EEquipmentSlotType ItemSlotType)
 {
-	EEquipmentSlotType EquipmentSlotType = EEquipmentSlotType::Count;
-
-	switch (ItemHandType)
-	{
-	case EItemHandType::LeftHand:  EquipmentSlotType = EEquipmentSlotType::LeftHand;  break;
-	case EItemHandType::RightHand: EquipmentSlotType = EEquipmentSlotType::RightHand; break;
-	case EItemHandType::TwoHand:   EquipmentSlotType = EEquipmentSlotType::TwoHand;   break;
-	}
-
-	return EquipmentSlotType;
-}
-
-EEquipmentSlotType UA1EquipManagerComponent::ConvertToEquipmentSlotType(EItemSlotType ItemSlotType)
-{
-	EEquipmentSlotType EquipmentSlotType = EEquipmentSlotType::Count;
+	EEquipState EquipmentSlotType = EEquipState::Count;
 
 	switch (ItemSlotType)
 	{
-	case EItemSlotType::Left:  EquipmentSlotType = EEquipmentSlotType::LeftHand;  break;
-	case EItemSlotType::Right: EquipmentSlotType = EEquipmentSlotType::RightHand; break;
+	case EEquipmentSlotType::LeftHand:  EquipmentSlotType = EEquipState::Left;  break;
+	case EEquipmentSlotType::RightHand: EquipmentSlotType = EEquipState::Right; break;
+	case EEquipmentSlotType::TwoHand:   EquipmentSlotType = EEquipState::Both;   break;
 	}
 
 	return EquipmentSlotType;
@@ -652,57 +640,6 @@ EEquipState UA1EquipManagerComponent::ConvertToAnotherHand(EEquipmentSlotType Eq
 	}
 
 	return EquipState;
-}
-
-EEquipState UA1EquipManagerComponent::ConvertToEquipState(EEquipmentSlotType EquipmentSlotType)
-{
-	EEquipState EquipState = EEquipState::Count;
-
-	switch (EquipmentSlotType)
-	{
-	case EEquipmentSlotType::LeftHand:  EquipState = EEquipState::Left;  break;
-	case EEquipmentSlotType::RightHand: EquipState = EEquipState::Right; break;
-	case EEquipmentSlotType::TwoHand:   EquipState = EEquipState::Both;   break;
-	}
-
-	return EquipState;
-}
-
-EItemSlotType UA1EquipManagerComponent::ConvertToItemSlotType(EEquipmentSlotType EquipmentSlotType)
-{
-	EItemSlotType ItemSlotType = EItemSlotType::Count;
-
-	switch (EquipmentSlotType)
-	{
-	case EEquipmentSlotType::LeftHand:
-		ItemSlotType = EItemSlotType::Left;
-		break;
-	case EEquipmentSlotType::RightHand:
-		ItemSlotType = EItemSlotType::Right;
-		break;
-	}
-
-	return ItemSlotType;
-}
-
-EItemHandType UA1EquipManagerComponent::ConvertToItemHandType(EEquipmentSlotType EquipmentSlotType)
-{
-	EItemHandType ItemHandType = EItemHandType::Count;
-	
-	switch (EquipmentSlotType)
-	{
-	case EEquipmentSlotType::LeftHand:
-		ItemHandType = EItemHandType::LeftHand;
-		break;
-	case EEquipmentSlotType::RightHand:
-		ItemHandType = EItemHandType::RightHand;
-		break;
-	case EEquipmentSlotType::TwoHand:
-		ItemHandType = EItemHandType::TwoHand;
-		break;
-	}
-
-	return ItemHandType;
 }
 
 void UA1EquipManagerComponent::ChangeShouldHiddenEquipments(bool bNewShouldHiddenEquipments)
