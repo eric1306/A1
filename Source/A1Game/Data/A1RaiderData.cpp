@@ -21,11 +21,11 @@ void UA1RaiderData::PreSave(FObjectPreSaveContext ObjectSaveContext)
 }
 #endif // WITH_EDITOR
 
-const FA1RaiderMeshSet& UA1RaiderData::GetRaiderDataSet(ERaiderType RaiderType) const
+const FA1RaiderBaseSet& UA1RaiderData::GetRaiderDataSet(ERaiderType RaiderType) const
 {
 	if (RaiderDataMap.Contains(RaiderType) == false)
 	{
-		static FA1RaiderMeshSet EmptyEntry;
+		static FA1RaiderBaseSet EmptyEntry;
 		return EmptyEntry;
 	}
 

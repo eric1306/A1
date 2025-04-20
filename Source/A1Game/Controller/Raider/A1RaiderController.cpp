@@ -6,38 +6,36 @@
 #include "BehaviorTree/BehaviorTree.h"
 #include "BehaviorTree/BlackboardData.h"
 #include "BehaviorTree/BlackboardComponent.h"
+#include "Data/A1RaiderData.h"
+#include "System/LyraAssetManager.h"
 
 const FName AA1RaiderController::HomePosKey(TEXT("HomePos"));
 const FName AA1RaiderController::PatrolPosKey(TEXT("PatrolPos"));
 const FName AA1RaiderController::AggroTargetKey(TEXT("AggroTarget"));
+const FName AA1RaiderController::CanAttackKey(TEXT("CanAttack"));
 
 
 AA1RaiderController::AA1RaiderController()
 {
-	// TODO
-	// RaiderData를 만들어서 자동 연결되도록 변경
-	
-	//static ConstructorHelpers::FObjectFinder<UBlackboardData> BBObject(TEXT(""));
-	//if (BBObject.Succeeded())
-	//{
-	//	BBAsset = BBObject.Object;
-	//}
-	//
-	//static ConstructorHelpers::FObjectFinder<UBehaviorTree> BTObject(TEXT(""));
-	//if (BTObject.Succeeded())
-	//{
-	//	BTAsset = BTObject.Object;
-	//}
 }
 
 void AA1RaiderController::BeginPlay()
 {
 	Super::BeginPlay();
+
 }
 
 void AA1RaiderController::OnPossess(APawn* InPawn)
 {
 	Super::OnPossess(InPawn);
+
+	// TODO
+	// RaiderData를 만들어서 자동 연결되도록 변경
+	const UA1RaiderData& RaiderData = ULyraAssetManager::Get().GetRaiderData();
+	const FA1RaiderBaseSet& RaiderBase = RaiderData.GetRaiderDataSet(ERaiderType::Despoiler);
+
+	BBAsset = RaiderBase.BBAsset;
+	BTAsset = RaiderBase.BTAsset;
 
 	UBlackboardComponent* BlackboardComp = Blackboard;
 	if (UseBlackboard(BBAsset, BlackboardComp))

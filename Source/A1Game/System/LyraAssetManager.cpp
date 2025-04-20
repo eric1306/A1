@@ -121,7 +121,7 @@ void ULyraAssetManager::StartInitialLoading()
 		// Load base game data asset
 		STARTUP_JOB_WEIGHTED(GetGameData(), 25.f);
 		STARTUP_JOB_WEIGHTED(GetCharacterData(), 25.f);
-		//STARTUP_JOB_WEIGHTED(GetRaiderData(), 25.f);
+		STARTUP_JOB_WEIGHTED(GetRaiderData(), 25.f);
 		STARTUP_JOB_WEIGHTED(GetItemData(), 25.f);
 		STARTUP_JOB_WEIGHTED(GetAssetData(), 25.f);
 		STARTUP_JOB_WEIGHTED(GetUIData(), 25.f);

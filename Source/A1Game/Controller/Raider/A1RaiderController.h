@@ -21,6 +21,7 @@ public:
 	static const FName HomePosKey;
 	static const FName PatrolPosKey;
 	static const FName AggroTargetKey;
+	static const FName CanAttackKey;
 
 private:
 	UPROPERTY()

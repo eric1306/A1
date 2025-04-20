@@ -12,6 +12,7 @@
 #define A1_ObjectChannel_Projectile		ECC_GameTraceChannel7
 #define A1_TraceChannel_AimAssist       ECC_GameTraceChannel1
 #define A1_TraceChannel_Interaction		ECC_GameTraceChannel8
+#define A1_TraceChannel_Raider			ECC_GameTraceChannel9
 
 #define A1_PhysicalMaterial_Default		SurfaceType_Default
 #define A1_PhysicalMaterial_Character	SurfaceType1

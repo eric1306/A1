@@ -6,14 +6,21 @@
 #include "Engine/DataAsset.h"
 #include "A1RaiderData.generated.h"
 
+
+class UBlackboardData;
+class UBehaviorTree;
+
 USTRUCT(BlueprintType)
-struct FA1RaiderMeshSet
+struct FA1RaiderBaseSet
 {
 	GENERATED_BODY()
 
 public:
 	UPROPERTY(EditDefaultsOnly)
-	TArray<TSoftObjectPtr<UMaterialInterface>> BodySkinMaterial;
+	TObjectPtr<UBlackboardData> BBAsset;
+
+	UPROPERTY(EditDefaultsOnly)
+	TObjectPtr<UBehaviorTree> BTAsset;
 
 public:
 	UPROPERTY(EditDefaultsOnly)
@@ -34,11 +41,11 @@ public:
 #endif // WITH_EDITOR
 
 public:
-	const FA1RaiderMeshSet& GetRaiderDataSet(ERaiderType RaiderType) const;
+	const FA1RaiderBaseSet& GetRaiderDataSet(ERaiderType RaiderType) const;
 
 private:
 	UPROPERTY(EditDefaultsOnly)
-	TMap<ERaiderType, FA1RaiderMeshSet> RaiderDataMap;
+	TMap<ERaiderType, FA1RaiderBaseSet> RaiderDataMap;
 
 //public:
 //	UPROPERTY(EditDefaultsOnly)
