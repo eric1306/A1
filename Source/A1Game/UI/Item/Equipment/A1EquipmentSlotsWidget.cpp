@@ -49,7 +49,7 @@ void UA1EquipmentSlotsWidget::ConstructUI(FGameplayTag Channel, const FEquipment
 
 	for (int32 i = 0; i < ItemSlotWidgets.Num(); i++)
 	{
-		ItemSlotWidgets[i]->Init((EItemSlotType)i, EquipmentManager);
+		ItemSlotWidgets[i]->Init((EEquipmentSlotType)i, EquipmentManager);
 	}
 
 	const TArray<FA1EquipmentEntry>& Entries = EquipmentManager->GetAllEntries();
@@ -74,6 +74,7 @@ void UA1EquipmentSlotsWidget::DestructUI()
 		EntryChangedDelegateHandle.Reset();
 	}
 
+	// Jerry
 	//if (EquipManager)
 	//{
 	//	EquipManager->OnEquipStateChanged.Remove(EquipStateChangedDelegateHandle);
@@ -84,9 +85,9 @@ void UA1EquipmentSlotsWidget::DestructUI()
 	{
 		if (SlotItemWidget)
 		{
-			for (int32 i = 0; i < (int32)EItemHandType::Count; i++)
+			for (int32 i = 0; i < (int32)EEquipmentSlotType::Count; i++)
 			{
-				SlotItemWidget->OnEquipmentEntryChange((EItemHandType)i, nullptr, 0);
+				SlotItemWidget->OnEquipmentEntryChange((EEquipmentSlotType)i, nullptr, 0);
 			}
 		}
 	}
@@ -97,13 +98,12 @@ void UA1EquipmentSlotsWidget::OnEquipmentEntryChanged(EEquipmentSlotType Equipme
 	if (EquipmentSlotType == EEquipmentSlotType::Count)
 		return;
 
-	const int32 SlotIndex = (int32)UA1EquipManagerComponent::ConvertToEquipState(EquipmentSlotType) - 1;
+	const int32 SlotIndex = (int32)EquipmentSlotType;
 	if (ItemSlotWidgets.IsValidIndex(SlotIndex))
 	{
 		if (UA1EquipmentSlotWidget* ItemSlotWidget = ItemSlotWidgets[SlotIndex])
 		{
-			EItemHandType ItemHandType = UA1EquipManagerComponent::ConvertToItemHandType(EquipmentSlotType);
-			ItemSlotWidget->OnEquipmentEntryChange(ItemHandType, ItemInstance, ItemCount);
+			ItemSlotWidget->OnEquipmentEntryChange(EquipmentSlotType, ItemInstance, ItemCount);
 		}
 	}
 	else

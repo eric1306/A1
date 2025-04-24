@@ -322,10 +322,4 @@ void ALyraPlayerState::Server_SelectClass_Implementation(/*ECharacterClassType C
 	FGameplayTagContainer TagContainer;
 	TagContainer.AddTag(A1GameplayTags::Status_MainHand_Right);
 	UAbilitySystemBlueprintLibrary::AddLooseGameplayTags(GetPawn(), TagContainer, true);
-
-	/*AbilitySetGrantedHandles.TakeFromAbilitySystem(AbilitySystemComponent);
-	if (ULyraAbilitySet* AbilitySet = ClassEntry.ClassAbilitySet)
-	{
-		AbilitySet->GiveToAbilitySystem(AbilitySystemComponent, &AbilitySetGrantedHandles, this);
-	}*/
 }

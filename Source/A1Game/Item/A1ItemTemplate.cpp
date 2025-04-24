@@ -67,7 +67,7 @@ EDataValidationResult UA1ItemTemplate::IsDataValid(FDataValidationContext& Conte
 				Result = EDataValidationResult::Invalid;
 			}
 				
-			if (WeaponFragment->ItemHandType == EItemHandType::Count)
+			if (WeaponFragment->ItemHandType == EEquipmentSlotType::Count)
 			{
 				Context.AddError(FText::FromString(FString::Printf(TEXT("Item Hand Type is Invalid : [EItemHandType::Count]"))));
 				Result = EDataValidationResult::Invalid;

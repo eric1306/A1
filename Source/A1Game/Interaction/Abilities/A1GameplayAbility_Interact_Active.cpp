@@ -132,9 +132,7 @@ void UA1GameplayAbility_Interact_Active::EndAbility(const FGameplayAbilitySpecHa
 				EquipManager->ChangeShouldHiddenEquipments(false);
 
 				if (EquipManager->GetCurrentEquipState() != EEquipState::Unarmed)
-				{	
-					//AA1EquipmentBase* EquippedActor = EquipManager->GetEquippedActor(EquipManager->ConvertToItemHandType(EquipManager->ConvertToEquipmentSlotType(EquipManager->GetCurrentEquipState())));
-
+				{
 					if (AA1EquipmentBase* EquippedActor = EquipManager->GetEquippedActor(EquipManager->GetItemHandType()))
 					{
 						if (UAbilityTask_PlayMontageAndWait* PlayMontageTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(this, TEXT("EquipMontage"), EquippedActor->GetEquipMontage(), 1.f, NAME_None, false, 1.f, 0.f, false))

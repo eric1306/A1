@@ -5,6 +5,7 @@
 #include "A1GameplayTags.h"
 #include "LyraGameData.h"
 #include "Data/A1CharacterData.h"
+#include "Data/A1RaiderData.h"
 #include "Data/A1ItemData.h"
 #include "Data/A1AssetData.h"
 #include "Data/A1UIData.h"
@@ -120,6 +121,7 @@ void ULyraAssetManager::StartInitialLoading()
 		// Load base game data asset
 		STARTUP_JOB_WEIGHTED(GetGameData(), 25.f);
 		STARTUP_JOB_WEIGHTED(GetCharacterData(), 25.f);
+		STARTUP_JOB_WEIGHTED(GetRaiderData(), 25.f);
 		STARTUP_JOB_WEIGHTED(GetItemData(), 25.f);
 		STARTUP_JOB_WEIGHTED(GetAssetData(), 25.f);
 		STARTUP_JOB_WEIGHTED(GetUIData(), 25.f);
@@ -152,6 +154,11 @@ const ULyraPawnData* ULyraAssetManager::GetDefaultPawnData() const
 const UA1CharacterData& ULyraAssetManager::GetCharacterData()
 {
 	return GetOrLoadTypedGameData<UA1CharacterData>(CharacterDataPath);
+}
+
+const UA1RaiderData& ULyraAssetManager::GetRaiderData()
+{
+	return GetOrLoadTypedGameData<UA1RaiderData>(RaiderDataPath);
 }
 
 const UA1ItemData& ULyraAssetManager::GetItemData()

@@ -13,6 +13,7 @@ class UPrimaryDataAsset;
 class ULyraGameData;
 class ULyraPawnData;
 class UA1CharacterData;
+class UA1RaiderData;
 class UA1ItemData;
 class UA1AssetData;
 class UA1UIData;
@@ -60,9 +61,11 @@ public:
 	const ULyraGameData& GetGameData();
 	const ULyraPawnData* GetDefaultPawnData() const;
 	const UA1CharacterData& GetCharacterData();
+	const UA1RaiderData& GetRaiderData();
 	const UA1ItemData& GetItemData();
 	const UA1AssetData& GetAssetData();
 	const UA1UIData& GetUIData();
+	
 
 protected:
 	template <typename GameDataClass>
@@ -108,6 +111,9 @@ protected:
 
 	UPROPERTY(Config)
 	TSoftObjectPtr<UA1CharacterData> CharacterDataPath;
+
+	UPROPERTY(Config)
+	TSoftObjectPtr<UA1RaiderData> RaiderDataPath;
 
 	UPROPERTY(Config)
 	TSoftObjectPtr<UA1ItemData> ItemDataPath;

@@ -48,8 +48,8 @@ void UA1GameplayAbility_Equipment::ActivateAbility(const FGameplayAbilitySpecHan
 		{
 		case EEquipmentType::Weapon:
 		case EEquipmentType::Utility:
-			ItemInstance = EquipManager->GetEquippedItemInstance(EquipmentInfo.ItemHandType);
-			EquipmentInfo.EquipmentActor = EquipManager->GetEquippedActor(EquipmentInfo.ItemHandType);
+			ItemInstance = EquipManager->GetEquippedItemInstance(EquipmentInfo.ItemSlotType);
+			EquipmentInfo.EquipmentActor = EquipManager->GetEquippedActor(EquipmentInfo.ItemSlotType);
 			break;
 		}
 		
@@ -91,7 +91,7 @@ bool UA1GameplayAbility_Equipment::CanActivateAbility(const FGameplayAbilitySpec
 
 		if (EquipmentInfo.EquipmentType == EEquipmentType::Weapon)
 		{
-			UA1ItemInstance* ItemInstance = EquipManager->GetEquippedItemInstance(EquipmentInfo.ItemHandType);
+			UA1ItemInstance* ItemInstance = EquipManager->GetEquippedItemInstance(EquipmentInfo.ItemSlotType);
 			if (ItemInstance == nullptr)
 				return false;
 
@@ -104,7 +104,7 @@ bool UA1GameplayAbility_Equipment::CanActivateAbility(const FGameplayAbilitySpec
 		}
 		else if (EquipmentInfo.EquipmentType == EEquipmentType::Utility)
 		{
-			UA1ItemInstance* ItemInstance = EquipManager->GetEquippedItemInstance(EquipmentInfo.ItemHandType);
+			UA1ItemInstance* ItemInstance = EquipManager->GetEquippedItemInstance(EquipmentInfo.ItemSlotType);
 			if (ItemInstance == nullptr)
 				return false;
 

@@ -28,9 +28,9 @@ UA1EquipmentSlotWidget::UA1EquipmentSlotWidget(const FObjectInitializer& ObjectI
 {
 }
 
-void UA1EquipmentSlotWidget::Init(EItemSlotType InItemSlotType, UA1EquipmentManagerComponent* InEquipmentManager)
+void UA1EquipmentSlotWidget::Init(EEquipmentSlotType InItemSlotType, UA1EquipmentManagerComponent* InEquipmentManager)
 {
-	check(InItemSlotType != EItemSlotType::Count && InEquipmentManager != nullptr);
+	check(InItemSlotType != EEquipmentSlotType::Count && InEquipmentManager != nullptr);
 
 	ItemSlotType = InItemSlotType;
 	EquipmentManager = InEquipmentManager;
@@ -64,31 +64,30 @@ bool UA1EquipmentSlotWidget::NativeOnDragOver(const FGeometry& InGeometry, const
 		return false;
 
 	bool bIsValid = false;
-	EEquipmentSlotType ToEquipmentSlotType = UA1EquipManagerComponent::ConvertToEquipmentSlotType(ItemSlotType);
-	if (ToEquipmentSlotType == EEquipmentSlotType::Count)
+	if (ItemSlotType == EEquipmentSlotType::Count)
 		return false;
 
 	if (UA1InventoryManagerComponent* FromInventoryManager = ItemDragDrop->FromInventoryManager)
 	{
-		if (EquipmentManager->GetItemInstance(ToEquipmentSlotType))
+		if (EquipmentManager->GetItemInstance(ItemSlotType))
 		{
 			FIntPoint OutToItemSlotPos;
-			bIsValid = EquipmentManager->CanSwapEquipment(FromInventoryManager, ItemDragDrop->FromItemSlotPos, ToEquipmentSlotType, OutToItemSlotPos);
+			bIsValid = EquipmentManager->CanSwapEquipment(FromInventoryManager, ItemDragDrop->FromItemSlotPos, ItemSlotType, OutToItemSlotPos);
 		}
 		else
 		{
-			bIsValid = EquipmentManager->CanMoveOrMergeEquipment(FromInventoryManager, ItemDragDrop->FromItemSlotPos, ToEquipmentSlotType) > 0;
+			bIsValid = EquipmentManager->CanMoveOrMergeEquipment(FromInventoryManager, ItemDragDrop->FromItemSlotPos, ItemSlotType) > 0;
 		}
 	}
 	else if (UA1EquipmentManagerComponent* FromEquipmentManager = ItemDragDrop->FromEquipmentManager)
 	{
-		if (EquipmentManager->GetItemInstance(ToEquipmentSlotType))
+		if (EquipmentManager->GetItemInstance(ItemSlotType))
 		{
-			bIsValid = EquipmentManager->CanSwapEquipment(FromEquipmentManager, ItemDragDrop->FromEquipmentSlotType, ToEquipmentSlotType);
+			bIsValid = EquipmentManager->CanSwapEquipment(FromEquipmentManager, ItemDragDrop->FromEquipmentSlotType, ItemSlotType);
 		}
 		else
 		{
-			bIsValid = EquipmentManager->CanMoveOrMergeEquipment(FromEquipmentManager, ItemDragDrop->FromEquipmentSlotType, ToEquipmentSlotType) > 0;
+			bIsValid = EquipmentManager->CanMoveOrMergeEquipment(FromEquipmentManager, ItemDragDrop->FromEquipmentSlotType, ItemSlotType) > 0;
 		}
 	}
 
@@ -129,26 +128,27 @@ bool UA1EquipmentSlotWidget::NativeOnDrop(const FGeometry& InGeometry, const FDr
 	if (ItemManager == nullptr)
 		return false;
 
-	EEquipmentSlotType ToEquipmentSlotType = UA1EquipManagerComponent::ConvertToEquipmentSlotType(ItemSlotType);
-	if (ToEquipmentSlotType == EEquipmentSlotType::Count)
+	if (ItemSlotType == EEquipmentSlotType::Count)
 		return false;
 
 	const UA1ItemFragment* FromItemFragment = nullptr;
 	switch (ItemSlotType)
 	{
-	case EItemSlotType::Left:	FromItemFragment = FromItemInstance->FindFragmentByClass<UA1ItemFragment_Equipable_Utility>();	break;
-	case EItemSlotType::Right:	FromItemFragment = FromItemInstance->FindFragmentByClass<UA1ItemFragment_Equipable_Weapon>();	break;
+	case EEquipmentSlotType::LeftHand:	FromItemFragment = FromItemInstance->FindFragmentByClass<UA1ItemFragment_Equipable_Utility>();	break;
+	case EEquipmentSlotType::RightHand:	FromItemFragment = FromItemInstance->FindFragmentByClass<UA1ItemFragment_Equipable_Weapon>();	break;
+	default:			break;		// TwoHand는 인벤토리에 안들어감, 들어가 있다면 종료
+		
 	}
 	if (FromItemFragment == nullptr)
 		return false;
 
 	if (UA1InventoryManagerComponent* FromInventoryManager = ItemDragDrop->FromInventoryManager)
 	{
-		ItemManager->Server_InventoryToEquipment(FromInventoryManager, ItemDragDrop->FromItemSlotPos, EquipmentManager, ToEquipmentSlotType);
+		ItemManager->Server_InventoryToEquipment(FromInventoryManager, ItemDragDrop->FromItemSlotPos, EquipmentManager, ItemSlotType);
 	}
 	else if (UA1EquipmentManagerComponent* FromEquipmentManager = ItemDragDrop->FromEquipmentManager)
 	{
-		ItemManager->Server_EquipmentToEquipment(FromEquipmentManager, ItemDragDrop->FromEquipmentSlotType, EquipmentManager, ToEquipmentSlotType);
+		ItemManager->Server_EquipmentToEquipment(FromEquipmentManager, ItemDragDrop->FromEquipmentSlotType, EquipmentManager, ItemSlotType);
 	}
 
 	return true;
@@ -169,7 +169,7 @@ void UA1EquipmentSlotWidget::OnDragEnded()
 	Image_Green->SetVisibility(ESlateVisibility::Hidden);
 }
 
-void UA1EquipmentSlotWidget::OnEquipmentEntryChange(EItemHandType InItemHandType, UA1ItemInstance* InItemInstance, int32 InItemCount)
+void UA1EquipmentSlotWidget::OnEquipmentEntryChange(EEquipmentSlotType InItemHandType, UA1ItemInstance* InItemInstance, int32 InItemCount)
 {
 	if (EntryWidget)
 	{
@@ -186,7 +186,7 @@ void UA1EquipmentSlotWidget::OnEquipmentEntryChange(EItemHandType InItemHandType
 		OverlaySlot->SetHorizontalAlignment(HAlign_Fill);
 		OverlaySlot->SetVerticalAlignment(VAlign_Fill);
 
-		EntryWidget->Init(InItemInstance, InItemCount, UA1EquipManagerComponent::ConvertToEquipmentSlotType(InItemHandType), EquipmentManager);
+		EntryWidget->Init(InItemInstance, InItemCount, InItemHandType, EquipmentManager);
 
 		Image_BaseIcon->SetRenderOpacity(0.f);
 		Image_BaseIcon->SetVisibility(ESlateVisibility::Hidden);
