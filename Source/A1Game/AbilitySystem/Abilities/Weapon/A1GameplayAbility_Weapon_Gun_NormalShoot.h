@@ -44,4 +44,7 @@ protected:
 	
 	UPROPERTY(EditDefaultsOnly, Category="A1|Gun NormalShoot")
 	TObjectPtr<UAnimMontage> ReleaseReloadMontage;
+
+	UPROPERTY(EditAnywhere, Category = "GAS")
+	TSubclassOf<class UGameplayEffect> AttackDamageEffect;
 };

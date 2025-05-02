@@ -30,7 +30,6 @@ namespace A1GameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(InputTag_Attack_Skill_1,							"InputTag.Attack.Skill.1");
 	UE_DEFINE_GAMEPLAY_TAG(InputTag_Attack_Skill_2,							"InputTag.Attack.Skill.2");
 	UE_DEFINE_GAMEPLAY_TAG(InputTag_Widget_Inventory,						"InputTag.Widget.Inventory");
-	UE_DEFINE_GAMEPLAY_TAG(InputTag_Widget_ClassSelection,					"InputTag.Widget.SkinSelection");
 	
 	// Ability
 	UE_DEFINE_GAMEPLAY_TAG(Ability_ActivateFail_IsDead,						"Ability.ActivateFail.IsDead");
@@ -103,7 +102,6 @@ namespace A1GameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(Status_HitReact,									"Status.HitReact");
 	UE_DEFINE_GAMEPLAY_TAG(Status_RejectHitReact,							"Status.RejectHitReact");
 	UE_DEFINE_GAMEPLAY_TAG(Status_StaminaRecoveryBlock,						"Status.StaminaRecoveryBlock");
-	UE_DEFINE_GAMEPLAY_TAG(Status_PiercingShot,								"Status.PiercingShot");
 	
 	// Gameplay Event
 	UE_DEFINE_GAMEPLAY_TAG(GameplayEvent_Death,								"GameplayEvent.Death");
