@@ -1,0 +1,327 @@
+// Copyright (c) 2025 THIS-ACCENT. All Rights Reserved.
+
+
+#include "Actors/A1SpaceshipBase.h"
+
+#include "A1BedBase.h"
+#include "A1DoorBase.h"
+#include "A1FuelBase.h"
+#include "A1RescueSignalBase.h"
+#include "A1ShipOutputBase.h"
+#include "A1StorageBase.h"
+#include "Kismet/GameplayStatics.h"
+#include "Maps/A1RandomMapGenerator.h"
+#include "Net/UnrealNetwork.h"
+
+#include UE_INLINE_GENERATED_CPP_BY_NAME(A1SpaceshipBase)
+
+AA1SpaceshipBase::AA1SpaceshipBase()
+{
+	PrimaryActorTick.bCanEverTick = true;
+	bReplicates = true;
+}
+
+void AA1SpaceshipBase::BeginPlay()
+{
+	Super::BeginPlay();
+
+	if (HasAuthority())
+	{
+		FindComponentsByTags();
+
+		if (!RescueSignal || !CacheDoor || !FuelSystem || !ShipOutput || Beds.IsEmpty()/*|| Storages.IsEmpty()*/)
+		{
+			FindSpaceshipComponents();
+		}
+	}
+
+	FTimerDelegate FuelConsumeDelegate = FTimerDelegate::CreateUObject(
+		this,
+		&ThisClass::ConsumeFuel,
+		1.f);
+
+	GetWorldTimerManager().SetTimer(FuelConsumeTimer, FuelConsumeDelegate, 1.f, true);
+}
+
+void AA1SpaceshipBase::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
+	//TODO eric1306: Check Game State
+	//if (IsGameOver())
+	//{
+	//	//Clear Fuel Timer
+	//	GetWorldTimerManager().ClearTimer(FuelConsumeTimer);
+	//	//Game Over Logic
+	//}
+}
+
+void AA1SpaceshipBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(AA1SpaceshipBase, CurrentFuelAmount);
+	DOREPLIFETIME(AA1SpaceshipBase, bIsExternalMapActive);
+
+
+}
+
+void AA1SpaceshipBase::RegisterDoor(AA1DoorBase* Door)
+{
+	if (Door && HasAuthority())
+	{
+		CacheDoor = Door;
+	}
+}
+
+void AA1SpaceshipBase::RegisterRescueSignal(AA1RescueSignalBase* Signal)
+{
+	if (Signal && HasAuthority() && !RescueSignal)
+	{
+		RescueSignal = Signal;
+	}
+}
+
+void AA1SpaceshipBase::RegisterBed(AA1BedBase* Bed)
+{
+	if (Bed && HasAuthority())
+	{
+		Beds.AddUnique(Bed);
+	}
+}
+
+void AA1SpaceshipBase::RegisterFuelSystem(AA1FuelBase* Fuel)
+{
+	if (Fuel && HasAuthority() && !FuelSystem)
+	{
+		FuelSystem = Fuel;
+	}
+}
+
+void AA1SpaceshipBase::RegisterStorage(AA1StorageBase* Storage)
+{
+	if (Storage && HasAuthority())
+	{
+		Storages.AddUnique(Storage);
+	}
+}
+
+void AA1SpaceshipBase::RegisterShipOutput(AA1ShipOutputBase* Output)
+{
+	if (Output && HasAuthority() && !ShipOutput)
+	{
+		ShipOutput = Output;
+	}
+}
+
+void AA1SpaceshipBase::FindSpaceshipComponents()
+{
+	if (!HasAuthority())
+		return;
+
+	// 이미 할당된 참조가 있으면 재할당하지 않음
+	if (!RescueSignal)
+	{
+		TArray<AActor*> FoundRescueSignals;
+		UGameplayStatics::GetAllActorsOfClass(GetWorld(), AA1RescueSignalBase::StaticClass(), FoundRescueSignals);
+		if (FoundRescueSignals.Num() > 0)
+		{
+			RescueSignal = Cast<AA1RescueSignalBase>(FoundRescueSignals[0]);
+		}
+	}
+
+	// Doors가 비어있는 경우에만 찾기
+	if (!CacheDoor)
+	{
+		TArray<AActor*> FoundDoor;
+		UGameplayStatics::GetAllActorsOfClass(GetWorld(), AA1DoorBase::StaticClass(), FoundDoor);
+		if (FoundDoor.Num() > 0)
+		{
+			CacheDoor = Cast<AA1DoorBase>(FoundDoor[0]);
+		}
+		
+	}
+
+	if (!FuelSystem)
+	{
+		TArray<AActor*> FoundFuelSystems;
+		UGameplayStatics::GetAllActorsOfClass(GetWorld(), AA1FuelBase::StaticClass(), FoundFuelSystems);
+		if (FoundFuelSystems.Num() > 0)
+		{
+			FuelSystem = Cast<AA1FuelBase>(FoundFuelSystems[0]);
+		}
+	}
+
+	if (!ShipOutput)
+	{
+		TArray<AActor*> FoundShipOutputs;
+		UGameplayStatics::GetAllActorsOfClass(GetWorld(), AA1ShipOutputBase::StaticClass(), FoundShipOutputs);
+		if (FoundShipOutputs.Num() > 0)
+		{
+			ShipOutput = Cast<AA1ShipOutputBase>(FoundShipOutputs[0]);
+		}
+	}
+
+	if (Beds.IsEmpty())
+	{
+		TArray<AActor*> FoundBeds;
+		UGameplayStatics::GetAllActorsOfClass(GetWorld(), AA1BedBase::StaticClass(), FoundBeds);
+		for (AActor* Actor : FoundBeds)
+		{
+			if (AA1BedBase* Bed = Cast<AA1BedBase>(Actor))
+			{
+				Beds.AddUnique(Bed);
+			}
+		}
+	}
+
+	if (Storages.IsEmpty())
+	{
+		TArray<AActor*> FoundStorages;
+		UGameplayStatics::GetAllActorsOfClass(GetWorld(), AA1StorageBase::StaticClass(), FoundStorages);
+		for (AActor* Actor : FoundStorages)
+		{
+			if (AA1StorageBase* Storage = Cast<AA1StorageBase>(Actor))
+			{
+				Storages.AddUnique(Storage);
+			}
+		}
+	}
+}
+
+void AA1SpaceshipBase::FindComponentsByTags()
+{
+	if (!HasAuthority())
+		return;
+
+	TArray<AActor*> TaggedActors;
+	UGameplayStatics::GetAllActorsWithTag(GetWorld(), SpaceshipComponentTag, TaggedActors);
+	for (AActor* Actor : TaggedActors)
+	{
+		if (!IsValid(Actor))
+			continue;
+		if (Actor->ActorHasTag(DoorTag))
+		{
+			CacheDoor = Cast<AA1DoorBase>(Actor);;
+		}
+		else if (Actor->ActorHasTag(RescueSignalTag) && !RescueSignal)
+		{
+			RescueSignal = Cast<AA1RescueSignalBase>(Actor);
+		}
+		else if (Actor->ActorHasTag(BedTag))
+		{
+			AA1BedBase* Bed = Cast<AA1BedBase>(Actor);
+			if (Bed)
+			{
+				Beds.AddUnique(Bed);
+			}
+		}
+		else if (Actor->ActorHasTag(FuelSystemTag) && !FuelSystem)
+		{
+			FuelSystem = Cast<AA1FuelBase>(Actor);
+		}
+		else if (Actor->ActorHasTag(StorageTag))
+		{
+			AA1StorageBase* Storage = Cast<AA1StorageBase>(Actor);
+			if (Storage)
+			{
+				Storages.AddUnique(Storage);
+			}
+		}
+		else if (Actor->ActorHasTag(ShipOutputTag) && !ShipOutput)
+		{
+			ShipOutput = Cast<AA1ShipOutputBase>(Actor);
+		}
+	}
+}
+
+void AA1SpaceshipBase::OnRep_CurrentFuel()
+{
+	OnFuelChanged.Broadcast(CurrentFuelAmount);
+}
+
+void AA1SpaceshipBase::AddFuel(float AmountToAdd)
+{
+	if (!HasAuthority()/*Only Server*/)
+		return;
+	if (AmountToAdd <= 0.f)
+		return;
+
+	const float PreviousFuel = CurrentFuelAmount;
+	CurrentFuelAmount = FMath::Min(CurrentFuelAmount + AmountToAdd, MaxFuelAmount);
+
+	if (PreviousFuel != CurrentFuelAmount)
+	{
+		OnRep_CurrentFuel();
+	}
+
+}
+
+void AA1SpaceshipBase::ConsumeFuel(float AmountToConsume)
+{
+	if (!HasAuthority()/*Only Server*/)
+		return;
+
+	if (AmountToConsume <= 0.f)
+		return;
+
+	const float PreviousFuel = CurrentFuelAmount;
+	CurrentFuelAmount = FMath::Max(CurrentFuelAmount - AmountToConsume, 0.0f);
+
+	if (PreviousFuel != CurrentFuelAmount)
+	{
+		OnRep_CurrentFuel();
+	}
+}
+
+void AA1SpaceshipBase::ActivateExternalMap()
+{
+	//TODO eric1306
+	if (!HasAuthority()/*Only Server*/)
+		return;
+
+	bIsExternalMapActive = true;
+
+}
+
+void AA1SpaceshipBase::DeactivateExternalMap()
+{
+	if (!HasAuthority()/*Only Server*/)
+		return;
+
+	bIsExternalMapActive = false;
+
+	TArray<AActor*> FoundActors;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AA1RandomMapGenerator::StaticClass(), FoundActors);
+
+	for (AActor* Actor : FoundActors)
+	{
+		AA1RandomMapGenerator* TargetActor = Cast<AA1RandomMapGenerator>(Actor);
+		if (TargetActor && TargetActor->GetbDungeonGenerateComplete())
+		{
+			TargetActor->Server_ResetMap();
+			RescueSignal->SetSignalState(ESignalState::Released);
+			break;
+		}
+	}
+}
+
+bool AA1SpaceshipBase::IsGameOver() const
+{
+	//if fuel is zero, game over
+	return CurrentFuelAmount <= 0.0f;
+}
+
+void AA1SpaceshipBase::CheckWinCondition()
+{
+	//TODO eric1306
+	// 승리 조건 체크 로직
+	// 구조선과 조우했는지 확인하는 로직 등
+}
+
+bool AA1SpaceshipBase::HasEnoughFuelToSurvive() const
+{
+	constexpr float MinimumFuelToSurvive = 100.0f;
+	return CurrentFuelAmount >= MinimumFuelToSurvive;
+}
+
