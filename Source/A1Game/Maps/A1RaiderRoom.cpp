@@ -5,6 +5,7 @@
 
 #include "Character/Raider/A1RaiderBase.h"
 #include "Kismet/GameplayStatics.h"
+#include "Net/UnrealNetwork.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(A1RaiderRoom)
 
@@ -20,6 +21,13 @@ AA1RaiderRoom::AA1RaiderRoom(const FObjectInitializer& ObjectInitializer)
 void AA1RaiderRoom::BeginPlay()
 {
 	Super::BeginPlay();
+}
+
+void AA1RaiderRoom::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+    DOREPLIFETIME(AA1RaiderRoom, SpawnedRaiders);
 }
 
 void AA1RaiderRoom::SpawnEnemy()
@@ -41,6 +49,7 @@ void AA1RaiderRoom::SpawnEnemy()
             AA1RaiderBase* Raider = GetWorld()->SpawnActorDeferred<AA1RaiderBase>(RaiderClass, childTransform, this);
             if (Raider)
             {
+                //Net Update
                 Raider->SetReplicates(true);
                 Raider->bAlwaysRelevant = true;
                 Raider->NetUpdateFrequency = 60.0f;
@@ -59,6 +68,9 @@ void AA1RaiderRoom::SpawnEnemy()
                 Raider->SetNetDormancy(ENetDormancy::DORM_Awake);
 
                 Raider->ForceNetUpdate();
+
+                //Replicated
+                SpawnedRaiders.Add(Raider);
             }
         }
     }
@@ -108,8 +120,24 @@ void AA1RaiderRoom::SpawnEnemy()
                 Raider->SetNetDormancy(ENetDormancy::DORM_Awake);
 
                 Raider->ForceNetUpdate();
+
+                //Replicated
+                SpawnedRaiders.Add(Raider);
             }
         }
     }
 
+}
+
+void AA1RaiderRoom::RemoveEnemy()
+{
+    for (auto Raider : SpawnedRaiders)
+    {
+        if (Raider)
+        {
+            Raider->Destroy();
+        }
+    }
+
+    SpawnedRaiders.Empty();
 }
