@@ -631,7 +631,7 @@ UA1ItemInstance* UA1EquipmentManagerComponent::RemoveEquipment_Unsafe(EEquipment
 		if (IsUsingRegisteredSubObjectList() && RemovedItemInstance)
 		{
 			RemoveReplicatedSubObject(RemovedItemInstance);
-		}
+		}	
 	}
 
 	EquipmentList.MarkItemDirty(Entry);

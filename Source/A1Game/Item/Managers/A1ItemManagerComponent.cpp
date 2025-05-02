@@ -2,7 +2,7 @@
 		  
 #include "A1EquipmentManagerComponent.h"
 #include "A1InventoryManagerComponent.h"
-//#include "Actors/A1PickupableItemBase.h"
+#include "Actors/A1PickupableItemBase.h"
 #include "Components/CapsuleComponent.h"
 #include "Data/A1ItemData.h"
 #include "GameFramework/Character.h"
@@ -345,7 +345,6 @@ void UA1ItemManagerComponent::Server_DropItemFromEquipment_Implementation(UA1Equ
 	}
 }
 
-/*
 bool UA1ItemManagerComponent::TryPickItem(AA1PickupableItemBase* PickupableItemActor)
 {
 	if (HasAuthority() == false)
@@ -433,7 +432,7 @@ bool UA1ItemManagerComponent::TryPickItem(AA1PickupableItemBase* PickupableItemA
 	return false;
 }
 
-
+/*
 bool UA1ItemManagerComponent::TryDropItem(UA1ItemInstance* FromItemInstance, int32 FromItemCount)
 {
 	if (HasAuthority() == false)

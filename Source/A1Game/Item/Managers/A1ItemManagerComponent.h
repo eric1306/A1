@@ -44,8 +44,8 @@ public:
 	void Server_DropItemFromEquipment(UA1EquipmentManagerComponent* FromEquipmentManager, EEquipmentSlotType FromEquipmentSlotType);
 
 public:
-	/*UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly)
-	bool TryPickItem(AA1PickupableItemBase* PickupableItemActor);*/
+	UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly)
+	bool TryPickItem(AA1PickupableItemBase* PickupableItemActor);
 
 	/*UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly)
 	bool TryDropItem(UA1ItemInstance* FromItemInstance, int32 FromItemCount);*/
