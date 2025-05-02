@@ -10,6 +10,7 @@ class ULyraHealthComponent;
 
 class ULyraAbilitySystemComponent;
 class UA1VitalSet;
+class UA1CharacterAttributeSet;
 class UObject;
 struct FFrame;
 struct FGameplayEffectSpec;

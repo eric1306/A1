@@ -17,8 +17,13 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_Gameplay_DamageSelfDestruct, "Gameplay.Damage.SelfDes
 UE_DEFINE_GAMEPLAY_TAG(TAG_Gameplay_FellOutOfWorld, "Gameplay.Damage.FellOutOfWorld");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Lyra_Damage_Message, "Lyra.Damage.Message");
 
-UA1VitalSet::UA1VitalSet()
+UA1VitalSet::UA1VitalSet() :
+	 MaxHealth(100.f),
+	MaxOxygen(100.f)
 {
+	InitHealth(GetMaxHealth());
+	InitOxygen(GetMaxOxygen());
+
 	bOutOfHealth = false;
 	MaxHealthBeforeAttributeChange = 0.0f;
 	HealthBeforeAttributeChange = 0.0f;

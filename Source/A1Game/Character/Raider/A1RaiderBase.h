@@ -3,11 +3,14 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/Character.h"
+#include "Character/A1CreatureBase.h"
 #include "A1RaiderBase.generated.h"
 
+class UA1CharacterAttributeSet;
+class AA1EquipmentBase;
+
 UCLASS()
-class A1GAME_API AA1RaiderBase : public ACharacter
+class A1GAME_API AA1RaiderBase : public AA1CreatureBase
 {
 	GENERATED_BODY()
 
@@ -23,7 +26,19 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	// Called to bind functionality to input
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+protected:
+	void HandleOutOfHealth(float OldValue, float NewValue);
+	
+	UFUNCTION()
+	void DestroyDueToDeath();
 
+protected:
+	UPROPERTY()
+	TObjectPtr<UA1CharacterAttributeSet> HealthSet;
+
+private:
+	FTimerHandle TimerHandle;
+
+	UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess = "true"))
+	TArray<TSubclassOf<AA1EquipmentBase>> dropItems;
 };

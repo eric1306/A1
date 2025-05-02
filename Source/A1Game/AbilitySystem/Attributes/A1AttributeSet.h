@@ -1,6 +1,7 @@
 #pragma once
 
 #include "AttributeSet.h"
+#include "AbilitySystemComponent.h"
 #include "A1AttributeSet.generated.h"
 
 class ULyraAbilitySystemComponent;
@@ -13,6 +14,7 @@ struct FGameplayEffectSpec;
 		GAMEPLAYATTRIBUTE_VALUE_INITTER(PropertyName)
 
 DECLARE_MULTICAST_DELEGATE_SixParams(FLyraAttributeEvent, AActor* /*EffectInstigator*/, AActor* /*EffectCauser*/, const FGameplayEffectSpec* /*EffectSpec*/, float /*EffectMagnitude*/, float /*OldValue*/, float /*NewValue*/);
+DECLARE_MULTICAST_DELEGATE_TwoParams(FAttributeEvent, float /*OldValue*/, float /*NewValue*/);
 
 UCLASS()
 class A1GAME_API UA1AttributeSet : public UAttributeSet

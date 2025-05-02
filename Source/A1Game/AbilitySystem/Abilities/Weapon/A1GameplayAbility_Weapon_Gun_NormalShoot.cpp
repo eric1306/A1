@@ -5,6 +5,7 @@
 #include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystemComponent.h"
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
+#include "Character/Raider/A1RaiderBase.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Physics/LyraCollisionChannels.h"
 #include "Actors/A1EquipmentBase.h"
@@ -90,26 +91,42 @@ void UA1GameplayAbility_Weapon_Gun_NormalShoot::Shoot()
 		FRotator CameraRotation;
 		LyraPlayerController->GetPlayerViewPoint(CameraLocation, CameraRotation);
 
-		//FTransform SpawnTransform;
-		if (bApplyAimAssist)
+		float Distance = (SocketLocation - CameraLocation).Dot(CameraRotation.Vector());
+		FVector StartLocation = CameraLocation + CameraRotation.Vector() * (Distance + AimAssistMinDistance);
+		FVector EndLocation = StartLocation + (CameraRotation.Vector() * AimAssistMaxDistance);
+
+		FHitResult HitResult;
+		TArray<AActor*> ActorsToIgnore = { LyraCharacter, WeaponActor };
+
+		bool bHit = UKismetSystemLibrary::LineTraceSingle(GetWorld(), StartLocation, EndLocation, UEngineTypes::ConvertToTraceType(A1_TraceChannel_AimAssist), false, ActorsToIgnore, EDrawDebugTrace::ForDuration, HitResult, true);
+		
+		if (bHit)
 		{
-			float Distance = (SocketLocation - CameraLocation).Dot(CameraRotation.Vector());
-			FVector StartLocation = CameraLocation + CameraRotation.Vector() * (Distance + AimAssistMinDistance);
-			FVector EndLocation = StartLocation + (CameraRotation.Vector() * AimAssistMaxDistance);
+			AA1RaiderBase* Target = Cast<AA1RaiderBase>(HitResult.GetActor());
+			if (Target)
+			{
+				FGameplayAbilityTargetDataHandle TargetDataHandle = UAbilitySystemBlueprintLibrary::AbilityTargetDataFromActor(Target);
 
-			FHitResult HitResult;
-			TArray<AActor*> ActorsToIgnore = { LyraCharacter, WeaponActor };
+				// GE Data File화 할지 고민
+				//const TSubclassOf<UGameplayEffect> DamageGE = ULyraAssetManager::GetSubclassByPath(ULyraGameData::Get().DamageGameplayEffect_SetByCaller);
+				FGameplayEffectSpecHandle EffectSpecHandle = MakeOutgoingGameplayEffectSpec(AttackDamageEffect);
 
-			bool bHit = UKismetSystemLibrary::LineTraceSingle(GetWorld(), StartLocation, EndLocation, UEngineTypes::ConvertToTraceType(A1_TraceChannel_AimAssist), false, ActorsToIgnore, EDrawDebugTrace::ForDuration, HitResult, true);
-			SocketRotation = bHit ? (HitResult.ImpactPoint - SocketLocation).Rotation() : (EndLocation - SocketLocation).Rotation();
+				// 가해자 정보
+				//FGameplayEffectContextHandle EffectContextHandle = SourceASC->MakeEffectContext();
+				//HitResult.bBlockingHit = bBlockingHit;
+				//EffectContextHandle.AddHitResult(HitResult);
+				//EffectContextHandle.AddInstigator(SourceASC->AbilityActorInfo->OwnerActor.Get(), WeaponActor);
+				//EffectSpecHandle.Data->SetContext(EffectContextHandle);
 
-			//SpawnTransform.SetLocation(SocketLocation);
-			//SpawnTransform.SetRotation(SocketRotation.Quaternion());
+				if (EffectSpecHandle.IsValid())
+				{
+					// 무기에 희귀도에 따른 대미지 차별화
+					//EffectSpecHandle.Data->SetSetByCallerMagnitude(A1GameplayTags::SetByCaller_BaseDamage, Damage);
+					ApplyGameplayEffectSpecToTarget(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, EffectSpecHandle, TargetDataHandle);
+				}
+			}
 		}
-		else
-		{
-			//SpawnTransform.SetLocation(SocketLocation);
-			//SpawnTransform.SetRotation(CameraRotation.Quaternion());
-		}
+		
+			
 	}
 }

@@ -14,11 +14,22 @@ class A1GAME_API AA1CreatureBase : public ACharacter, public IAbilitySystemInter
 
 public:
 	// Sets default values for this character's properties
-	AA1CreatureBase();
-	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
-	virtual void PossessedBy(AController* NewController) override;
+	AA1CreatureBase(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
+
+	virtual class UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 
 protected:
-	UPROPERTY(EditAnywhere, Category = "GAS")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Stat, Meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UAnimMontage> DeadMontage;
+
+// Dead Section
+protected:
+	virtual void SetDead();
+	void PlayDeadAnimation();
+
+	float DeadEventDelayTime = 5.0f;
+
+protected:
+	UPROPERTY()
 	TObjectPtr<class UAbilitySystemComponent> ASC;
 };

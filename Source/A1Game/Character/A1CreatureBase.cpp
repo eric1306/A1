@@ -4,9 +4,10 @@
 #include "Character/A1CreatureBase.h"
 #include "AbilitySystemComponent.h"
 #include "Controller/Player/A1PlayerState.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 // Sets default values
-AA1CreatureBase::AA1CreatureBase()
+AA1CreatureBase::AA1CreatureBase(const FObjectInitializer& ObjectInitializer)
 {
 	ASC = nullptr;
 }
@@ -16,20 +17,19 @@ UAbilitySystemComponent* AA1CreatureBase::GetAbilitySystemComponent() const
 	return ASC;
 }
 
-void AA1CreatureBase::PossessedBy(AController* NewController)
+void AA1CreatureBase::SetDead()
 {
-	Super::PossessedBy(NewController);
+	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_None);
+	PlayDeadAnimation();
+	SetActorEnableCollision(false);
+}
 
-	AA1PlayerState* GASPS = GetPlayerState<AA1PlayerState>();
-	if (GASPS)
-	{
-		//Setting Ability System Component
-		ASC = GASPS->GetAbilitySystemComponent();
-		ASC->InitAbilityActorInfo(GASPS, this);
+void AA1CreatureBase::PlayDeadAnimation()
+{
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	AnimInstance->StopAllMontages(0.0f);
 
-		//Print GAS Debug in Editor viewport
-		APlayerController* PlayerController = CastChecked<APlayerController>(NewController);
-		PlayerController->ConsoleCommand("showdebug abilitysystem");
-	}
+	if (DeadMontage != nullptr)
+		AnimInstance->Montage_Play(DeadMontage, 1.0f);
 }
 

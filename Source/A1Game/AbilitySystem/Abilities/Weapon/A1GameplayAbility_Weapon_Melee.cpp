@@ -101,20 +101,20 @@ void UA1GameplayAbility_Weapon_Melee::ProcessHitResult(FHitResult HitResult, flo
 			AnimInstance->Montage_SetEndDelegate(MontageEnded, BackwardMontage);
 		}
 
-		FGameplayAbilityTargetDataHandle TargetDataHandle = UAbilitySystemBlueprintLibrary::AbilityTargetDataFromActor(HitResult.GetActor());
-		const TSubclassOf<UGameplayEffect> DamageGE = ULyraAssetManager::GetSubclassByPath(ULyraGameData::Get().DamageGameplayEffect_SetByCaller);
-		FGameplayEffectSpecHandle EffectSpecHandle = MakeOutgoingGameplayEffectSpec(DamageGE);
-
-		FGameplayEffectContextHandle EffectContextHandle = SourceASC->MakeEffectContext();
-		HitResult.bBlockingHit = bBlockingHit;
-		EffectContextHandle.AddHitResult(HitResult);
-		EffectContextHandle.AddInstigator(SourceASC->AbilityActorInfo->OwnerActor.Get(), WeaponActor);
-		EffectSpecHandle.Data->SetContext(EffectContextHandle);
+		//FGameplayAbilityTargetDataHandle TargetDataHandle = UAbilitySystemBlueprintLibrary::AbilityTargetDataFromActor(HitResult.GetActor());
+		//const TSubclassOf<UGameplayEffect> DamageGE = ULyraAssetManager::GetSubclassByPath(ULyraGameData::Get().DamageGameplayEffect_SetByCaller);
+		//FGameplayEffectSpecHandle EffectSpecHandle = MakeOutgoingGameplayEffectSpec(DamageGE);
+		//
+		//FGameplayEffectContextHandle EffectContextHandle = SourceASC->MakeEffectContext();
+		//HitResult.bBlockingHit = bBlockingHit;
+		//EffectContextHandle.AddHitResult(HitResult);
+		//EffectContextHandle.AddInstigator(SourceASC->AbilityActorInfo->OwnerActor.Get(), WeaponActor);
+		//EffectSpecHandle.Data->SetContext(EffectContextHandle);
 		
-		Damage = bBlockingHit ? Damage * BlockHitDamageMultiplier : Damage;
-		
-		EffectSpecHandle.Data->SetSetByCallerMagnitude(A1GameplayTags::SetByCaller_BaseDamage, Damage);
-		ApplyGameplayEffectSpecToTarget(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, EffectSpecHandle, TargetDataHandle);
+		//Damage = bBlockingHit ? Damage * BlockHitDamageMultiplier : Damage;
+		//
+		//EffectSpecHandle.Data->SetSetByCallerMagnitude(A1GameplayTags::SetByCaller_BaseDamage, Damage);
+		//ApplyGameplayEffectSpecToTarget(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, EffectSpecHandle, TargetDataHandle);
 	}
 	
 	DrawDebugHitPoint(HitResult);

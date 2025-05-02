@@ -50,7 +50,7 @@ public:
 
 public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, config, Category=A1)
-	bool bForceDisableDebugTrace = true;
+	bool bForceDisableDebugTrace = false;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, config, Category=A1)
 	bool bForceDisableCooldown = true;

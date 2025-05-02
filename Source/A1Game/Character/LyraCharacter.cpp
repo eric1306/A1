@@ -71,7 +71,7 @@ ALyraCharacter::ALyraCharacter(const FObjectInitializer& ObjectInitializer)
 	HealthComponent->OnDeathFinished.AddDynamic(this, &ThisClass::OnDeathFinished);
 
 	CameraComponent = CreateDefaultSubobject<ULyraCameraComponent>(TEXT("CameraComponent"));
-	CameraComponent->SetRelativeLocation(FVector(-300.0f, 0.0f, 75.0f));
+	CameraComponent->SetRelativeLocation(FVector(0.f, 0.0f, 90.0f));
 
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationYaw = true;
@@ -692,3 +692,4 @@ bool FSharedRepMovement::NetSerialize(FArchive& Ar, class UPackageMap* Map, bool
 //		CosmeticManager->GetMeshComponents(OutMeshComponents);
 //	}
 //}
+

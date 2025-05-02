@@ -3,6 +3,7 @@
 #include "Character/LyraHealthComponent.h"
 
 #include "AbilitySystem/Attributes/A1AttributeSet.h"
+#include "AbilitySystem/Attributes/A1CharacterAttributeSet.h"
 #include "A1LogChannels.h"
 #include "System/LyraAssetManager.h"
 #include "System/LyraGameData.h"
