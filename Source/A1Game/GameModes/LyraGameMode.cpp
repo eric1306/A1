@@ -286,6 +286,25 @@ void ALyraGameMode::OnUserInitializedForDedicatedServer(const UCommonUserInfo* U
 	}
 }
 
+void ALyraGameMode::TriggerFadeOnAllPlayer(float From, float To)
+{
+	for (FConstPlayerControllerIterator Iterator = GetWorld()->GetPlayerControllerIterator(); Iterator; ++Iterator)
+	{
+		if (ALyraPlayerController* PC = Cast<ALyraPlayerController>(Iterator->Get()))
+		{
+			PC->Client_FadeCamera(From, To, 1.0f, FLinearColor::Black, true);
+		}
+	}
+}
+
+void ALyraGameMode::TriggerFadeOnSpecificPlayer(ALyraPlayerController* TargetPC, float From, float To)
+{
+	if (TargetPC)
+	{
+		TargetPC->Client_FadeCamera(From, To, 1.0f, FLinearColor::Black, true);
+	}
+}
+
 void ALyraGameMode::OnMatchAssignmentGiven(FPrimaryAssetId ExperienceId, const FString& ExperienceIdSource)
 {
 	if (ExperienceId.IsValid())
