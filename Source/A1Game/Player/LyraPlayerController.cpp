@@ -452,6 +452,15 @@ FOnA1TeamIndexChangedDelegate* ALyraPlayerController::GetOnTeamIndexChangedDeleg
 	return &OnTeamChangedDelegate;
 }
 
+void ALyraPlayerController::Client_FadeCamera_Implementation(float FromAlpha, float ToAlpha, float Duration,
+	FLinearColor Color, bool bHoldWhenFinished)
+{
+	if (PlayerCameraManager)
+	{
+		PlayerCameraManager->StartCameraFade(FromAlpha, ToAlpha, Duration, Color, false, bHoldWhenFinished);
+	}
+}
+
 void ALyraPlayerController::OnUnPossess()
 {
 	// Make sure the pawn that is being unpossessed doesn't remain our ASC's avatar actor

@@ -96,6 +96,10 @@ public:
 	virtual FOnA1TeamIndexChangedDelegate* GetOnTeamIndexChangedDelegate() override;
 	//~End of IA1TeamAgentInterface interface
 
+	// Fade Effect Function
+	UFUNCTION(Client, Reliable)
+	void Client_FadeCamera(float FromAlpha, float ToAlpha, float Duration, FLinearColor Color, bool bHoldWhenFinished);
+
 private:
 	UPROPERTY()
 	FOnA1TeamIndexChangedDelegate OnTeamChangedDelegate;

@@ -6,6 +6,7 @@
 
 #include "LyraGameMode.generated.h"
 
+class ALyraPlayerController;
 class AActor;
 class AController;
 class AGameModeBase;
@@ -82,4 +83,12 @@ protected:
 
 	UFUNCTION()
 	void OnUserInitializedForDedicatedServer(const UCommonUserInfo* UserInfo, bool bSuccess, FText Error, ECommonUserPrivilege RequestedPrivilege, ECommonUserOnlineContext OnlineContext);
+	//Custom Function
+public:
+
+	UFUNCTION(BlueprintCallable)
+	void TriggerFadeOnAllPlayer(float From, float To);
+
+	UFUNCTION(BlueprintCallable)
+	void TriggerFadeOnSpecificPlayer(ALyraPlayerController* TargetPC, float From, float To);
 };
