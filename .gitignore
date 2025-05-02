@@ -88,6 +88,9 @@ Content/Blueprints/Developing
 # Content(Fab Asset)
 Content/SpaceshipInterior
 Content/SciFiCharacterPack
+Content/ModSci_Engineer
+Content/ModSci_EngiProps
+Content/ModSciInteriors
 
 # Precompiled Assets
 SourceArt/**/*.png
