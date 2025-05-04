@@ -1,6 +1,6 @@
 // Copyright (c) 2025 THIS-ACCENT. All Rights Reserved.
 
-#include "AbilitySystem/Abilities/Docker/A1GameplayAbility_TryPickup.h"
+#include "AbilitySystem/Abilities/Docker/A1GameplayAbility_TryInteract.h"
 
 #include "A1GameplayTags.h"
 #include "AbilitySystemBlueprintLibrary.h"
@@ -11,16 +11,17 @@
 #include "Character/LyraCharacter.h"
 #include "Character/A1CreatureBase.h"
 #include "Item/Managers/A1ItemManagerComponent.h"
-#include "Actors/A1PickupableItemBase.h"
+#include "Actors/A1EquipmentBase.h"
 
-#include UE_INLINE_GENERATED_CPP_BY_NAME(A1GameplayAbility_TryPickup)
+#include UE_INLINE_GENERATED_CPP_BY_NAME(A1GameplayAbility_TryInteract)
 
-UA1GameplayAbility_TryPickup::UA1GameplayAbility_TryPickup(const FObjectInitializer& ObjectInitializer)
+UA1GameplayAbility_TryInteract::UA1GameplayAbility_TryInteract(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
+
 }
 
-void UA1GameplayAbility_TryPickup::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
+void UA1GameplayAbility_TryInteract::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 
@@ -42,7 +43,7 @@ void UA1GameplayAbility_TryPickup::ActivateAbility(const FGameplayAbilitySpecHan
 	}
 }
 
-void UA1GameplayAbility_TryPickup::TryPickup()
+void UA1GameplayAbility_TryInteract::TryPickup()
 {
 	if (HasAuthority(&CurrentActivationInfo) == false)
 		return;
@@ -67,12 +68,18 @@ void UA1GameplayAbility_TryPickup::TryPickup()
 
 		if (bHit)
 		{
-			AA1PickupableItemBase* Target = Cast<AA1PickupableItemBase>(HitResult.GetActor());
+			AA1EquipmentBase* Target = Cast<AA1EquipmentBase>(HitResult.GetActor());
 			if (Target)
 			{
-				UA1ItemManagerComponent* ItemManager = LyraCharacter->GetComponentByClass<UA1ItemManagerComponent>();
+				UA1ItemManagerComponent* ItemManager = LyraPlayerController->GetComponentByClass<UA1ItemManagerComponent>();
 				ItemManager->TryPickItem(Target);
 			}
+
+			// TODO Eric1013
+			// 상호작용 액터 캐스팅 후
+			// AA* TargetInteraction = Cast<AA>(HitResult.GetActor());
+			
+			//상호작용 시도
 		}
 	}
 
