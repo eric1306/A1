@@ -99,6 +99,7 @@ namespace A1GameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(Status_Succeeded,								"Status.Succeeded");
 	UE_DEFINE_GAMEPLAY_TAG(Status_Failed,									"Status.Failed");
 	UE_DEFINE_GAMEPLAY_TAG(Status_Interact,									"Status.Interact");
+	UE_DEFINE_GAMEPLAY_TAG(Status_TryInteract,								"Status.TryInteract");
 	UE_DEFINE_GAMEPLAY_TAG(Status_HitReact,									"Status.HitReact");
 	UE_DEFINE_GAMEPLAY_TAG(Status_RejectHitReact,							"Status.RejectHitReact");
 	UE_DEFINE_GAMEPLAY_TAG(Status_StaminaRecoveryBlock,						"Status.StaminaRecoveryBlock");

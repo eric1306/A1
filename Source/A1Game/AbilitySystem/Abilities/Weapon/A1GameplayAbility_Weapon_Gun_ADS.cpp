@@ -13,7 +13,7 @@
 UA1GameplayAbility_Weapon_Gun_ADS::UA1GameplayAbility_Weapon_Gun_ADS(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
-    AbilityTags.AddTag(A1GameplayTags::Ability_ADS_Gun);
+	AbilityTags.AddTag(A1GameplayTags::Ability_ADS_Gun);
 	ActivationOwnedTags.AddTag(A1GameplayTags::Status_ADS_Gun);
 	ActivationBlockedTags.AddTag(A1GameplayTags::Status_Attack);
 	ActivationBlockedTags.AddTag(A1GameplayTags::Status_MainHand_Left);

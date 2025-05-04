@@ -2,7 +2,9 @@
 		  
 #include "A1EquipmentManagerComponent.h"
 #include "A1InventoryManagerComponent.h"
-#include "Actors/A1PickupableItemBase.h"
+#include "Actors/A1EquipmentBase.h"
+#include "Data/A1ItemData.h"
+#include "Item/Fragments/A1ItemFragment_Equipable_Attachment.h"
 #include "Components/CapsuleComponent.h"
 #include "Data/A1ItemData.h"
 #include "GameFramework/Character.h"
@@ -345,7 +347,7 @@ void UA1ItemManagerComponent::Server_DropItemFromEquipment_Implementation(UA1Equ
 	}
 }
 
-bool UA1ItemManagerComponent::TryPickItem(AA1PickupableItemBase* PickupableItemActor)
+bool UA1ItemManagerComponent::TryPickItem(AA1EquipmentBase* PickupableItemActor)
 {
 	if (HasAuthority() == false)
 		return false;
@@ -361,74 +363,54 @@ bool UA1ItemManagerComponent::TryPickItem(AA1PickupableItemBase* PickupableItemA
 	if (IsAllowedComponent(MyInventoryManager) == false || IsAllowedComponent(MyEquipmentManager) == false)
 		return false;
 
-	const FA1PickupInfo& PickupInfo = PickupableItemActor->GetPickupInfo();
-	const FA1PickupInstance& PickupInstance = PickupInfo.PickupInstance;
-	const FA1PickupTemplate& PickupTemplate = PickupInfo.PickupTemplate;
 
-	int32 ItemTemplateID = 0;
-	EItemRarity ItemRarity = EItemRarity::Count;
-	int32 ItemCount = 0;
-	UA1ItemInstance* ItemInstance = nullptr;
+	const UA1ItemTemplate& ItemTemplate = UA1ItemData::Get().FindItemTemplateByID(PickupableItemActor->GetTemplateID());
+
+	const UA1ItemFragment_Equipable_Attachment* EquippableFragment = ItemTemplate.FindFragmentByClass<UA1ItemFragment_Equipable_Attachment>();
+	if (EquippableFragment == nullptr)
+		return false;
 	
-	if (PickupInstance.ItemInstance)
-	{
-		if (PickupInstance.ItemCount <= 0)
-			return false;
+	int32 ItemTemplateID = PickupableItemActor->GetTemplateID();
+	EItemRarity ItemRarity = PickupableItemActor->GetItemRarity();
+	int32 ItemCount = 1;
+	
+	EEquipmentSlotType ToEquipmentSlotType = EquippableFragment->ItemHandType;
 
-		ItemTemplateID = PickupInstance.ItemInstance->GetItemTemplateID();
-		ItemRarity = PickupInstance.ItemInstance->GetItemRarity();
-		ItemCount = PickupInstance.ItemCount;
-		ItemInstance = PickupInstance.ItemInstance;
-	}
-	else if (PickupTemplate.ItemTemplateClass)
-	{
-		if (PickupTemplate.ItemCount <= 0 || PickupTemplate.ItemRarity == EItemRarity::Count)
-			return false;
-		
-		ItemTemplateID = UA1ItemData::Get().FindItemTemplateIDByClass(PickupTemplate.ItemTemplateClass);
-		ItemRarity = PickupTemplate.ItemRarity;
-		ItemCount = PickupTemplate.ItemCount;
-	}
-
-	EEquipmentSlotType ToEquipmentSlotType;
 	int32 MovableCount = MyEquipmentManager->CanMoveOrMergeEquipment_Quick(ItemTemplateID, ItemRarity, ItemCount, ToEquipmentSlotType);
 	if (MovableCount == ItemCount)
 	{
-		if (ItemInstance == nullptr)
-		{
-			ItemInstance = NewObject<UA1ItemInstance>();
-			ItemInstance->Init(ItemTemplateID, ItemRarity);
-		}
-		
+		UA1ItemInstance* ItemInstance = NewObject<UA1ItemInstance>();
+		ItemInstance->Init(ItemTemplateID, ItemRarity);
+
 		MyEquipmentManager->AddEquipment_Unsafe(ToEquipmentSlotType, ItemInstance, MovableCount);
-		
+
 		PickupableItemActor->Destroy();
 		return true;
 	}
-	else
-	{
-		TArray<FIntPoint> ToItemSlotPoses;
-		TArray<int32> ToItemCounts;
-			
-		MovableCount = MyInventoryManager->CanAddItem(ItemTemplateID, ItemRarity, ItemCount, ToItemSlotPoses, ToItemCounts);
-		if (MovableCount == ItemCount)
-		{
-			if (ItemInstance == nullptr)
-			{
-				ItemInstance = NewObject<UA1ItemInstance>();
-				ItemInstance->Init(ItemTemplateID, ItemRarity);
-			}
-			
-			for (int32 i = 0; i < ToItemSlotPoses.Num(); i++)
-			{
-				MyInventoryManager->AddItem_Unsafe(ToItemSlotPoses[i], ItemInstance, ToItemCounts[i]);
-			}
-			
-			PickupableItemActor->Destroy();
-			return true;
-		}
-	}
-	
+	//else
+	//{
+	//	TArray<FIntPoint> ToItemSlotPoses;
+	//	TArray<int32> ToItemCounts;
+	//
+	//	MovableCount = MyInventoryManager->CanAddItem(ItemTemplateID, ItemRarity, ItemCount, ToItemSlotPoses, ToItemCounts);
+	//	if (MovableCount == ItemCount)
+	//	{
+	//		if (ItemInstance == nullptr)
+	//		{
+	//			ItemInstance = NewObject<UA1ItemInstance>();
+	//			ItemInstance->Init(ItemTemplateID, ItemRarity);
+	//		}
+	//
+	//		for (int32 i = 0; i < ToItemSlotPoses.Num(); i++)
+	//		{
+	//			MyInventoryManager->AddItem_Unsafe(ToItemSlotPoses[i], ItemInstance, ToItemCounts[i]);
+	//		}
+	//
+	//		PickupableItemActor->Destroy();
+	//		return true;
+	//	}
+	//}
+
 	return false;
 }
 
@@ -480,6 +462,40 @@ bool UA1ItemManagerComponent::TryDropItem(UA1ItemInstance* FromItemInstance, int
 	return false;
 }
 */
+
+bool UA1ItemManagerComponent::TryDropItem(UA1ItemInstance* FromItemInstance, int32 FromItemCount)
+{
+	if (HasAuthority() == false)
+		return false;
+
+	if (FromItemInstance == nullptr || FromItemCount <= 0)
+		return false;
+
+	AController* Controller = Cast<AController>(GetOwner());
+	ACharacter* Character = Controller ? Cast<ACharacter>(Controller->GetPawn()) : Cast<ACharacter>(GetOwner());
+	if (Character == nullptr)
+		return false;
+
+
+	FActorSpawnParameters SpawnParameters;
+	SpawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButDontSpawnIfColliding;
+
+	FVector SpawnLocation = Character->GetActorLocation();
+	SpawnLocation.Z = 0.0f;
+	
+	//TSubclassOf<AA1EquipmentBase> PickupableItemBaseClass = ULyraAssetManager::Get().GetSubclassByName<AA1EquipmentBase>("PickupableItemBaseClass");
+	AA1EquipmentBase* PickupableItemActor = GetWorld()->SpawnActor<AA1EquipmentBase>(AA1EquipmentBase::StaticClass(), SpawnLocation, FRotator::ZeroRotator, SpawnParameters);
+	if (PickupableItemActor == nullptr)
+		return false;
+	
+	const UA1ItemFragment_Equipable_Attachment* EquippableFragment = FromItemInstance->FindFragmentByClass<UA1ItemFragment_Equipable_Attachment>();
+	if (EquippableFragment == nullptr)
+		return false;
+
+	PickupableItemActor->Init(FromItemInstance->GetItemTemplateID(), EquippableFragment->ItemHandType, FromItemInstance->GetItemRarity());
+	
+	return true;
+}
 
 void UA1ItemManagerComponent::AddAllowedComponent(UActorComponent* ActorComponent)
 {

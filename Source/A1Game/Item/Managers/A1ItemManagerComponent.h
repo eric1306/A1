@@ -4,6 +4,7 @@
 #include "A1ItemManagerComponent.generated.h"
 
 class UA1ItemInstance;
+class AA1EquipmentBase;
 class AA1PickupableItemBase;
 class UA1EquipmentManagerComponent;
 class UA1InventoryManagerComponent;
@@ -44,8 +45,8 @@ public:
 	void Server_DropItemFromEquipment(UA1EquipmentManagerComponent* FromEquipmentManager, EEquipmentSlotType FromEquipmentSlotType);
 
 public:
-	UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly)
-	bool TryPickItem(AA1PickupableItemBase* PickupableItemActor);
+	bool TryPickItem(AA1EquipmentBase* PickupableItemActor);
+	bool TryDropItem(UA1ItemInstance* FromItemInstance, int32 FromItemCount);
 
 	/*UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly)
 	bool TryDropItem(UA1ItemInstance* FromItemInstance, int32 FromItemCount);*/

@@ -91,13 +91,14 @@ void AA1EquipmentBase::Destroyed()
 	Super::Destroyed();
 }
 
-void AA1EquipmentBase::Init(int32 InTemplateID, EEquipmentSlotType InEquipmentSlotType)
+void AA1EquipmentBase::Init(int32 InTemplateID, EEquipmentSlotType InEquipmentSlotType, EItemRarity InItemRarity)
 {
 	if (bOnlyUseForLocal)
 		return;
 	
 	TemplateID = InTemplateID;
 	EquipmentSlotType = InEquipmentSlotType;
+	ItemRarity = InItemRarity;
 }
 
 void AA1EquipmentBase::ChangeBlockState(bool bShouldBlock)

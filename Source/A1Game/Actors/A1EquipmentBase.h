@@ -24,7 +24,7 @@ protected:
 	virtual void Destroyed() override;
 
 public:
-	void Init(int32 InTemplateID, EEquipmentSlotType InEquipmentSlotType);
+	void Init(int32 InTemplateID, EEquipmentSlotType InEquipmentSlotType, EItemRarity InItemRarity);
 
 	UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly)
 	void ChangeBlockState(bool bShouldBlock);
@@ -40,6 +40,7 @@ public:
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 	int32 GetTemplateID() const { return TemplateID; }
 	EEquipmentSlotType GetEquipmentSlotType() const { return EquipmentSlotType; }
+	EItemRarity GetItemRarity() const { return ItemRarity; }
 
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	UAnimMontage* GetEquipMontage();
@@ -58,11 +59,14 @@ public:
 	TObjectPtr<UBoxComponent> TraceDebugCollision;
 	
 protected:
-	UPROPERTY(Replicated)
+	UPROPERTY(EditAnyWhere, Replicated)
 	int32 TemplateID;
 	
 	UPROPERTY(ReplicatedUsing=OnRep_EquipmentSlotType)
 	EEquipmentSlotType EquipmentSlotType = EEquipmentSlotType::Count;
+
+	UPROPERTY(EditAnyWhere)
+	EItemRarity ItemRarity = EItemRarity::Count;
 	
 public:
 	UPROPERTY(ReplicatedUsing=OnRep_CanBlock)
