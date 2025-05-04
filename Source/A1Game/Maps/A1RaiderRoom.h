@@ -18,10 +18,14 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
+	virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const override;
 
 public:
 	UFUNCTION(BlueprintCallable)
 	void SpawnEnemy();
+
+	UFUNCTION(BlueprintCallable)
+	void RemoveEnemy();
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Raider|EssentialSpawn")
 	TObjectPtr<USceneComponent> EssentialSpawn;
@@ -40,4 +44,6 @@ protected:
 	UPROPERTY(EditDefaultsOnly)
 	int32 SpawnPercentage;
 
+	UPROPERTY(VisibleAnywhere, Category = "Raider", Replicated)
+	TArray<TObjectPtr<AA1RaiderBase>> SpawnedRaiders;
 };

@@ -487,9 +487,15 @@ void AA1RandomMapGenerator::Server_ResetMap_Implementation()
     {
         if (Room)
         {
+            if (AA1RaiderRoom* RaiderRoom = Cast<AA1RaiderRoom>(Room))
+            {
+                RaiderRoom->RemoveEnemy();
+            }
+
             Room->Destroy();
         }
     }
+
     SpawnedRooms.Empty();
 
     //Reset Generator values

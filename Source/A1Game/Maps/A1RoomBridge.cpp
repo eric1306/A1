@@ -14,21 +14,21 @@ AA1RoomBridge::AA1RoomBridge()
 
 	//Floor
 	Floor = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Floor"));
-	Floor->SetRelativeLocation(FVector(1000.f, 0.f, 0.f));
+	Floor->SetRelativeLocation(FVector(1000.f, 0.f, -30.f));
 	Floor->SetRelativeScale3D(FVector(20.f, 5.f, 1.f));
 	Floor->SetStaticMesh(BaseStaticMesh);
 	Floor->SetupAttachment(GeometryFolder);
 
 	//Wall
 	LeftWall = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("LeftWall"));
-	LeftWall->SetRelativeLocation(FVector(1000.f, -300.f, 150.f));
+	LeftWall->SetRelativeLocation(FVector(1000.f, -300.f, 120.f));
 	LeftWall->SetRelativeRotation(FRotator(0.f, -90.f, 0.f));
 	LeftWall->SetRelativeScale3D(FVector(1.f, 20.f, 2.f));
 	LeftWall->SetStaticMesh(BaseStaticMesh);
 	LeftWall->SetupAttachment(GeometryFolder);
 
 	RightWall = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("RightWall"));
-	RightWall->SetRelativeLocation(FVector(1000.f, 300.f, 150.f));
+	RightWall->SetRelativeLocation(FVector(1000.f, 300.f, 120.f));
 	RightWall->SetRelativeRotation(FRotator(0.f, -90.f, 0.f));
 	RightWall->SetRelativeScale3D(FVector(1.f, 20.f, 2.f));
 	RightWall->SetStaticMesh(BaseStaticMesh);
