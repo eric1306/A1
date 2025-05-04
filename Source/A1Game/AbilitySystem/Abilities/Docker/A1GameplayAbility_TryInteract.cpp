@@ -18,7 +18,7 @@
 UA1GameplayAbility_TryInteract::UA1GameplayAbility_TryInteract(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
-
+	ActivationRequiredTags.AddTag(A1GameplayTags::Status_TryInteract);
 }
 
 void UA1GameplayAbility_TryInteract::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
