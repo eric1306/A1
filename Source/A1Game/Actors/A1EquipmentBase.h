@@ -3,6 +3,7 @@
 #include "AbilitySystemInterface.h"
 #include "A1Define.h"
 #include "AbilitySystem/LyraAbilitySet.h"
+#include "Interaction/A1HighlightInterface.h"
 #include "A1EquipmentBase.generated.h"
 
 class UAbilitySystemComponent;
@@ -11,7 +12,7 @@ class UArrowComponent;
 class UBoxComponent;
 
 UCLASS(BlueprintType, Abstract)
-class AA1EquipmentBase : public AActor, public IAbilitySystemInterface
+class AA1EquipmentBase : public AActor, public IAbilitySystemInterface, public IA1HighlightInterface
 {
 	GENERATED_BODY()
 	
@@ -47,6 +48,16 @@ public:
 	
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	UAnimMontage* GetHitMontage(AActor* InstigatorActor, const FVector& HitLocation, bool IsBlocked);
+
+public:
+	virtual void Highlight() override;
+	virtual void UnHighlight() override;
+
+	void SetPickup(bool InbPickedup) { bPickedup = InbPickedup; };
+
+protected:
+	bool bPickedup = false;
+	bool bHighlighted = false;
 
 public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)

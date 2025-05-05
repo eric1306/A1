@@ -12,6 +12,7 @@
 #include "Net/UnrealNetwork.h"
 #include "Physics/LyraCollisionChannels.h"
 #include "System/LyraAssetManager.h"
+#include "A1LogChannels.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(A1EquipmentBase)
 
@@ -31,6 +32,7 @@ AA1EquipmentBase::AA1EquipmentBase(const FObjectInitializer& ObjectInitializer)
 	MeshComponent->SetCollisionProfileName("Weapon");
 	MeshComponent->SetGenerateOverlapEvents(false);
 	MeshComponent->SetupAttachment(GetRootComponent());
+	MeshComponent->SetRenderCustomDepth(false);
 	MeshComponent->PrimaryComponentTick.bStartWithTickEnabled = false;
 	MeshComponent->VisibilityBasedAnimTickOption = EVisibilityBasedAnimTickOption::OnlyTickPoseWhenRendered;
 	
@@ -216,4 +218,21 @@ UAnimMontage* AA1EquipmentBase::GetHitMontage(AActor* InstigatorActor, const FVe
 	}
 	
 	return SelectedMontage;
+}
+
+void AA1EquipmentBase::Highlight()
+{
+	// 이미 주워진 아이템임
+	if (bPickedup)
+		return;
+
+	bHighlighted = true;
+	MeshComponent->SetRenderCustomDepth(true);
+	MeshComponent->SetCustomDepthStencilValue(250);
+}
+
+void AA1EquipmentBase::UnHighlight()
+{
+	bHighlighted = false;
+	MeshComponent->SetRenderCustomDepth(false);
 }
