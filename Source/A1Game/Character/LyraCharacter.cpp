@@ -17,6 +17,7 @@
 #include "System/LyraSignificanceManager.h"
 #include "TimerManager.h"
 //#include "Item/Managers/A1CosmeticManagerComponent.h"
+#include "AbilitySystem/Attributes/A1CharacterAttributeSet.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(LyraCharacter)
 
@@ -69,6 +70,8 @@ ALyraCharacter::ALyraCharacter(const FObjectInitializer& ObjectInitializer)
 	HealthComponent = CreateDefaultSubobject<ULyraHealthComponent>(TEXT("HealthComponent"));
 	HealthComponent->OnDeathStarted.AddDynamic(this, &ThisClass::OnDeathStarted);
 	HealthComponent->OnDeathFinished.AddDynamic(this, &ThisClass::OnDeathFinished);
+
+	Health = nullptr;
 
 	CameraComponent = CreateDefaultSubobject<ULyraCameraComponent>(TEXT("CameraComponent"));
 	CameraComponent->SetRelativeLocation(FVector(0.f, 0.0f, 90.0f));
@@ -201,6 +204,8 @@ void ALyraCharacter::OnAbilitySystemInitialized()
 	check(LyraASC);
 
 	HealthComponent->InitializeWithAbilitySystem(LyraASC);
+	// TEMP Jerry
+	Health = LyraASC->GetSet<UA1CharacterAttributeSet>();
 
 	InitializeGameplayTags();
 }

@@ -28,6 +28,8 @@ struct FFrame;
 struct FGameplayTag;
 struct FGameplayTagContainer;
 
+class UA1CharacterAttributeSet;
+
 
 /**
  * FLyraReplicatedAcceleration: Compressed representation of acceleration
@@ -195,6 +197,10 @@ private:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Lyra|Character", Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<ULyraHealthComponent> HealthComponent;
+
+	//TEMP Jerry
+	UPROPERTY()
+	TObjectPtr<const UA1CharacterAttributeSet> Health;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Lyra|Character", Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<ULyraCameraComponent> CameraComponent;

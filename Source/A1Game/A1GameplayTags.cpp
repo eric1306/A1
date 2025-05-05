@@ -60,7 +60,7 @@ namespace A1GameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Attack_Skill_1,							"Ability.Attack.Skill.1");
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Attack_Skill_2,							"Ability.Attack.Skill.2");
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Throw,									"Ability.Throw");
-	UE_DEFINE_GAMEPLAY_TAG(Ability_Drink,									"Ability.Drink");
+	UE_DEFINE_GAMEPLAY_TAG(Ability_Food,									"Ability.Food");
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Block,									"Ability.Block");
 	UE_DEFINE_GAMEPLAY_TAG(Ability_ADS,										"Ability.ADS");
 	UE_DEFINE_GAMEPLAY_TAG(Ability_ADS_Gun,									"Ability.ADS.Gun");
@@ -86,7 +86,7 @@ namespace A1GameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(Status_Attack,									"Status.Attack");
 	UE_DEFINE_GAMEPLAY_TAG(Status_Skill,									"Status.Skill");
 	UE_DEFINE_GAMEPLAY_TAG(Status_Throw,									"Status.Throw");
-	UE_DEFINE_GAMEPLAY_TAG(Status_Drink,									"Status.Drink");
+	UE_DEFINE_GAMEPLAY_TAG(Status_Food,										"Status.Food");
 	UE_DEFINE_GAMEPLAY_TAG(Status_Block,									"Status.Block");
 	UE_DEFINE_GAMEPLAY_TAG(Status_MainHand_Left,							"Status.MainHand.Left");
 	UE_DEFINE_GAMEPLAY_TAG(Status_MainHand_Right,							"Status.MainHand.Right");

@@ -111,8 +111,7 @@ UENUM(BlueprintType)
 enum class EUtilityType : uint8
 {
 	Fuel,
-	Oxygen,
-	Drink,
+	Food,
 	LightSource,
 
 	Count	UMETA(Hidden)
