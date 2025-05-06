@@ -59,7 +59,6 @@ Content/Developers
 Content/Developing/*
 Content/Editor
 Content/Effects
-Content/Environments
 Content/Feedback
 Content/GameplayCueNotifies
 Content/GameplayEffects
@@ -91,6 +90,8 @@ Content/SciFiCharacterPack
 Content/ModSci_Engineer
 Content/ModSci_EngiProps
 Content/ModSciInteriors
+Content/SciFiCrates
+
 
 # Precompiled Assets
 SourceArt/**/*.png

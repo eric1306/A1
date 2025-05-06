@@ -10,11 +10,11 @@
 UA1CharacterAttributeSet::UA1CharacterAttributeSet() :
 	MaxHealth(100.0f),
 	MaxOxygen(100.f),
-	MaxFuel(100.0f)
+	MaxHunger(100.0f)
 {
 	InitHealth(GetMaxHealth());
 	InitOxygen(GetMaxOxygen());
-	InitFuel(GetMaxFuel());
+	InitHunger(50.f);
 
 	bOutOfHealth = false;
 }
@@ -45,6 +45,10 @@ void UA1CharacterAttributeSet::PostAttributeChange(const FGameplayAttribute& Att
 	else if (Attribute == GetOxygenAttribute())
 	{
 		UE_LOG(LogA1, Log, TEXT("Oxygen : %f -> %f"), OldValue, NewValue);
+	}
+	else if (Attribute == GetHungerAttribute())
+	{
+		UE_LOG(LogA1, Log, TEXT("Hunger : %f -> %f"), OldValue, NewValue);
 	}
 
 }

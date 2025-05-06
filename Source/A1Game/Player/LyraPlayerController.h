@@ -111,6 +111,8 @@ private:
 	UFUNCTION()
 	void OnPlayerStateChangedTeam(UObject* TeamAgent, int32 OldTeam, int32 NewTeam);
 
+	void TickItemTrace();
+
 protected:
 	// Called when the player state is set or cleared
 	virtual void OnPlayerStateChanged();
@@ -127,6 +129,15 @@ protected:
 	void OnSettingsChanged(ULyraSettingsShared* Settings);
 
 	bool bHideViewTargetPawnNextFrame = false;
+
+protected:
+	UPROPERTY()
+	TObjectPtr<class AA1EquipmentBase> TargetItem;
+
+	UPROPERTY()
+	TObjectPtr<class AA1EquipmentBase> HighlightItem;
+
+	float TraceMaxDistance = 1000.0f;
 };
 
 

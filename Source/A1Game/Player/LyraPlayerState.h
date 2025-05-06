@@ -150,6 +150,11 @@ private:
 	UPROPERTY(VisibleAnywhere, Category = "Lyra|PlayerState")
 	TObjectPtr<ULyraAbilitySystemComponent> AbilitySystemComponent;
 
+	//Jerry
+	// TEMP : Remove soon
+	UPROPERTY()
+	TObjectPtr<const class UA1CharacterAttributeSet> Health;
+
 	// Health attribute set used by this actor.
 	UPROPERTY()
 	TObjectPtr<const class UA1VitalSet> HealthSet;

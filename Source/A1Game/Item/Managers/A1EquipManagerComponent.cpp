@@ -103,6 +103,7 @@ void FA1EquipEntry::Equip()
 				AA1EquipmentBase* NewWeaponActor = World->SpawnActorDeferred<AA1EquipmentBase>(AttachInfo.SpawnItemClass, FTransform::Identity, Character);
 				NewWeaponActor->Init(ItemInstance->GetItemTemplateID(), EquipmentSlotType, ItemInstance->GetItemRarity());
 				NewWeaponActor->SetActorRelativeTransform(AttachInfo.AttachTransform);
+				NewWeaponActor->SetPickup(true);
 				NewWeaponActor->AttachToComponent(Character->GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, AttachInfo.AttachSocket);
 				NewWeaponActor->SetActorHiddenInGame(EquipManager->ShouldHiddenEquipments());
 				NewWeaponActor->FinishSpawning(FTransform::Identity, true);

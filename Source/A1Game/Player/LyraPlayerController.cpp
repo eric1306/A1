@@ -24,6 +24,9 @@
 #include "ReplaySubsystem.h"
 #include "Development/A1DeveloperSettings.h"
 #include "GameMapsSettings.h"
+#include "Kismet/KismetSystemLibrary.h"
+#include "Physics/LyraCollisionChannels.h"
+#include "Actors/A1EquipmentBase.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(LyraPlayerController)
 
@@ -57,6 +60,8 @@ void ALyraPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
 	SetActorHiddenInGame(false);
+
+	ConsoleCommand(TEXT("showdebug abilitysystem"));
 }
 
 void ALyraPlayerController::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -84,6 +89,8 @@ void ALyraPlayerController::ReceivedPlayer()
 void ALyraPlayerController::PlayerTick(float DeltaTime)
 {
 	Super::PlayerTick(DeltaTime);
+
+	TickItemTrace();
 
 	ALyraPlayerState* LyraPlayerState = GetLyraPlayerState();
 
@@ -200,6 +207,51 @@ bool ALyraPlayerController::ShouldRecordClientReplay()
 void ALyraPlayerController::OnPlayerStateChangedTeam(UObject* TeamAgent, int32 OldTeam, int32 NewTeam)
 {
 	ConditionalBroadcastTeamChanged(this, IntegerToGenericTeamId(OldTeam), IntegerToGenericTeamId(NewTeam));
+}
+
+void ALyraPlayerController::TickItemTrace()
+{
+
+	FVector CameraLocation;
+	FRotator CameraRotation;
+	GetPlayerViewPoint(CameraLocation, CameraRotation);
+
+	FVector StartLocation = CameraLocation;
+	FVector EndLocation = StartLocation + (CameraRotation.Vector() * TraceMaxDistance);
+
+	FHitResult OutHitResult;
+	TArray<AActor*> ActorsToIgnore = { GetPawn() };
+
+	bool bHit = UKismetSystemLibrary::LineTraceSingle(GetWorld(), StartLocation, EndLocation, UEngineTypes::ConvertToTraceType(A1_TraceChannel_AimAssist), false, ActorsToIgnore, EDrawDebugTrace::None, OutHitResult, true);
+	if (!bHit)
+		return;
+	
+	AA1EquipmentBase* TracedItem = Cast<AA1EquipmentBase>(OutHitResult.GetActor());
+	if (TracedItem == nullptr)
+	{
+		//  있었는데 없어짐
+		if (HighlightItem)
+			HighlightItem->UnHighlight();
+	}
+	else
+	{
+		if (HighlightItem)
+		{
+			// 원래 있었는데, 다른 애 였음
+			if (HighlightItem != TracedItem)
+			{
+				HighlightItem->UnHighlight();
+				TracedItem->Highlight();
+			}
+		}
+		else
+		{
+			// 원래 없었고 새로운 타겟
+			TracedItem->Highlight();
+		}
+	}
+	
+	HighlightItem = TracedItem;
 }
 
 void ALyraPlayerController::OnPlayerStateChanged()

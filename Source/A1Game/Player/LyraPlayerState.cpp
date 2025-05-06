@@ -4,6 +4,7 @@
 
 #include "AbilitySystem/Attributes/A1CombatSet.h"
 #include "AbilitySystem/Attributes/A1VitalSet.h"
+#include "AbilitySystem/Attributes/A1CharacterAttributeSet.h"
 #include "AbilitySystem/LyraAbilitySet.h"
 #include "AbilitySystem/LyraAbilitySystemComponent.h"
 #include "Character/LyraPawnData.h"
@@ -42,6 +43,7 @@ ALyraPlayerState::ALyraPlayerState(const FObjectInitializer& ObjectInitializer)
 	AbilitySystemComponent->SetReplicationMode(EGameplayEffectReplicationMode::Mixed);
 
 	// These attribute sets will be detected by AbilitySystemComponent::InitializeComponent. Keeping a reference so that the sets don't get garbage collected before that.
+	Health = CreateDefaultSubobject<UA1CharacterAttributeSet>(TEXT("Health"));
 	HealthSet = CreateDefaultSubobject<UA1VitalSet>(TEXT("HealthSet"));
 	CombatSet = CreateDefaultSubobject<UA1CombatSet>(TEXT("CombatSet"));
 
