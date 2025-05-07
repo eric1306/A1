@@ -2,6 +2,7 @@
 
 #pragma once
 
+#include "A1Define.h"
 #include "AbilitySystemInterface.h"
 #include "GameplayCueInterface.h"
 #include "GameplayTagAssetInterface.h"
@@ -29,7 +30,6 @@ struct FGameplayTag;
 struct FGameplayTagContainer;
 
 class UA1CharacterAttributeSet;
-
 
 /**
  * FLyraReplicatedAcceleration: Compressed representation of acceleration
@@ -166,6 +166,7 @@ protected:
 
 	virtual void FellOutOfWorld(const class UDamageType& dmgType) override;
 
+protected:
 	// Begins the death sequence for the character (disables collision, disables movement, etc...)
 	UFUNCTION()
 	virtual void OnDeathStarted(AActor* OwningActor);
@@ -191,7 +192,6 @@ protected:
 	virtual bool CanJumpInternal_Implementation() const;
 
 private:
-
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Lyra|Character", Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<ULyraPawnExtensionComponent> PawnExtComponent;
 
@@ -232,12 +232,23 @@ private:
 	UFUNCTION()
 	void OnRep_MyTeamID(FGenericTeamId OldTeamID);
 
-//public:
+	// Jerry
+	void HandleOutOfHealth(float OldValue, float NewValue);
+
+public:
+	EA1DeathState GetDeathState() { return DeathState; }
 //	virtual void GetMeshComponents(TArray<UMeshComponent*>& OutMeshComponents) const override;
 
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Info")
 	FA1InteractionInfo InteractionInfo;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Stat, Meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UAnimMontage> DeadMontage;
+
+	// Replicated state used to handle dying.
+	UPROPERTY()
+	EA1DeathState DeathState = EA1DeathState::NotDead;
 
 public:
 	float BaseUnscaledCapsuleHalfHeight = 0.f;

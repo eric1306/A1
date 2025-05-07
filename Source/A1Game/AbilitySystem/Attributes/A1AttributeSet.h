@@ -14,6 +14,7 @@ struct FGameplayEffectSpec;
 		GAMEPLAYATTRIBUTE_VALUE_INITTER(PropertyName)
 
 DECLARE_MULTICAST_DELEGATE_SixParams(FLyraAttributeEvent, AActor* /*EffectInstigator*/, AActor* /*EffectCauser*/, const FGameplayEffectSpec* /*EffectSpec*/, float /*EffectMagnitude*/, float /*OldValue*/, float /*NewValue*/);
+DECLARE_MULTICAST_DELEGATE_ThreeParams(FA1AttributeEvent, AActor* /*EffectInstigator*/, float /*OldValue*/, float /*NewValue*/);
 DECLARE_MULTICAST_DELEGATE_TwoParams(FAttributeEvent, float /*OldValue*/, float /*NewValue*/);
 
 UCLASS()

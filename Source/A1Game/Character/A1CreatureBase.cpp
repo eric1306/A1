@@ -20,16 +20,11 @@ UAbilitySystemComponent* AA1CreatureBase::GetAbilitySystemComponent() const
 void AA1CreatureBase::SetDead()
 {
 	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_None);
-	PlayDeadAnimation();
+	GetMesh()->SetAnimInstanceClass(nullptr);
+	if (DeadMontage)
+	{
+		GetMesh()->PlayAnimation(DeadMontage, false);
+	}
 	SetActorEnableCollision(false);
-}
-
-void AA1CreatureBase::PlayDeadAnimation()
-{
-	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
-	AnimInstance->StopAllMontages(0.0f);
-
-	if (DeadMontage != nullptr)
-		AnimInstance->Montage_Play(DeadMontage, 1.0f);
 }
 

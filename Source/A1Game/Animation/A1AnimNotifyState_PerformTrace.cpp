@@ -14,7 +14,7 @@
 #include UE_INLINE_GENERATED_CPP_BY_NAME(A1AnimNotifyState_PerformTrace)
 
 UA1AnimNotifyState_PerformTrace::UA1AnimNotifyState_PerformTrace(const FObjectInitializer& ObjectInitializer)
-	:Super(ObjectInitializer)
+	: Super(ObjectInitializer)
 {
 #if WITH_EDITORONLY_DATA
 	bShouldFireInEditor = false;
@@ -38,10 +38,10 @@ void UA1AnimNotifyState_PerformTrace::NotifyBegin(USkeletalMeshComponent* MeshCo
 
 			PreviousTraceTransform = WeaponActor->MeshComponent->GetComponentTransform();
 			PreviousDebugTransform = WeaponActor->TraceDebugCollision->GetComponentTransform();
-			PreviousSocketTransform = WeaponActor->MeshComponent->GetSocketTransform(TraceParams.TraceSocketName);
+			PreviousSocketTransform = WeaponActor->MeshComponent->GetSocketTransform(TraceSocketName);
 
 #if UE_EDITOR
-			check(WeaponActor->MeshComponent->DoesSocketExist(TraceParams.TraceSocketName));
+			check(WeaponActor->MeshComponent->DoesSocketExist(TraceSocketName));
 #endif
 		}
 	}
@@ -77,10 +77,10 @@ void UA1AnimNotifyState_PerformTrace::NotifyEnd(USkeletalMeshComponent* MeshComp
 
 void UA1AnimNotifyState_PerformTrace::PerformTrace(USkeletalMeshComponent* MeshComponent)
 {
-	FTransform CurrentSocketTransform = WeaponActor->MeshComponent->GetSocketTransform(TraceParams.TraceSocketName);
+	FTransform CurrentSocketTransform = WeaponActor->MeshComponent->GetSocketTransform(TraceSocketName);
 	float Distance = (PreviousSocketTransform.GetLocation() - CurrentSocketTransform.GetLocation()).Length();
 
-	int SubStepCount = FMath::CeilToInt(Distance / TraceParams.TargetDistance);
+	int SubStepCount = FMath::CeilToInt(Distance / TargetDistance);
 	if (SubStepCount <= 0)
 		return;
 
@@ -106,14 +106,6 @@ void UA1AnimNotifyState_PerformTrace::PerformTrace(USkeletalMeshComponent* MeshC
 		TArray<FHitResult> HitResults;
 		MeshComponent->GetWorld()->ComponentSweepMulti(HitResults, WeaponActor->MeshComponent, StartTraceTransform.GetLocation(), EndTraceTransform.GetLocation(), AverageTraceTransform.GetRotation(), Params);
 
-		//bool bHit = MeshComponent->GetWorld()->LineTraceSingleByChannel(
-		//	HitResults,
-		//	StartTraceTransform.GetLocation(),
-		//	EndTraceTransform.GetLocation(),
-		//	ECC_GameTraceChannel1, // Weapon 전용 채널로 설정해두셨다면
-		//	Params
-		//);
-
 		for (const FHitResult& HitResult : HitResults)
 		{
 			AActor* HitActor = HitResult.GetActor();
@@ -128,9 +120,9 @@ void UA1AnimNotifyState_PerformTrace::PerformTrace(USkeletalMeshComponent* MeshC
 		if (GIsEditor)
 		{
 			const UA1DeveloperSettings* DeveloperSettings = GetDefault<UA1DeveloperSettings>();
-			if (DeveloperSettings->bForceDisableDebugTrace == false && TraceDebugParams.bDrawDebugShape)
+			if (DeveloperSettings->bForceDisableDebugTrace == false && bDrawDebugShape)
 			{
-				FColor Color = (HitResults.Num() > 0) ? TraceDebugParams.HitColor : TraceDebugParams.TraceColor;
+				FColor Color = (HitResults.Num() > 0) ? HitColor : TraceColor;
 
 				FTransform StartDebugTransform = UKismetMathLibrary::TLerp(PreviousDebugTransform, CurrentDebugTransform, SubstepRatio * i, ELerpInterpolationMode::DualQuatInterp);
 				FTransform EndDebugTransform = UKismetMathLibrary::TLerp(PreviousDebugTransform, CurrentDebugTransform, SubstepRatio * (i + 1), ELerpInterpolationMode::DualQuatInterp);

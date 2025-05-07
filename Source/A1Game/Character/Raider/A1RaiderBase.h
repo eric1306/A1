@@ -27,10 +27,14 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 protected:
+	void BeAttacked(AActor* Instigator, float OldValue, float NewValue);
 	void HandleOutOfHealth(float OldValue, float NewValue);
 	
 	UFUNCTION()
 	void DestroyDueToDeath();
+
+	//UFUNCTION(Server, Reliable)
+	//void Server_PerformTrace(USkeletalMeshComponent* MeshComponent);
 
 protected:
 	UPROPERTY()
@@ -41,4 +45,7 @@ private:
 
 	UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess = "true"))
 	TArray<TSubclassOf<AA1EquipmentBase>> dropItems;
+
+	UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess = "true"))
+	TArray<TSubclassOf<class UGameplayAbility>> Abilities;
 };

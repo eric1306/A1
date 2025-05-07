@@ -1,6 +1,5 @@
 ﻿#include "A1GameplayAbility_Weapon_MeleeAttack.h"
 
-#include "A1LogChannels.h"
 #include "A1GameplayTags.h"
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
 #include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
@@ -66,14 +65,14 @@ void UA1GameplayAbility_Weapon_MeleeAttack::OnTargetDataReady(FGameplayEventData
 		if (BlockHitIndexes.Num() > 0)
 		{
 			FHitResult HitResult = *(LocalTargetDataHandle.Data[BlockHitIndexes[0]]->GetHitResult());
-			ProcessHitResult(HitResult, Damage, true, BackwardMontage, WeaponActor);
+			ProcessHitResult(HitResult, Damage, false, BackwardMontage, WeaponActor);
 			bBlocked = true;
 		}
 		else
 		{
-			for (int32 CharqacterHitIndex : CharacterHitIndexes)
+			for (int32 CharacterHitIndex : CharacterHitIndexes)
 			{
-				FHitResult HitResult = *LocalTargetDataHandle.Data[CharqacterHitIndex]->GetHitResult();
+				FHitResult HitResult = *LocalTargetDataHandle.Data[CharacterHitIndex]->GetHitResult();
 				ProcessHitResult(HitResult, Damage, false, nullptr, WeaponActor);
 			}
 		}

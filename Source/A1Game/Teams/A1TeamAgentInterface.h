@@ -20,9 +20,9 @@ inline FGenericTeamId IntegerToGenericTeamId(int32 ID)
 	return (ID == INDEX_NONE) ? FGenericTeamId::NoTeam : FGenericTeamId((uint8)ID);
 }
 
-inline FGenericTeamId EnumToGenericTeamId(ED1TeamID ID)
+inline FGenericTeamId EnumToGenericTeamId(EA1TeamID ID)
 {
-	return (ID == ED1TeamID::NoTeam) ? FGenericTeamId::NoTeam : FGenericTeamId((uint8)ID);
+	return (ID == EA1TeamID::NoTeam) ? FGenericTeamId::NoTeam : FGenericTeamId((uint8)ID);
 }
 
 UINTERFACE(meta=(CannotImplementInterfaceInBlueprint))

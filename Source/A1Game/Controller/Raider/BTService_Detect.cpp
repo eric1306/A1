@@ -56,6 +56,9 @@ void UBTService_Detect::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeM
             if (!Target)
                 continue;
 
+            // 사망한 캐릭터는 감지 대상 제외
+            if (Target->GetDeathState() != EA1DeathState::NotDead)
+                continue;
 
             FVector ToTarget = (Target->GetActorLocation() - SelfLocation).GetSafeNormal();
 
@@ -94,8 +97,6 @@ void UBTService_Detect::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeM
             FMath::DegreesToRadians(120 * 0.5f), FMath::DegreesToRadians(120 * 0.5f),
             16, FColor::Cyan, false, 1.0f);
 	}
-
-  
 
 	return;
 }
