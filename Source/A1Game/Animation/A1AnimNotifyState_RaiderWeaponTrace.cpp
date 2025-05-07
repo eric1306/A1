@@ -68,6 +68,7 @@ void UA1AnimNotifyState_RaiderWeaponTrace::PerformTrace(USkeletalMeshComponent* 
 		FTransform StartTraceTransform = UKismetMathLibrary::TLerp(PreviousSocketTransform, CurrentSocketTransform, SubstepRatio * i, ELerpInterpolationMode::DualQuatInterp);
 		FTransform EndTraceTransform = UKismetMathLibrary::TLerp(PreviousSocketTransform, CurrentSocketTransform, SubstepRatio * (i + 1), ELerpInterpolationMode::DualQuatInterp);
 		FTransform AverageTraceTransform = UKismetMathLibrary::TLerp(StartTraceTransform, EndTraceTransform, 0.5f, ELerpInterpolationMode::DualQuatInterp);
+		FRotator CapsuleRotator = MeshComponent->GetSocketRotation(TraceSocketName);
 
 		FComponentQueryParams Params = FComponentQueryParams::DefaultComponentQueryParams;
 		Params.bReturnPhysicalMaterial = true;
@@ -78,7 +79,7 @@ void UA1AnimNotifyState_RaiderWeaponTrace::PerformTrace(USkeletalMeshComponent* 
 		TArray<FHitResult> HitResults;
 
 		bool bHit = MeshComponent->GetWorld()->SweepMultiByChannel(HitResults, StartTraceTransform.GetLocation(), EndTraceTransform.GetLocation(), 
-			AverageTraceTransform.GetRotation(), A1_TraceChannel_Raider, FCollisionShape::MakeCapsule(CapsuleRadius, CapsuleHalfHeight), Params);
+			CapsuleRotator.Quaternion(), A1_TraceChannel_Raider, FCollisionShape::MakeCapsule(CapsuleRadius, CapsuleHalfHeight), Params);
 
 		for (const FHitResult& HitResult : HitResults)
 		{
@@ -98,7 +99,7 @@ void UA1AnimNotifyState_RaiderWeaponTrace::PerformTrace(USkeletalMeshComponent* 
 			{
 				FColor Color = (HitResults.Num() > 0) ? HitColor : TraceColor;
 
-				DrawDebugCapsule(MeshComponent->GetWorld(), AverageTraceTransform.GetLocation(), CapsuleHalfHeight, CapsuleRadius, AverageTraceTransform.GetRotation(), Color, false, 1.f);
+				DrawDebugCapsule(MeshComponent->GetWorld(), AverageTraceTransform.GetLocation(), CapsuleHalfHeight, CapsuleRadius, CapsuleRotator.Quaternion(), Color, false, 1.f);
 			}
 		}
 #endif
