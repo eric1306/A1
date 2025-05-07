@@ -5,6 +5,7 @@
 #include "A1LogChannels.h"
 #include "Controller/Raider/A1RaiderController.h"
 #include "AbilitySystem/Attributes/A1CharacterAttributeSet.h"
+#include "BehaviorTree/BlackboardComponent.h"
 #include "GameplayEffect.h"
 #include "Abilities/GameplayAbility.h"
 #include "Actors/A1EquipmentBase.h"
@@ -25,6 +26,7 @@ AA1RaiderBase::AA1RaiderBase()
 	HealthSet = CreateDefaultSubobject<UA1CharacterAttributeSet>(TEXT("AttributeSet"));
 
 	// Register to listen for attribute changes.
+	HealthSet->OnHealthChanged.AddUObject(this, &AA1RaiderBase::BeAttacked);
 	HealthSet->OnOutOfHealth.AddUObject(this, &AA1RaiderBase::HandleOutOfHealth);
 }
 
@@ -49,6 +51,20 @@ void AA1RaiderBase::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+}
+
+void AA1RaiderBase::BeAttacked(AActor* InInstigator, float OldValue, float NewValue)
+{
+	AAIController* AIController = Cast<AAIController>(GetController());
+	if (AIController && AIController->GetBlackboardComponent())
+	{
+		UBlackboardComponent* BlackBoard = AIController->GetBlackboardComponent();
+		if (BlackBoard->GetValueAsBool(AA1RaiderController::CanAttackKey) == false)
+		{
+			BlackBoard->SetValueAsBool(AA1RaiderController::CanAttackKey, true);
+			BlackBoard->SetValueAsObject(AA1RaiderController::AggroTargetKey, InInstigator);
+		}
+	}
 }
 
 void AA1RaiderBase::HandleOutOfHealth(float OldValue, float NewValue)

@@ -50,34 +50,38 @@ void UBTService_meetsAttackCriteria::TickNode(UBehaviorTreeComponent& OwnerComp,
 			OwnerComp.GetBlackboardComponent()->SetValueAsObject(AA1RaiderController::AggroTargetKey, nullptr);	
 		}
 
-		// 선공 조건 만족하면 공격 가능 상태로 전환
-		bool bStrikeFirst = false;
-		// 뒤돌고 있는가
+		// 선공 상태가 아닐때만 계산
+		if (OwnerComp.GetBlackboardComponent()->GetValueAsBool(AA1RaiderController::CanAttackKey) == false)
 		{
-			FVector MyForward = ControllingPawn->GetActorForwardVector();
-			FVector SelfToTarget = (TargetActor->GetActorLocation() - ControllingPawn->GetActorLocation()).GetSafeNormal();
+			// 선공 조건 만족하면 공격 가능 상태로 전환
+			bool bStrikeFirst = false;
+			// 뒤돌고 있는가
+			{
+				FVector MyForward = ControllingPawn->GetActorForwardVector();
+				FVector SelfToTarget = (TargetActor->GetActorLocation() - ControllingPawn->GetActorLocation()).GetSafeNormal();
 
-			FVector TargetForward = TargetActor->GetActorForwardVector();
-			FVector TargetToSelf = (ControllingPawn->GetActorLocation() - TargetActor->GetActorLocation()).GetSafeNormal();
+				FVector TargetForward = TargetActor->GetActorForwardVector();
+				FVector TargetToSelf = (ControllingPawn->GetActorLocation() - TargetActor->GetActorLocation()).GetSafeNormal();
 
-			float Dot1 = FVector::DotProduct(MyForward, SelfToTarget);			// 타겟이 내 앞?
-			float Dot2 = FVector::DotProduct(TargetForward, TargetToSelf);		// 타겟이 나에게 등 돌림?
+				float Dot1 = FVector::DotProduct(MyForward, SelfToTarget);			// 타겟이 내 앞?
+				float Dot2 = FVector::DotProduct(TargetForward, TargetToSelf);		// 타겟이 나에게 등 돌림?
 
-			// 135도 이상 -0.7f
-			if (Dot1 > 0.0f && Dot2 < -0.7f)
-				bStrikeFirst = true;
+				// 135도 이상 -0.7f
+				if (Dot1 > 0.0f && Dot2 < -0.7f)
+					bStrikeFirst = true;
+			}
+
+			// 무기 없는가?
+			{
+				UA1EquipManagerComponent* EquipManager = TargetActor->FindComponentByClass<UA1EquipManagerComponent>();
+				if (EquipManager == nullptr)
+					return;
+
+				if (EquipManager->GetCurrentEquipState() == EEquipState::Unarmed)
+					bStrikeFirst = true;
+			}
+
+			OwnerComp.GetBlackboardComponent()->SetValueAsBool(AA1RaiderController::CanAttackKey, bStrikeFirst);
 		}
-
-		// 무기 없는가?
-		{
-			UA1EquipManagerComponent* EquipManager = TargetActor->FindComponentByClass<UA1EquipManagerComponent>();
-			if (EquipManager == nullptr)
-				return;
-
-			if (EquipManager->GetCurrentEquipState() == EEquipState::Unarmed)
-				bStrikeFirst = true;
-		}
-
-		OwnerComp.GetBlackboardComponent()->SetValueAsBool(AA1RaiderController::CanAttackKey, bStrikeFirst);
 	}
 }

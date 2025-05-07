@@ -108,7 +108,7 @@ void UA1GameplayAbility_Weapon_Melee::ProcessHitResult(FHitResult HitResult, flo
 		FGameplayEffectContextHandle EffectContextHandle = SourceASC->MakeEffectContext();
 		HitResult.bBlockingHit = bBlockingHit;
 		EffectContextHandle.AddHitResult(HitResult);
-		EffectContextHandle.AddInstigator(SourceASC->AbilityActorInfo->OwnerActor.Get(), WeaponActor);
+		EffectContextHandle.AddInstigator(SourceASC->AbilityActorInfo->AvatarActor.Get(), WeaponActor);
 		EffectSpecHandle.Data->SetContext(EffectContextHandle);
 		
 		Damage = bBlockingHit ? Damage * BlockHitDamageMultiplier : Damage;

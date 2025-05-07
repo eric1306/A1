@@ -53,7 +53,7 @@ private:
 
 
 public:
-	mutable FLyraAttributeEvent OnHealthChanged;
+	mutable FA1AttributeEvent OnHealthChanged;
 	mutable FLyraAttributeEvent OnMaxHealthChanged;
 	mutable FAttributeEvent OnOutOfHealth;
 

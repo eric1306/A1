@@ -58,7 +58,8 @@ void UA1CharacterAttributeSet::PostGameplayEffectExecute(const FGameplayEffectMo
 	Super::PostGameplayEffectExecute(Data);
 
 	float MinimumHealth = 0.f;
-
+	AActor* Instigator = Data.EffectSpec.GetContext().GetInstigator();
+	
 	if (Data.EvaluatedData.Attribute == GetHealthAttribute())
 	{
 		UE_LOG(LogA1, Warning, TEXT("Direct Health Access : %f"), GetHealth());
@@ -66,6 +67,9 @@ void UA1CharacterAttributeSet::PostGameplayEffectExecute(const FGameplayEffectMo
 	}
 	else if (Data.EvaluatedData.Attribute == GetDamageAttribute())
 	{
+
+		OnHealthChanged.Broadcast(Instigator, GetHealth(), GetHealth() - GetDamage());
+		
 		UE_LOG(LogA1, Log, TEXT("Damage : %f"), GetDamage());
 		SetHealth(FMath::Clamp(GetHealth() - GetDamage(), MinimumHealth, GetMaxHealth()));
 		SetDamage(0.f);

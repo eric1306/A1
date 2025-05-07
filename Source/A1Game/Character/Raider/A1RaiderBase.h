@@ -27,6 +27,7 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 protected:
+	void BeAttacked(AActor* Instigator, float OldValue, float NewValue);
 	void HandleOutOfHealth(float OldValue, float NewValue);
 	
 	UFUNCTION()

@@ -124,7 +124,7 @@ void UA1GameplayAbility_Weapon_Gun_NormalShoot::Shoot()
 				FGameplayEffectContextHandle EffectContextHandle = SourceASC->MakeEffectContext();
 				HitResult.bBlockingHit = true;
 				EffectContextHandle.AddHitResult(HitResult);
-				EffectContextHandle.AddInstigator(SourceASC->AbilityActorInfo->OwnerActor.Get(), WeaponActor);
+				EffectContextHandle.AddInstigator(SourceASC->AbilityActorInfo->AvatarActor.Get(), WeaponActor);
 				EffectSpecHandle.Data->SetContext(EffectContextHandle);
 
 				if (EffectSpecHandle.IsValid())
