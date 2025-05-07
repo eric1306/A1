@@ -9,35 +9,6 @@
 
 class AA1EquipmentBase;
 
-USTRUCT(BlueprintType)
-struct FTraceParams
-{
-	GENERATED_BODY()
-
-public:
-	UPROPERTY(EditAnywhere)
-	float TargetDistance = 20.f;
-
-	UPROPERTY(EditAnywhere)
-	FName TraceSocketName = "TraceSocket";
-};
-
-USTRUCT(BlueprintType)
-struct FTraceDebugParams
-{
-	GENERATED_BODY()
-
-public:
-	UPROPERTY(EditAnywhere)
-	bool bDrawDebugShape = false;
-
-	UPROPERTY(EditAnywhere)
-	FColor TraceColor = FColor::Red;
-
-	UPROPERTY(EditAnywhere)
-	FColor HitColor = FColor::Green;
-};
-
 UCLASS()
 class A1GAME_API UA1AnimNotifyState_PerformTrace : public UAnimNotifyState
 {
@@ -45,7 +16,6 @@ class A1GAME_API UA1AnimNotifyState_PerformTrace : public UAnimNotifyState
 
 public:
 	UA1AnimNotifyState_PerformTrace(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
-
 
 protected:
 	virtual void NotifyBegin(USkeletalMeshComponent* MeshComponent, UAnimSequenceBase* Animation, float TotalDuration, const FAnimNotifyEventReference& EventReference) override;
@@ -65,11 +35,20 @@ public:
 	UPROPERTY(EditAnywhere)
 	FGameplayTag EventTag;
 
-	UPROPERTY(EditAnywhere)
-	FTraceParams TraceParams;
+	UPROPERTY(EditAnywhere, Category="Trace")
+	bool bDrawDebugShape = false;
 
-	UPROPERTY(EditAnywhere)
-	FTraceDebugParams TraceDebugParams;
+	UPROPERTY(EditAnywhere, Category = "Trace")
+	FColor TraceColor = FColor::Red;
+
+	UPROPERTY(EditAnywhere, Category = "Trace")
+	FColor HitColor = FColor::Green;
+
+	UPROPERTY(EditAnywhere, Category = "Trace")
+	float TargetDistance = 20.f;
+
+	UPROPERTY(EditAnywhere, Category = "Trace")
+	FName TraceSocketName = "TraceSocket";
 
 private:
 	UPROPERTY()

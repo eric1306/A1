@@ -1,15 +1,19 @@
 ﻿#include "A1GameplayAbility_Weapon_Gun_NormalShoot.h"
 
 #include "A1GameplayTags.h"
+#include "A1LogChannels.h"
 #include "Actors/A1EquipmentBase.h"
 #include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystemComponent.h"
+#include "AbilitySystem/LyraAbilitySystemComponent.h"
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
 #include "Character/Raider/A1RaiderBase.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Physics/LyraCollisionChannels.h"
 #include "Actors/A1EquipmentBase.h"
 #include "Player/LyraPlayerController.h"
+#include "System/LyraAssetManager.h"
+#include "System/LyraGameData.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(A1GameplayAbility_Weapon_Gun_NormalShoot)
 
@@ -78,6 +82,10 @@ void UA1GameplayAbility_Weapon_Gun_NormalShoot::Shoot()
 	if (WeaponActor == nullptr)
 		return;
 
+	ULyraAbilitySystemComponent* SourceASC = GetLyraAbilitySystemComponentFromActorInfo();
+	if (SourceASC == nullptr)
+		return;
+
 	ALyraCharacter* LyraCharacter = GetLyraCharacterFromActorInfo();
 	ALyraPlayerController* LyraPlayerController = GetLyraPlayerControllerFromActorInfo();
 
@@ -105,23 +113,26 @@ void UA1GameplayAbility_Weapon_Gun_NormalShoot::Shoot()
 			AA1RaiderBase* Target = Cast<AA1RaiderBase>(HitResult.GetActor());
 			if (Target)
 			{
+				float Damage = GetEquipmentStatValue(A1GameplayTags::SetByCaller_BaseDamage, WeaponActor);
 				FGameplayAbilityTargetDataHandle TargetDataHandle = UAbilitySystemBlueprintLibrary::AbilityTargetDataFromActor(Target);
 
 				// GE Data File화 할지 고민
-				//const TSubclassOf<UGameplayEffect> DamageGE = ULyraAssetManager::GetSubclassByPath(ULyraGameData::Get().DamageGameplayEffect_SetByCaller);
-				FGameplayEffectSpecHandle EffectSpecHandle = MakeOutgoingGameplayEffectSpec(AttackDamageEffect);
+				const TSubclassOf<UGameplayEffect> DamageGE = ULyraAssetManager::GetSubclassByPath(ULyraGameData::Get().DamageGameplayEffect_SetByCaller);
+				FGameplayEffectSpecHandle EffectSpecHandle = MakeOutgoingGameplayEffectSpec(DamageGE);
 
 				// 가해자 정보
-				//FGameplayEffectContextHandle EffectContextHandle = SourceASC->MakeEffectContext();
-				//HitResult.bBlockingHit = bBlockingHit;
-				//EffectContextHandle.AddHitResult(HitResult);
-				//EffectContextHandle.AddInstigator(SourceASC->AbilityActorInfo->OwnerActor.Get(), WeaponActor);
-				//EffectSpecHandle.Data->SetContext(EffectContextHandle);
+				FGameplayEffectContextHandle EffectContextHandle = SourceASC->MakeEffectContext();
+				HitResult.bBlockingHit = true;
+				EffectContextHandle.AddHitResult(HitResult);
+				EffectContextHandle.AddInstigator(SourceASC->AbilityActorInfo->OwnerActor.Get(), WeaponActor);
+				EffectSpecHandle.Data->SetContext(EffectContextHandle);
 
 				if (EffectSpecHandle.IsValid())
 				{
 					// 무기에 희귀도에 따른 대미지 차별화
-					//EffectSpecHandle.Data->SetSetByCallerMagnitude(A1GameplayTags::SetByCaller_BaseDamage, Damage);
+					EffectSpecHandle.Data->SetSetByCallerMagnitude(A1GameplayTags::SetByCaller_BaseDamage, Damage);
+					float DamageSet = EffectSpecHandle.Data->GetSetByCallerMagnitude(A1GameplayTags::SetByCaller_BaseDamage, false);
+					UE_LOG(LogA1, Warning, TEXT("Set Damage: %f"), DamageSet);
 					ApplyGameplayEffectSpecToTarget(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, EffectSpecHandle, TargetDataHandle);
 				}
 			}
