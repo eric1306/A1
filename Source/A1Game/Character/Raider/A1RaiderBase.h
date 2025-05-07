@@ -32,6 +32,9 @@ protected:
 	UFUNCTION()
 	void DestroyDueToDeath();
 
+	//UFUNCTION(Server, Reliable)
+	//void Server_PerformTrace(USkeletalMeshComponent* MeshComponent);
+
 protected:
 	UPROPERTY()
 	TObjectPtr<UA1CharacterAttributeSet> HealthSet;
@@ -41,4 +44,7 @@ private:
 
 	UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess = "true"))
 	TArray<TSubclassOf<AA1EquipmentBase>> dropItems;
+
+	UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess = "true"))
+	TArray<TSubclassOf<class UGameplayAbility>> Abilities;
 };
