@@ -7,6 +7,8 @@
 #include "AbilitySystemInterface.h"
 #include "A1CreatureBase.generated.h"
 
+class UAbilitySystemComponent;
+
 UCLASS()
 class A1GAME_API AA1CreatureBase : public ACharacter, public IAbilitySystemInterface
 {
@@ -16,7 +18,7 @@ public:
 	// Sets default values for this character's properties
 	AA1CreatureBase(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
-	virtual class UAbilitySystemComponent* GetAbilitySystemComponent() const override;
+	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Stat, Meta = (AllowPrivateAccess = "true"))
@@ -25,7 +27,6 @@ protected:
 // Dead Section
 protected:
 	virtual void SetDead();
-	void PlayDeadAnimation();
 
 	float DeadEventDelayTime = 5.0f;
 
