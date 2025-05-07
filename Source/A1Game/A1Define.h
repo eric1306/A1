@@ -150,8 +150,16 @@ enum class EOverlayTargetType : uint8
 
 
 UENUM(BlueprintType)
-enum class ED1TeamID : uint8
+enum class EA1TeamID : uint8
 {
 	NoTeam,
 	Monster = 1,
+};
+
+UENUM(BlueprintType)
+enum class EA1DeathState : uint8
+{
+	NotDead = 0,
+	DeathStarted,
+	DeathFinished
 };

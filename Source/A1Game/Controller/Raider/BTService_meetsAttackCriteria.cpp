@@ -32,6 +32,14 @@ void UBTService_meetsAttackCriteria::TickNode(UBehaviorTreeComponent& OwnerComp,
 		if (TargetActor == nullptr)
 			return;
 
+		// 캐릭터 사망 시 Aggro 제외
+		if (TargetActor->GetDeathState() != EA1DeathState::NotDead)
+		{
+			OwnerComp.GetBlackboardComponent()->SetValueAsObject(AA1RaiderController::AggroTargetKey, nullptr);
+			OwnerComp.GetBlackboardComponent()->SetValueAsBool(AA1RaiderController::CanAttackKey, false);
+			return;
+		}
+
 		// 두 객체 간 거리 계산, cm 단위라고 함
 		float dist = FVector::Dist(ControllingPawn->GetActorLocation(), TargetActor->GetActorLocation());
 

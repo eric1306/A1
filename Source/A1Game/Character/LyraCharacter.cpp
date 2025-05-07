@@ -206,6 +206,8 @@ void ALyraCharacter::OnAbilitySystemInitialized()
 	HealthComponent->InitializeWithAbilitySystem(LyraASC);
 	// TEMP Jerry
 	Health = LyraASC->GetSet<UA1CharacterAttributeSet>();
+	// Register to listen for attribute changes.
+	Health->OnOutOfHealth.AddUObject(this, &ThisClass::HandleOutOfHealth);
 
 	InitializeGameplayTags();
 }
@@ -342,13 +344,28 @@ void ALyraCharacter::FellOutOfWorld(const class UDamageType& dmgType)
 	HealthComponent->DamageSelfDestruct(/*bFellOutOfWorld=*/ true);
 }
 
+void ALyraCharacter::HandleOutOfHealth(float OldValue, float NewValue)
+{
+	OnDeathStarted(this);
+
+	GetMesh()->SetAnimInstanceClass(nullptr);
+	if (DeadMontage)
+	{
+		GetMesh()->PlayAnimation(DeadMontage, false);
+	}
+
+	OnDeathFinished(this);
+}
+
 void ALyraCharacter::OnDeathStarted(AActor*)
 {
+	DeathState = EA1DeathState::DeathStarted;
 	DisableMovementAndCollision();
 }
 
 void ALyraCharacter::OnDeathFinished(AActor*)
 {
+	DeathState = EA1DeathState::DeathFinished;
 	GetWorld()->GetTimerManager().SetTimerForNextTick(this, &ThisClass::DestroyDueToDeath);
 }
 
@@ -383,7 +400,7 @@ void ALyraCharacter::UninitAndDestroy()
 	if (GetLocalRole() == ROLE_Authority)
 	{
 		DetachFromControllerPendingDestroy();
-		SetLifeSpan(0.1f);
+		SetLifeSpan(10.f);
 	}
 
 	// Uninitialize the ASC if we're still the avatar actor (otherwise another pawn already did it when they became the avatar actor)
@@ -395,7 +412,7 @@ void ALyraCharacter::UninitAndDestroy()
 		}
 	}
 
-	SetActorHiddenInGame(true);
+	//SetActorHiddenInGame(true);
 }
 
 void ALyraCharacter::OnMovementModeChanged(EMovementMode PrevMovementMode, uint8 PreviousCustomMode)
