@@ -27,8 +27,8 @@ public:
 	ATTRIBUTE_ACCESSORS(ThisClass, MaxOxygen);
 	ATTRIBUTE_ACCESSORS(ThisClass, Hunger);
 	ATTRIBUTE_ACCESSORS(ThisClass, MaxHunger);
-	ATTRIBUTE_ACCESSORS(ThisClass, Fatigue);
-	ATTRIBUTE_ACCESSORS(ThisClass, MaxFatigue);
+	ATTRIBUTE_ACCESSORS(ThisClass, Weight);
+	ATTRIBUTE_ACCESSORS(ThisClass, MaxWeight);
 	ATTRIBUTE_ACCESSORS(ThisClass, Damage);
 
 private:
@@ -51,10 +51,10 @@ private:
 	FGameplayAttributeData MaxHunger;
 
 	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	FGameplayAttributeData Fatigue;
+	FGameplayAttributeData Weight;
 
 	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	FGameplayAttributeData MaxFatigue;
+	FGameplayAttributeData MaxWeight;
 
 	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	FGameplayAttributeData Damage;
@@ -62,9 +62,8 @@ private:
 
 public:
 	mutable FA1AttributeEvent OnHealthChanged;
-	mutable FLyraAttributeEvent OnMaxHealthChanged;
-	mutable FAttributeEvent OnOutOfHealth;
-
+	mutable FA1AttributeEvent OnOutOfHealth;
+	
 private:
 	bool bOutOfHealth;
 };

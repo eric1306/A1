@@ -28,7 +28,7 @@ public:
 
 protected:
 	void BeAttacked(AActor* Instigator, float OldValue, float NewValue);
-	void HandleOutOfHealth(float OldValue, float NewValue);
+	void HandleOutOfHealth(AActor* InActor, float OldValue, float NewValue);
 	
 	UFUNCTION()
 	void DestroyDueToDeath();

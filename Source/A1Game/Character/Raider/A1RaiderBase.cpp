@@ -67,7 +67,7 @@ void AA1RaiderBase::BeAttacked(AActor* InInstigator, float OldValue, float NewVa
 	}
 }
 
-void AA1RaiderBase::HandleOutOfHealth(float OldValue, float NewValue)
+void AA1RaiderBase::HandleOutOfHealth(AActor* InActor, float OldValue, float NewValue)
 {
 	
 	// 애니메이션이 처리될 시간 기다리기

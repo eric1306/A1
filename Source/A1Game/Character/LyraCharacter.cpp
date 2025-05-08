@@ -62,6 +62,7 @@ ALyraCharacter::ALyraCharacter(const FObjectInitializer& ObjectInitializer)
 	LyraMoveComp->GetNavAgentPropertiesRef().bCanCrouch = true;
 	LyraMoveComp->bCanWalkOffLedgesWhenCrouching = true;
 	LyraMoveComp->SetCrouchedHalfHeight(65.0f);
+	MaxSpeed = LyraMoveComp->MaxWalkSpeed;
 
 	PawnExtComponent = CreateDefaultSubobject<ULyraPawnExtensionComponent>(TEXT("PawnExtensionComponent"));
 	PawnExtComponent->OnAbilitySystemInitialized_RegisterAndCall(FSimpleMulticastDelegate::FDelegate::CreateUObject(this, &ThisClass::OnAbilitySystemInitialized));
@@ -71,7 +72,7 @@ ALyraCharacter::ALyraCharacter(const FObjectInitializer& ObjectInitializer)
 	HealthComponent->OnDeathStarted.AddDynamic(this, &ThisClass::OnDeathStarted);
 	HealthComponent->OnDeathFinished.AddDynamic(this, &ThisClass::OnDeathFinished);
 
-	Health = nullptr;
+	Vital = nullptr;
 
 	CameraComponent = CreateDefaultSubobject<ULyraCameraComponent>(TEXT("CameraComponent"));
 	CameraComponent->SetRelativeLocation(FVector(0.f, 0.0f, 90.0f));
@@ -205,11 +206,16 @@ void ALyraCharacter::OnAbilitySystemInitialized()
 
 	HealthComponent->InitializeWithAbilitySystem(LyraASC);
 	// TEMP Jerry
-	Health = LyraASC->GetSet<UA1CharacterAttributeSet>();
+	Vital = LyraASC->GetSet<UA1CharacterAttributeSet>();
+
 	// Register to listen for attribute changes.
-	Health->OnOutOfHealth.AddUObject(this, &ThisClass::HandleOutOfHealth);
+	Vital->OnOutOfHealth.AddUObject(this, &ThisClass::HandleOutOfHealth);
+	LyraASC->GetGameplayAttributeValueChangeDelegate(UA1CharacterAttributeSet::GetWeightAttribute()).AddUObject(this, &ThisClass::HandleChangeOfWeight);
 
 	InitializeGameplayTags();
+
+	// 0번 무한 허기 감소
+	ApplyStatEffect(0);
 }
 
 void ALyraCharacter::OnAbilitySystemUninitialized()
@@ -344,7 +350,66 @@ void ALyraCharacter::FellOutOfWorld(const class UDamageType& dmgType)
 	HealthComponent->DamageSelfDestruct(/*bFellOutOfWorld=*/ true);
 }
 
-void ALyraCharacter::HandleOutOfHealth(float OldValue, float NewValue)
+void ALyraCharacter::OutsideOrNot(bool bOut)
+{
+	if (bOut == false)
+	{
+		DeleteStatEffect(1);
+
+		if (UAbilitySystemComponent* ASC = GetAbilitySystemComponent())
+		{
+			ASC->SetNumericAttributeBase(UA1CharacterAttributeSet::GetOxygenAttribute(), Vital->GetMaxOxygen());
+		}
+		bOutside = false;
+	}
+	else if (bOut && bOutside == false)
+	{
+		ApplyStatEffect(1);
+		bOutside = true;
+	}
+}
+
+void ALyraCharacter::ApplyStatEffect(int index)
+{
+	TSubclassOf<UGameplayEffect> WantedEffect = StatEffects[index];
+
+	ULyraAbilitySystemComponent* ASC = GetLyraAbilitySystemComponent();
+	if (ASC)
+	{
+		FGameplayEffectContextHandle EffectContext = ASC->MakeEffectContext();
+		FGameplayEffectSpecHandle SpecHandle = ASC->MakeOutgoingSpec(WantedEffect, 1.0f, EffectContext);
+
+		if (SpecHandle.IsValid())
+		{
+			ASC->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
+		}
+	}
+}
+
+void ALyraCharacter::DeleteStatEffect(int index)
+{
+	TSubclassOf<UGameplayEffect> WantedEffect = StatEffects[index];
+
+	ULyraAbilitySystemComponent* ASC = GetLyraAbilitySystemComponent();
+	if (ASC)
+	{
+		ASC->RemoveActiveGameplayEffectBySourceEffect(WantedEffect, ASC);
+	}
+}
+
+void ALyraCharacter::HandleChangeOfWeight(const FOnAttributeChangeData& ChangeData)
+{
+	// 이동 최대 속도 변경
+	ULyraCharacterMovementComponent* LyraMoveComp = CastChecked<ULyraCharacterMovementComponent>(GetCharacterMovement());
+	LyraMoveComp->MaxWalkSpeed = MaxSpeed * (10 / (1 + ChangeData.NewValue));
+	
+	if (ChangeData.NewValue >= 100.f)			// 새 값이 100이상이면 HP감소 적용
+		ApplyStatEffect(2);
+	else if (ChangeData.OldValue >= 100.f)		// 새 값이 100이하, 기존 값이 100이상 HP감소 해제
+		DeleteStatEffect(2);
+}
+
+void ALyraCharacter::HandleOutOfHealth(AActor* InActor, float OldValue, float NewValue)
 {
 	OnDeathStarted(this);
 
