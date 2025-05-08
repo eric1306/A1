@@ -9,12 +9,14 @@
 
 UA1CharacterAttributeSet::UA1CharacterAttributeSet() :
 	MaxHealth(100.0f),
-	MaxOxygen(100.f),
-	MaxHunger(100.0f)
+	MaxOxygen(100.0f),
+	MaxHunger(100.0f),
+	MaxFatigue(100.0f)
 {
 	InitHealth(GetMaxHealth());
 	InitOxygen(GetMaxOxygen());
 	InitHunger(50.f);
+	InitFatigue(0.0f);
 
 	bOutOfHealth = false;
 }
@@ -67,7 +69,6 @@ void UA1CharacterAttributeSet::PostGameplayEffectExecute(const FGameplayEffectMo
 	}
 	else if (Data.EvaluatedData.Attribute == GetDamageAttribute())
 	{
-
 		OnHealthChanged.Broadcast(Instigator, GetHealth(), GetHealth() - GetDamage());
 		
 		UE_LOG(LogA1, Log, TEXT("Damage : %f"), GetDamage());

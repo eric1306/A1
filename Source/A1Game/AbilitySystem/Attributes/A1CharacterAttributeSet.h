@@ -27,6 +27,8 @@ public:
 	ATTRIBUTE_ACCESSORS(ThisClass, MaxOxygen);
 	ATTRIBUTE_ACCESSORS(ThisClass, Hunger);
 	ATTRIBUTE_ACCESSORS(ThisClass, MaxHunger);
+	ATTRIBUTE_ACCESSORS(ThisClass, Fatigue);
+	ATTRIBUTE_ACCESSORS(ThisClass, MaxFatigue);
 	ATTRIBUTE_ACCESSORS(ThisClass, Damage);
 
 private:
@@ -47,6 +49,12 @@ private:
 
 	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	FGameplayAttributeData MaxHunger;
+
+	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	FGameplayAttributeData Fatigue;
+
+	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	FGameplayAttributeData MaxFatigue;
 
 	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	FGameplayAttributeData Damage;
