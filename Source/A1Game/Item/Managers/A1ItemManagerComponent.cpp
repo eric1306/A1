@@ -348,18 +348,18 @@ void UA1ItemManagerComponent::Server_DropItemFromEquipment_Implementation(UA1Equ
 	}
 }
 
-void UA1ItemManagerComponent::Server_DropItem_Implementation(bool bOnWidget)
+void UA1ItemManagerComponent::Server_DropItem_Implementation(bool bActivateWidget)
 {
 	if (HasAuthority() == false)
 		return;
 
 	// EquipWidget이 켜진 상태라면
-	if (bOnWidget)
+	if (bActivateWidget)
 	{
 		// Inventory에서 제거
 		UA1InventoryManagerComponent* MyInventory = GetMyInventoryManager();
-		
-		//Server_DropItemFromInventory(MyInventory, null);
+		if (MyInventory->ClickedIndex != NULL)
+			Server_DropItemFromInventory(MyInventory, MyInventory->ClickedIndex);
 	}
 	else
 	{
@@ -508,7 +508,7 @@ bool UA1ItemManagerComponent::TryDropItem(UA1ItemInstance* FromItemInstance, int
 	SpawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButDontSpawnIfColliding;
 
 	FVector SpawnLocation = Character->GetActorLocation();
-	SpawnLocation.Z = 100.0f;
+	SpawnLocation.Z = 5.0f;
 	
 	const UA1ItemFragment_Equipable_Attachment* EquippableFragment = FromItemInstance->FindFragmentByClass<UA1ItemFragment_Equipable_Attachment>();
 	if (EquippableFragment == nullptr)

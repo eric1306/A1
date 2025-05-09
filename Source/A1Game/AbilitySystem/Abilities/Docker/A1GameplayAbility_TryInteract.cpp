@@ -19,6 +19,7 @@ UA1GameplayAbility_TryInteract::UA1GameplayAbility_TryInteract(const FObjectInit
 	: Super(ObjectInitializer)
 {
 	ActivationRequiredTags.AddTag(A1GameplayTags::Status_TryInteract);
+	ActivationBlockedTags.AddTag(A1GameplayTags::GameplayEvent_Widget_Inventory);
 }
 
 void UA1GameplayAbility_TryInteract::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
@@ -53,7 +54,6 @@ void UA1GameplayAbility_TryInteract::TryPickup()
 
 	if (LyraCharacter && LyraPlayerController)
 	{
-
 		FVector CameraLocation;
 		FRotator CameraRotation;
 		LyraPlayerController->GetPlayerViewPoint(CameraLocation, CameraRotation);
