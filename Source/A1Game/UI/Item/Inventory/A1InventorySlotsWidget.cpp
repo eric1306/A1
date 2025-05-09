@@ -273,6 +273,8 @@ const FGeometry& UA1InventorySlotsWidget::GetSlotContainerGeometry() const
 
 void UA1InventorySlotsWidget::SetHiddenClickedWidget(int InSlotPos)
 {
-	if(EntryWidgets[InSlotPos])
+	// TEMP Jerry
+	// Range Over를 위한 임시 조치
+	if (InSlotPos < 25 && EntryWidgets[InSlotPos])
 		EntryWidgets[InSlotPos]->ChangeStateClickedWidget(false);
 }
