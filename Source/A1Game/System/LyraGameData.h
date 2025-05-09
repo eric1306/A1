@@ -32,6 +32,9 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "Default Gameplay Effects", meta = (DisplayName = "Damage Gameplay Effect (SetByCaller)"))
 	TSoftClassPtr<UGameplayEffect> DamageGameplayEffect_SetByCaller;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Default Gameplay Effects", meta = (DisplayName = "ConsumeOxygenByWeapon(SetByCaller)"))
+	TSoftClassPtr<UGameplayEffect> ConsumeOxygenByWeapon_SetByCaller;
+
 	UPROPERTY(EditDefaultsOnly, Category = "Default Gameplay Effects", meta = (DisplayName = "IncomingDamage Gameplay Effect (SetByCaller)"))
 	TSoftClassPtr<UGameplayEffect> IncomingDamageGameplayEffect_SetByCaller;
 

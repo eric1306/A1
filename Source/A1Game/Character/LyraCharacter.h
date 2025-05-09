@@ -198,10 +198,6 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Lyra|Character", Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<ULyraHealthComponent> HealthComponent;
 
-	//TEMP Jerry
-	UPROPERTY()
-	TObjectPtr<const UA1CharacterAttributeSet> Health;
-
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Lyra|Character", Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<ULyraCameraComponent> CameraComponent;
 
@@ -232,23 +228,49 @@ private:
 	UFUNCTION()
 	void OnRep_MyTeamID(FGenericTeamId OldTeamID);
 
-	// Jerry
-	void HandleOutOfHealth(float OldValue, float NewValue);
-
-public:
-	EA1DeathState GetDeathState() { return DeathState; }
 //	virtual void GetMeshComponents(TArray<UMeshComponent*>& OutMeshComponents) const override;
 
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Info")
 	FA1InteractionInfo InteractionInfo;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Stat, Meta = (AllowPrivateAccess = "true"))
+	/* ---------------------
+	*		Jerry
+	----------------------*/ 
+public:
+	EA1DeathState GetDeathState() { return DeathState; }
+	bool IsOutSide() { return bOutside; }
+
+	UFUNCTION(BlueprintCallable)
+	void OutsideOrNot(bool bOut);	
+
+protected:
+	void ApplyStatEffect(int index);
+	void DeleteStatEffect(int index);
+	void HandleChangeOfWeight(const FOnAttributeChangeData& ChangeData);
+	void HandleOutOfHealth(AActor* InActor, float OldValue, float NewValue);
+	
+	UPROPERTY()
+	TObjectPtr<const UA1CharacterAttributeSet> Vital;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Combat, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UAnimMontage> DeadMontage;
 
 	// Replicated state used to handle dying.
 	UPROPERTY()
+	bool bOutside = false;
+
+	float MaxSpeed = 0.1f;
+
+	UPROPERTY()
 	EA1DeathState DeathState = EA1DeathState::NotDead;
+
+	UPROPERTY(EditAnywhere, Category = Stat, Meta = (AllowPrivateAccess = "true"))
+	TArray<TSubclassOf<UGameplayEffect>> StatEffects;
+
+	/* ---------------------
+	*	   TEMP Space
+	----------------------*/
 
 public:
 	float BaseUnscaledCapsuleHalfHeight = 0.f;

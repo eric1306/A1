@@ -28,7 +28,9 @@ public:
 
 protected:
 	virtual void OnHealthChanged(const FOnAttributeChangeData& ChangeData);
+	virtual void OnMaxHealthChanged(const FOnAttributeChangeData& ChangeData);
 	virtual void OnOxygenChanged(const FOnAttributeChangeData& ChangeData);
+	virtual void OnMaxOxygenChanged(const FOnAttributeChangeData& ChangeData);
 
 	void UpdateText();
 
@@ -43,6 +45,8 @@ protected:
 	TObjectPtr<class UTextBlock> TxtOxygenStat;
 
 	float CurrentHealth = 0.1f;
+	float MaxHealth = 0.1f;
 	float CurrentOxygen = 0.1f;
+	float MaxOxygen = 0.1f;
 	
 };

@@ -3,15 +3,18 @@
 #pragma once
 
 #include "GameplayEffectExecutionCalculation.h"
-#include "A1VitalExecution.generated.h"
+#include "A1OxygenExecution.generated.h"
 
+/**
+ * 
+ */
 UCLASS()
-class A1GAME_API UA1VitalExecution : public UGameplayEffectExecutionCalculation
+class A1GAME_API UA1OxygenExecution : public UGameplayEffectExecutionCalculation
 {
 	GENERATED_BODY()
 
 public:
-    UA1VitalExecution();
+    UA1OxygenExecution();
 
     virtual void Execute_Implementation(const FGameplayEffectCustomExecutionParameters& ExecutionParams, FGameplayEffectCustomExecutionOutput& OutExecutionOutput) const override;
 };
