@@ -7,7 +7,6 @@
 #include "AbilitySystemComponent.h"
 #include "AbilitySystemBlueprintLibrary.h"
 #include "Character/LyraCharacter.h"
-
 #include "Item/Managers/A1EquipManagerComponent.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(A1GameplayAbility_ChangeMainHand)

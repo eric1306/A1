@@ -317,7 +317,7 @@ void UA1ItemManagerComponent::Server_DropItemFromInventory_Implementation(UA1Inv
 	if (FromItemCount <= 0)
 		return;
 	
-	//if (TryDropItem(FromItemInstance, FromItemCount))
+	if (TryDropItem(FromItemInstance, FromItemCount))
 	{
 		FromInventoryManager->RemoveItem_Unsafe(FromItemSlotPos, FromItemCount);
 	}
@@ -342,10 +342,35 @@ void UA1ItemManagerComponent::Server_DropItemFromEquipment_Implementation(UA1Equ
 	if (FromItemCount <= 0)
 		return;
 	
-	//if (TryDropItem(FromItemInstance, FromItemCount))
+	if (TryDropItem(FromItemInstance, FromItemCount))
 	{
 		FromEquipmentManager->RemoveEquipment_Unsafe(FromEquipmentSlotType, FromItemCount);
 	}
+}
+
+void UA1ItemManagerComponent::Server_DropItem_Implementation(bool bOnWidget)
+{
+	if (HasAuthority() == false)
+		return;
+
+	// EquipWidget이 켜진 상태라면
+	if (bOnWidget)
+	{
+		// Inventory에서 제거
+		UA1InventoryManagerComponent* MyInventory = GetMyInventoryManager();
+		
+		//Server_DropItemFromInventory(MyInventory, null);
+	}
+	else
+	{
+		// Equip에서 제거
+		UA1EquipmentManagerComponent* MyEquipment = GetMyEquipmentManager();
+		UA1EquipManagerComponent* MyEquip = MyEquipment->GetEquipManager();
+		
+		Server_DropItemFromEquipment(MyEquipment, MyEquip->ConvertToEquipmentSlotType(MyEquip->GetCurrentMainHand()));
+		MyEquipment->GetEquipManager()->CanInteract();
+	}
+
 }
 
 bool UA1ItemManagerComponent::TryPickItem(AA1EquipmentBase* PickupableItemActor)
@@ -413,8 +438,6 @@ bool UA1ItemManagerComponent::TryPickItem(AA1EquipmentBase* PickupableItemActor)
 	//	}
 	//}
 
-	
-
 	return false;
 }
 
@@ -480,20 +503,20 @@ bool UA1ItemManagerComponent::TryDropItem(UA1ItemInstance* FromItemInstance, int
 	if (Character == nullptr)
 		return false;
 
-
+	
 	FActorSpawnParameters SpawnParameters;
 	SpawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButDontSpawnIfColliding;
 
 	FVector SpawnLocation = Character->GetActorLocation();
-	SpawnLocation.Z = 0.0f;
-	
-	//TSubclassOf<AA1EquipmentBase> PickupableItemBaseClass = ULyraAssetManager::Get().GetSubclassByName<AA1EquipmentBase>("PickupableItemBaseClass");
-	AA1EquipmentBase* PickupableItemActor = GetWorld()->SpawnActor<AA1EquipmentBase>(AA1EquipmentBase::StaticClass(), SpawnLocation, FRotator::ZeroRotator, SpawnParameters);
-	if (PickupableItemActor == nullptr)
-		return false;
+	SpawnLocation.Z = 100.0f;
 	
 	const UA1ItemFragment_Equipable_Attachment* EquippableFragment = FromItemInstance->FindFragmentByClass<UA1ItemFragment_Equipable_Attachment>();
 	if (EquippableFragment == nullptr)
+		return false;
+
+	TSubclassOf<AA1EquipmentBase> PickupableItemBaseClass = EquippableFragment->ItemAttachInfo.SpawnItemClass;
+	AA1EquipmentBase* PickupableItemActor = GetWorld()->SpawnActor<AA1EquipmentBase>(PickupableItemBaseClass, SpawnLocation, FRotator::ZeroRotator, SpawnParameters);
+	if (PickupableItemActor == nullptr)
 		return false;
 
 	PickupableItemActor->Init(FromItemInstance->GetItemTemplateID(), EquippableFragment->ItemHandType, FromItemInstance->GetItemRarity());
