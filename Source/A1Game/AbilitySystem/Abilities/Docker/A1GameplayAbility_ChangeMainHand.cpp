@@ -42,6 +42,7 @@ void UA1GameplayAbility_ChangeMainHand::ActivateAbility(const FGameplayAbilitySp
 
 	EquipManager->ChangeMainHand();
 	BlockedAnotherHandAbility(EquipManager->GetCurrentMainHand());
+	EquipManager->CanInteract();
 
 	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
 }

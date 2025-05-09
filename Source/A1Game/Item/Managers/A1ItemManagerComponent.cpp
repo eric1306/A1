@@ -1,15 +1,15 @@
 ﻿#include "A1ItemManagerComponent.h"
 		  
+#include "A1EquipManagerComponent.h"
 #include "A1EquipmentManagerComponent.h"
 #include "A1InventoryManagerComponent.h"
 #include "Actors/A1EquipmentBase.h"
-#include "Data/A1ItemData.h"
-#include "Item/Fragments/A1ItemFragment_Equipable_Attachment.h"
 #include "Components/CapsuleComponent.h"
 #include "Data/A1ItemData.h"
-#include "GameFramework/Character.h"
 #include "Item/A1ItemInstance.h"
 #include "Item/Fragments/A1ItemFragment_Equipable.h"
+#include "Item/Fragments/A1ItemFragment_Equipable_Attachment.h"
+#include "GameFramework/Character.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "System/LyraAssetManager.h"
 
@@ -70,6 +70,7 @@ void UA1ItemManagerComponent::Server_EquipmentToInventory_Implementation(UA1Equi
 	{
 		UA1ItemInstance* RemovedItemInstance = FromEquipmentManager->RemoveEquipment_Unsafe(FromEquipmentSlotType, MovableCount);
 		ToInventoryManager->AddItem_Unsafe(ToItemSlotPos, RemovedItemInstance, MovableCount);
+		FromEquipmentManager->GetEquipManager()->CanInteract();
 	}
 }
 
@@ -363,7 +364,6 @@ bool UA1ItemManagerComponent::TryPickItem(AA1EquipmentBase* PickupableItemActor)
 	if (IsAllowedComponent(MyInventoryManager) == false || IsAllowedComponent(MyEquipmentManager) == false)
 		return false;
 
-
 	const UA1ItemTemplate& ItemTemplate = UA1ItemData::Get().FindItemTemplateByID(PickupableItemActor->GetTemplateID());
 
 	const UA1ItemFragment_Equipable_Attachment* EquippableFragment = ItemTemplate.FindFragmentByClass<UA1ItemFragment_Equipable_Attachment>();
@@ -385,6 +385,8 @@ bool UA1ItemManagerComponent::TryPickItem(AA1EquipmentBase* PickupableItemActor)
 		MyEquipmentManager->AddEquipment_Unsafe(ToEquipmentSlotType, ItemInstance, MovableCount);
 
 		PickupableItemActor->Destroy();
+
+		MyEquipmentManager->GetEquipManager()->CanInteract();
 		return true;
 	}
 	//else
@@ -410,6 +412,8 @@ bool UA1ItemManagerComponent::TryPickItem(AA1EquipmentBase* PickupableItemActor)
 	//		return true;
 	//	}
 	//}
+
+	
 
 	return false;
 }
