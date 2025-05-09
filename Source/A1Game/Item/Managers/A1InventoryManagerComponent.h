@@ -147,6 +147,7 @@ public:
 
 public:
 	FOnInventoryEntryChanged OnInventoryEntryChanged;
+	FIntPoint ClickedIndex = NULL;
 	
 private:
 	friend class UA1EquipmentManagerComponent;

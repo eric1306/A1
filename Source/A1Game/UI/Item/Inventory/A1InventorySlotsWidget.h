@@ -53,6 +53,7 @@ private:
 public:
 	UA1InventoryManagerComponent* GetInventoryManager() const { return InventoryManager; }
 	const FGeometry& GetSlotContainerGeometry() const;
+	void SetHiddenClickedWidget(int InSlotPos);
 
 public:
 	UPROPERTY(EditAnywhere, meta = (Categories = "Message"))

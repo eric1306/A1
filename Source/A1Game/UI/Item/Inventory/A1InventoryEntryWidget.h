@@ -6,6 +6,7 @@
 #include "A1InventoryEntryWidget.generated.h"
 
 class USizeBox;
+class UImage;
 class UA1ItemInstance;
 class UA1InventorySlotsWidget;
 
@@ -19,7 +20,8 @@ public:
 
 public:
 	void Init(UA1InventorySlotsWidget* InSlotsWidget, UA1ItemInstance* InItemInstance, int32 InItemCount);
-	
+	void ChangeStateClickedWidget(bool bVisible);
+
 protected:
 	virtual FReply NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
 	virtual void NativeOnDragDetected(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent, UDragDropOperation*& OutOperation) override;
@@ -34,4 +36,7 @@ private:
 private:
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<USizeBox> SizeBox_Root;
+
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UImage> Image_Clicked;
 };
