@@ -9,7 +9,7 @@
 
 UA1CharacterAttributeSet::UA1CharacterAttributeSet() :
 	MaxHealth(120.0f),
-	MaxOxygen(5.0f),
+	MaxOxygen(500.0f),
 	MaxHunger(720.0f),
 	MaxWeight(100.0f)
 {

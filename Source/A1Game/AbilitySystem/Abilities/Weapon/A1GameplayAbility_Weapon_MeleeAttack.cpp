@@ -5,6 +5,9 @@
 #include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
 #include "AbilitySystem/LyraAbilitySystemComponent.h"
 #include "Actors/A1EquipmentBase.h"
+#include "AbilitySystemBlueprintLibrary.h"
+#include "System/LyraAssetManager.h"
+#include "System/LyraGameData.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(A1GameplayAbility_Weapon_MeleeAttack)
 
@@ -37,6 +40,9 @@ void UA1GameplayAbility_Weapon_MeleeAttack::ActivateAbility(const FGameplayAbili
 		GameplayEventTask->EventReceived.AddDynamic(this, &ThisClass::OnMontageEventTriggered);
 		GameplayEventTask->ReadyForActivation();
 	}
+
+
+	ConsumeOxygen();
 }
 
 void UA1GameplayAbility_Weapon_MeleeAttack::OnTargetDataReady(FGameplayEventData Payload)
@@ -94,5 +100,40 @@ void UA1GameplayAbility_Weapon_MeleeAttack::OnMontageFinished()
 	if (HasAuthority(&CurrentActivationInfo))
 	{
 		EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
+	}
+}
+
+void UA1GameplayAbility_Weapon_MeleeAttack::ConsumeOxygen()
+{
+	AA1EquipmentBase* WeaponActor = GetFirstEquipmentActor();
+	if (WeaponActor == nullptr)
+		return;
+
+	ULyraAbilitySystemComponent* SourceASC = GetLyraAbilitySystemComponentFromActorInfo();
+	if (SourceASC == nullptr)
+		return;
+
+	ALyraCharacter* LyraCharacter = GetLyraCharacterFromActorInfo();
+	if (LyraCharacter->IsOutSide())
+	{
+		// 가해자 정보
+		FGameplayEffectContextHandle EffectContextHandle = SourceASC->MakeEffectContext();
+		EffectContextHandle.AddInstigator(SourceASC->AbilityActorInfo->AvatarActor.Get(), WeaponActor);
+
+		// 산소 소모
+		float Oxygen = GetEquipmentStatValue(A1GameplayTags::SetByCaller_BaseOxygen, WeaponActor);
+		FGameplayAbilityTargetDataHandle TargetDataHandle = UAbilitySystemBlueprintLibrary::AbilityTargetDataFromActor(SourceASC->AbilityActorInfo->AvatarActor.Get());
+
+		const TSubclassOf<UGameplayEffect> OxygenGE = ULyraAssetManager::GetSubclassByPath(ULyraGameData::Get().ConsumeOxygenByWeapon_SetByCaller);
+		FGameplayEffectSpecHandle OxygenEffectSpecHandle = MakeOutgoingGameplayEffectSpec(OxygenGE);
+
+		if (OxygenEffectSpecHandle.IsValid())
+		{
+			// 무기에 희귀도에 따른 대미지 차별화
+
+			OxygenEffectSpecHandle.Data->SetSetByCallerMagnitude(A1GameplayTags::SetByCaller_BaseOxygen, Oxygen);
+			float DamageSet = OxygenEffectSpecHandle.Data->GetSetByCallerMagnitude(A1GameplayTags::SetByCaller_BaseOxygen, false);
+			ApplyGameplayEffectSpecToTarget(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, OxygenEffectSpecHandle, TargetDataHandle);
+		}
 	}
 }

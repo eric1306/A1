@@ -24,6 +24,8 @@ private:
 	
 	UFUNCTION()
 	void OnMontageFinished();
+
+	void ConsumeOxygen();
 	
 protected:
 	UPROPERTY(EditDefaultsOnly, Category="A1|Melee Attack")

@@ -150,18 +150,11 @@ namespace A1GameplayTags
 	// SetByCaller
 	UE_DEFINE_GAMEPLAY_TAG(SetByCaller_BaseDamage,							"SetByCaller.BaseDamage");
 	UE_DEFINE_GAMEPLAY_TAG(SetByCaller_BaseHealth,							"SetByCaller.BaseHealth");
-	UE_DEFINE_GAMEPLAY_TAG(SetByCaller_BaseMana,							"SetByCaller.BaseMana");
-	UE_DEFINE_GAMEPLAY_TAG(SetByCaller_BaseStamina,							"SetByCaller.BaseStamina");
+	UE_DEFINE_GAMEPLAY_TAG(SetByCaller_BaseOxygen,							"SetByCaller.BaseOxygen");
 	UE_DEFINE_GAMEPLAY_TAG(SetByCaller_IncomingDamage,						"SetByCaller.IncomingDamage");
 	UE_DEFINE_GAMEPLAY_TAG(SetByCaller_IncomingHealth,						"SetByCaller.IncomingHealth");
-	UE_DEFINE_GAMEPLAY_TAG(SetByCaller_IncomingMana,						"SetByCaller.IncomingMana");
-	UE_DEFINE_GAMEPLAY_TAG(SetByCaller_IncomingStamina,						"SetByCaller.IncomingStamina");
 	UE_DEFINE_GAMEPLAY_TAG(SetByCaller_MoveSpeed,							"SetByCaller.MoveSpeed");
 	UE_DEFINE_GAMEPLAY_TAG(SetByCaller_MoveSpeedPercent,					"SetByCaller.MoveSpeedPercent");
-	UE_DEFINE_GAMEPLAY_TAG(SetByCaller_Strength,						    "SetByCaller.Strength");
-	UE_DEFINE_GAMEPLAY_TAG(SetByCaller_Defense,								"SetByCaller.Defense");
-	UE_DEFINE_GAMEPLAY_TAG(SetByCaller_Vigor,								"SetByCaller.Vigor");
-	UE_DEFINE_GAMEPLAY_TAG(SetByCaller_Agility,								"SetByCaller.Agility");
 	UE_DEFINE_GAMEPLAY_TAG(SetByCaller_Resourcefulness,						"SetByCaller.Resourcefulness");
 	
 	// GameplayCue

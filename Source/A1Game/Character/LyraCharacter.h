@@ -239,9 +239,10 @@ protected:
 	----------------------*/ 
 public:
 	EA1DeathState GetDeathState() { return DeathState; }
+	bool IsOutSide() { return bOutside; }
 
 	UFUNCTION(BlueprintCallable)
-	void OutsideOrNot(bool bOut);
+	void OutsideOrNot(bool bOut);	
 
 protected:
 	void ApplyStatEffect(int index);
