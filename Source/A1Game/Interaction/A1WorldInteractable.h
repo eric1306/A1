@@ -13,6 +13,7 @@ public:
 
 protected:
 	virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const override;
+public:
 	virtual bool CanInteraction(const FA1InteractionQuery& InteractionQuery) const override;
 
 public:
