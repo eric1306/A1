@@ -26,17 +26,14 @@ void UA1GameplayAbility_Utility_FlashLight_Charge::ActivateAbility(const FGamepl
 		PlayMontageTask->OnCompleted.AddDynamic(this, &ThisClass::OnMontageFinished);
 		PlayMontageTask->ReadyForActivation();
 	}
-
-	AA1UtilityBase* flashlight = Cast<AA1UtilityBase>(GetFirstEquipmentActor());
-	flashlight->ChargeGauge();
 }
 
 void UA1GameplayAbility_Utility_FlashLight_Charge::OnMontageFinished()
 {
 	if (HasAuthority(&CurrentActivationInfo))
 	{
-		//AA1UtilityBase* flashlight = Cast<AA1UtilityBase>(GetFirstEquipmentActor());
-		//flashlight->ChargeGauge();
+		AA1UtilityBase* flashlight = Cast<AA1UtilityBase>(GetFirstEquipmentActor());
+		flashlight->ChargeGauge();
 
 		EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
 	}

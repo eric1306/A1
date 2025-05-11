@@ -49,10 +49,10 @@ void UA1GameplayAbility_Weapon_Gun_ADS::EndAbility(const FGameplayAbilitySpecHan
 
 	if (bWasCancelled)
 	{
-		if (UAbilityTask_PlayMontageAndWait* ADSEndMontageTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(this, TEXT("ADSEndMontage"), ADSEndMontage, 1.f, NAME_None, false))
-		{
-			ADSEndMontageTask->ReadyForActivation();
-		}
+		//if (UAbilityTask_PlayMontageAndWait* ADSEndMontageTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(this, TEXT("ADSEndMontage"), ADSEndMontage, 1.f, NAME_None, false))
+		//{
+		//	ADSEndMontageTask->ReadyForActivation();
+		//}
 	}
 	
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
