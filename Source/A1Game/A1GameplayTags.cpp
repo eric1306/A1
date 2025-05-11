@@ -24,7 +24,7 @@ namespace A1GameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(InputTag_ChangeMainHand,							"InputTag.ChangeMainHand");
 	UE_DEFINE_GAMEPLAY_TAG(InputTag_Ability_Confirm,						"InputTag.Ability.Confirm");
 	UE_DEFINE_GAMEPLAY_TAG(InputTag_Ability_Cancel,							"InputTag.Ability.Cancel");
-	UE_DEFINE_GAMEPLAY_TAG(InputTag_Ability_UseItem,						"InputTag.Ability.UseItem");
+	UE_DEFINE_GAMEPLAY_TAG(InputTag_Ability_DropItem,						"InputTag.Ability.DropItem");
 	UE_DEFINE_GAMEPLAY_TAG(InputTag_Attack_MainHand,						"InputTag.Attack.Main");
 	UE_DEFINE_GAMEPLAY_TAG(InputTag_Attack_OffHand,							"InputTag.Attack.Sub");
 	UE_DEFINE_GAMEPLAY_TAG(InputTag_Attack_Skill_1,							"InputTag.Attack.Skill.1");
@@ -62,6 +62,7 @@ namespace A1GameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Throw,									"Ability.Throw");
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Food,									"Ability.Food");
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Block,									"Ability.Block");
+	UE_DEFINE_GAMEPLAY_TAG(Ability_DropItem,								"Ability.DropItem");
 	UE_DEFINE_GAMEPLAY_TAG(Ability_ADS,										"Ability.ADS");
 	UE_DEFINE_GAMEPLAY_TAG(Ability_ADS_Gun,									"Ability.ADS.Gun");
 	UE_DEFINE_GAMEPLAY_TAG(Ability_ADS_Throw,								"Ability.ADS.Throw");
@@ -69,7 +70,6 @@ namespace A1GameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Interact_Active,							"Ability.Interact.Active");
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Interact_Object,							"Ability.Interact.Object");
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Interact_FlashLight,						"Ability.Interact.FlashLight");
-	UE_DEFINE_GAMEPLAY_TAG(Ability_Interact_DropItem,						"Ability.Interact.DropItem");
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Widget_Inventory,						"Ability.Widget.Inventory");
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Widget_WorldMap,							"Ability.Widget.WorldMap");
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Widget_ClassSelection,					"Ability.Widget.SkinSelection");
@@ -121,6 +121,7 @@ namespace A1GameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(GameplayEvent_Knockback,							"GameplayEvent.Knockback");
 	UE_DEFINE_GAMEPLAY_TAG(GameplayEvent_Stun,								"GameplayEvent.Stun");
 	UE_DEFINE_GAMEPLAY_TAG(GameplayEvent_Gun_ADS,							"GameplayEvent.Gun.ADS");
+	UE_DEFINE_GAMEPLAY_TAG(GameplayEvent_Widget_Inventory,					"GameplayEvent.Widget.Inventory");
 	UE_DEFINE_GAMEPLAY_TAG(GameplayEvent_HitReact,							"GameplayEvent.HitReact");
 	
 	// Cheat

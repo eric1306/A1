@@ -7,7 +7,6 @@
 #include "AbilitySystemComponent.h"
 #include "AbilitySystemBlueprintLibrary.h"
 #include "Character/LyraCharacter.h"
-
 #include "Item/Managers/A1EquipManagerComponent.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(A1GameplayAbility_ChangeMainHand)
@@ -42,6 +41,7 @@ void UA1GameplayAbility_ChangeMainHand::ActivateAbility(const FGameplayAbilitySp
 
 	EquipManager->ChangeMainHand();
 	BlockedAnotherHandAbility(EquipManager->GetCurrentMainHand());
+	EquipManager->CanInteract();
 
 	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
 }

@@ -13,12 +13,11 @@ class A1GAME_API UA1ActivatableWidget : public UCommonActivatableWidget
 
 public:
 	UA1ActivatableWidget(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
+	
+	UFUNCTION(BlueprintCallable)
+	void Deactivate();
 
 protected:
-	virtual FReply NativeOnKeyDown(const FGeometry& InGeometry, const FKeyEvent& InKeyEvent) override;
-	
-protected:
-	// TODO: Switch to InputAction
-	UPROPERTY(EditDefaultsOnly)
-	FKey DeactivateKey;
+	virtual void NativeOnActivated() override;
+	virtual void NativeOnDeactivated() override;
 };

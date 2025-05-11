@@ -1,15 +1,15 @@
 ﻿#include "A1ItemManagerComponent.h"
 		  
+#include "A1EquipManagerComponent.h"
 #include "A1EquipmentManagerComponent.h"
 #include "A1InventoryManagerComponent.h"
 #include "Actors/A1EquipmentBase.h"
-#include "Data/A1ItemData.h"
-#include "Item/Fragments/A1ItemFragment_Equipable_Attachment.h"
 #include "Components/CapsuleComponent.h"
 #include "Data/A1ItemData.h"
-#include "GameFramework/Character.h"
 #include "Item/A1ItemInstance.h"
 #include "Item/Fragments/A1ItemFragment_Equipable.h"
+#include "Item/Fragments/A1ItemFragment_Equipable_Attachment.h"
+#include "GameFramework/Character.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "System/LyraAssetManager.h"
 
@@ -45,13 +45,14 @@ void UA1ItemManagerComponent::Server_InventoryToEquipment_Implementation(UA1Inve
 		{
 			const int32 FromItemCount = FromInventoryManager->GetItemCount(FromItemSlotPos);
 			const int32 ToItemCount = ToEquipmentManager->GetItemCount(ToEquipmentSlotType);
-			
+
 			UA1ItemInstance* RemovedItemInstanceFrom = FromInventoryManager->RemoveItem_Unsafe(FromItemSlotPos, FromItemCount);
 			UA1ItemInstance* RemovedItemInstanceTo = ToEquipmentManager->RemoveEquipment_Unsafe(ToEquipmentSlotType, ToItemCount);
 			FromInventoryManager->AddItem_Unsafe(ToItemSlotPos, RemovedItemInstanceTo, ToItemCount);
 			ToEquipmentManager->AddEquipment_Unsafe(ToEquipmentSlotType, RemovedItemInstanceFrom, FromItemCount);
 		}
 	}
+	ToEquipmentManager->GetEquipManager()->CanInteract();
 }
 
 void UA1ItemManagerComponent::Server_EquipmentToInventory_Implementation(UA1EquipmentManagerComponent* FromEquipmentManager, EEquipmentSlotType FromEquipmentSlotType, UA1InventoryManagerComponent* ToInventoryManager, const FIntPoint& ToItemSlotPos)
@@ -70,6 +71,7 @@ void UA1ItemManagerComponent::Server_EquipmentToInventory_Implementation(UA1Equi
 	{
 		UA1ItemInstance* RemovedItemInstance = FromEquipmentManager->RemoveEquipment_Unsafe(FromEquipmentSlotType, MovableCount);
 		ToInventoryManager->AddItem_Unsafe(ToItemSlotPos, RemovedItemInstance, MovableCount);
+		FromEquipmentManager->GetEquipManager()->CanInteract();
 	}
 }
 
@@ -316,7 +318,7 @@ void UA1ItemManagerComponent::Server_DropItemFromInventory_Implementation(UA1Inv
 	if (FromItemCount <= 0)
 		return;
 	
-	//if (TryDropItem(FromItemInstance, FromItemCount))
+	if (TryDropItem(FromItemInstance, FromItemCount))
 	{
 		FromInventoryManager->RemoveItem_Unsafe(FromItemSlotPos, FromItemCount);
 	}
@@ -341,10 +343,38 @@ void UA1ItemManagerComponent::Server_DropItemFromEquipment_Implementation(UA1Equ
 	if (FromItemCount <= 0)
 		return;
 	
-	//if (TryDropItem(FromItemInstance, FromItemCount))
+	if (TryDropItem(FromItemInstance, FromItemCount))
 	{
 		FromEquipmentManager->RemoveEquipment_Unsafe(FromEquipmentSlotType, FromItemCount);
 	}
+}
+
+void UA1ItemManagerComponent::Server_DropItem_Implementation(bool bActivateWidget)
+{
+	if (HasAuthority() == false)
+		return;
+
+	// EquipWidget이 켜진 상태라면
+	if (bActivateWidget)
+	{
+		// Inventory에서 제거
+		UA1InventoryManagerComponent* MyInventory = GetMyInventoryManager();
+		if (MyInventory->ClickedIndex != NULL)
+			Server_DropItemFromInventory(MyInventory, MyInventory->ClickedIndex);
+	}
+	else
+	{
+		// Equip에서 제거
+		UA1EquipmentManagerComponent* MyEquipment = GetMyEquipmentManager();
+		UA1EquipManagerComponent* MyEquip = MyEquipment->GetEquipManager();
+		
+		if(MyEquip->GetEquippedActor(EEquipmentSlotType::TwoHand) != nullptr)
+			Server_DropItemFromEquipment(MyEquipment, EEquipmentSlotType::TwoHand);
+		else
+			Server_DropItemFromEquipment(MyEquipment, MyEquip->ConvertToEquipmentSlotType(MyEquip->GetCurrentMainHand()));
+		MyEquipment->GetEquipManager()->CanInteract();
+	}
+
 }
 
 bool UA1ItemManagerComponent::TryPickItem(AA1EquipmentBase* PickupableItemActor)
@@ -362,7 +392,6 @@ bool UA1ItemManagerComponent::TryPickItem(AA1EquipmentBase* PickupableItemActor)
 
 	if (IsAllowedComponent(MyInventoryManager) == false || IsAllowedComponent(MyEquipmentManager) == false)
 		return false;
-
 
 	const UA1ItemTemplate& ItemTemplate = UA1ItemData::Get().FindItemTemplateByID(PickupableItemActor->GetTemplateID());
 
@@ -385,6 +414,8 @@ bool UA1ItemManagerComponent::TryPickItem(AA1EquipmentBase* PickupableItemActor)
 		MyEquipmentManager->AddEquipment_Unsafe(ToEquipmentSlotType, ItemInstance, MovableCount);
 
 		PickupableItemActor->Destroy();
+
+		MyEquipmentManager->GetEquipManager()->CanInteract();
 		return true;
 	}
 	//else
@@ -476,20 +507,20 @@ bool UA1ItemManagerComponent::TryDropItem(UA1ItemInstance* FromItemInstance, int
 	if (Character == nullptr)
 		return false;
 
-
+	
 	FActorSpawnParameters SpawnParameters;
 	SpawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButDontSpawnIfColliding;
 
 	FVector SpawnLocation = Character->GetActorLocation();
-	SpawnLocation.Z = 0.0f;
-	
-	//TSubclassOf<AA1EquipmentBase> PickupableItemBaseClass = ULyraAssetManager::Get().GetSubclassByName<AA1EquipmentBase>("PickupableItemBaseClass");
-	AA1EquipmentBase* PickupableItemActor = GetWorld()->SpawnActor<AA1EquipmentBase>(AA1EquipmentBase::StaticClass(), SpawnLocation, FRotator::ZeroRotator, SpawnParameters);
-	if (PickupableItemActor == nullptr)
-		return false;
+	SpawnLocation.Z = 5.0f;
 	
 	const UA1ItemFragment_Equipable_Attachment* EquippableFragment = FromItemInstance->FindFragmentByClass<UA1ItemFragment_Equipable_Attachment>();
 	if (EquippableFragment == nullptr)
+		return false;
+
+	TSubclassOf<AA1EquipmentBase> PickupableItemBaseClass = EquippableFragment->ItemAttachInfo.SpawnItemClass;
+	AA1EquipmentBase* PickupableItemActor = GetWorld()->SpawnActor<AA1EquipmentBase>(PickupableItemBaseClass, SpawnLocation, FRotator::ZeroRotator, SpawnParameters);
+	if (PickupableItemActor == nullptr)
 		return false;
 
 	PickupableItemActor->Init(FromItemInstance->GetItemTemplateID(), EquippableFragment->ItemHandType, FromItemInstance->GetItemRarity());

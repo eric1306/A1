@@ -128,11 +128,14 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly)
 	void ChangeEquipState(EEquipmentSlotType EquipSlotType, bool bWear);
 
+	UFUNCTION(BlueprintCallable)
+	bool CanChangeEquipState(EEquipState NewEquipState, bool bWear) const;
+
 	UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly)
 	void ChangeMainHand();
 
 	UFUNCTION(BlueprintCallable)
-	bool CanChangeEquipState(EEquipState NewEquipState, bool bWear) const;
+	void CanInteract();
 
 private:
 	UFUNCTION()
@@ -153,6 +156,7 @@ public:
 	UA1EquipmentManagerComponent* GetEquipmentManager() const;
 
 	static EEquipmentSlotType ConvertToEquipmentSlotType(EEquipState EquipState);
+	static EEquipmentSlotType ConvertToEquipmentSlotType(EMainHandState EquipState);
 	static EEquipState ConvertToEquipState(EEquipmentSlotType ItemSlotType);
 	static EEquipState ConvertToAnotherHand(EEquipmentSlotType EquipmentSlotType);
 	

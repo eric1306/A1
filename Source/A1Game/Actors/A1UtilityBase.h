@@ -18,6 +18,9 @@ public:
 	UFUNCTION()
 	void ChangeState();
 
+	UFUNCTION()
+	void ChargeGauge() { Gauge = MaxGauge; };
+
 	UFUNCTION(BlueprintImplementableEvent)
 	void StateIsChanged();
 
@@ -28,4 +31,10 @@ private:
 protected:
 	UPROPERTY(BlueprintReadOnly/*, ReplicatedUsing = OnRep_OnOff */ )
 	bool OnOff = false;
+
+	UPROPERTY(EditAnyWhere, BlueprintReadWrite)
+	float Gauge;
+
+	UPROPERTY(EditAnyWhere, BlueprintReadWrite)
+	float MaxGauge;
 };
