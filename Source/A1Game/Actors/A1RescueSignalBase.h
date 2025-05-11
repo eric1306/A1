@@ -56,6 +56,8 @@ private:
 public:
 	ESignalState GetSignalState() const { return SignalState; }
 
+	AA1SpaceshipBase* GetOwningSpaceship() const { return OwningSpaceship.Get(); }
+
 protected:
 	UPROPERTY(BlueprintReadWrite, ReplicatedUsing = OnRep_SignalState)
 	ESignalState SignalState = ESignalState::Released;
