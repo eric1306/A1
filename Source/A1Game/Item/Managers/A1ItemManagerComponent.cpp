@@ -45,13 +45,14 @@ void UA1ItemManagerComponent::Server_InventoryToEquipment_Implementation(UA1Inve
 		{
 			const int32 FromItemCount = FromInventoryManager->GetItemCount(FromItemSlotPos);
 			const int32 ToItemCount = ToEquipmentManager->GetItemCount(ToEquipmentSlotType);
-			
+
 			UA1ItemInstance* RemovedItemInstanceFrom = FromInventoryManager->RemoveItem_Unsafe(FromItemSlotPos, FromItemCount);
 			UA1ItemInstance* RemovedItemInstanceTo = ToEquipmentManager->RemoveEquipment_Unsafe(ToEquipmentSlotType, ToItemCount);
 			FromInventoryManager->AddItem_Unsafe(ToItemSlotPos, RemovedItemInstanceTo, ToItemCount);
 			ToEquipmentManager->AddEquipment_Unsafe(ToEquipmentSlotType, RemovedItemInstanceFrom, FromItemCount);
 		}
 	}
+	ToEquipmentManager->GetEquipManager()->CanInteract();
 }
 
 void UA1ItemManagerComponent::Server_EquipmentToInventory_Implementation(UA1EquipmentManagerComponent* FromEquipmentManager, EEquipmentSlotType FromEquipmentSlotType, UA1InventoryManagerComponent* ToInventoryManager, const FIntPoint& ToItemSlotPos)
@@ -367,7 +368,10 @@ void UA1ItemManagerComponent::Server_DropItem_Implementation(bool bActivateWidge
 		UA1EquipmentManagerComponent* MyEquipment = GetMyEquipmentManager();
 		UA1EquipManagerComponent* MyEquip = MyEquipment->GetEquipManager();
 		
-		Server_DropItemFromEquipment(MyEquipment, MyEquip->ConvertToEquipmentSlotType(MyEquip->GetCurrentMainHand()));
+		if(MyEquip->GetEquippedActor(EEquipmentSlotType::TwoHand) != nullptr)
+			Server_DropItemFromEquipment(MyEquipment, EEquipmentSlotType::TwoHand);
+		else
+			Server_DropItemFromEquipment(MyEquipment, MyEquip->ConvertToEquipmentSlotType(MyEquip->GetCurrentMainHand()));
 		MyEquipment->GetEquipManager()->CanInteract();
 	}
 

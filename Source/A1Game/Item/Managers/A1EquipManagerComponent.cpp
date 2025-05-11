@@ -517,7 +517,9 @@ void UA1EquipManagerComponent::CanInteract()
 	// MainHand가 비어있지 않다면 불가능 -> Tag 제거
 	if (GetEquippedActor(ConvertToEquipmentSlotType(CurrentMainHand)) != nullptr)
 		UAbilitySystemBlueprintLibrary::RemoveLooseGameplayTags(GetOwner(), TagContainer, true);
-		
+	// TwoHand가 찼다면 불가능 -> Tag 제거
+	else if(GetEquippedActor(EEquipmentSlotType::TwoHand) != nullptr)
+		UAbilitySystemBlueprintLibrary::RemoveLooseGameplayTags(GetOwner(), TagContainer, true);
 	// MainHand Item이 비었고 Tag가 없다면 -> Interact 가능 태그 부여
 	else if(HasTag == false)
 		UAbilitySystemBlueprintLibrary::AddLooseGameplayTags(GetOwner(), TagContainer, true);
