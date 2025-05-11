@@ -26,7 +26,7 @@ public:
 	EUtilityType UtilityType = EUtilityType::Count;
 
 	UPROPERTY(EditDefaultsOnly)
-	TSubclassOf<UGameplayEffect> UtilityEffectClass;
+	TArray<TSubclassOf<UGameplayEffect>> UtilityEffectClasses;
 	
 	UPROPERTY(EditDefaultsOnly, meta=(ForceInlineRow))
 	TArray<FRarityStatSet> RarityStatSets;
