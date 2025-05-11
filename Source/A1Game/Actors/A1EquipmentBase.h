@@ -42,6 +42,7 @@ public:
 	int32 GetTemplateID() const { return TemplateID; }
 	EEquipmentSlotType GetEquipmentSlotType() const { return EquipmentSlotType; }
 	EItemRarity GetItemRarity() const { return ItemRarity; }
+	bool GetPickup() const { return bPickedup; }
 
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	UAnimMontage* GetEquipMontage();
