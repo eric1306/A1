@@ -60,8 +60,6 @@ void ALyraPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
 	SetActorHiddenInGame(false);
-
-	ConsoleCommand(TEXT("showdebug abilitysystem"));
 }
 
 void ALyraPlayerController::EndPlay(const EEndPlayReason::Type EndPlayReason)
