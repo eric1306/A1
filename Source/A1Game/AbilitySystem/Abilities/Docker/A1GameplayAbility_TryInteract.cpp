@@ -85,7 +85,6 @@ void UA1GameplayAbility_TryInteract::TryPickup()
 			AA1WorldInteractable* InteractableTarget = Cast<AA1WorldInteractable>(HitResult.GetActor());
 			if (InteractableTarget)
 			{
-				//상호작용 시도
 				FA1InteractionQuery InteractionQuery;
 				InteractionQuery.RequestingAvatar = LyraCharacter;
 				InteractionQuery.RequestingController = LyraPlayerController;
