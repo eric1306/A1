@@ -6,13 +6,14 @@
 #include "Interaction/A1WorldInteractable.h"
 #include "A1BedBase.generated.h"
 
+class ALyraCharacter;
 class UArrowComponent;
 
 UENUM(BlueprintType)
 enum class EBedState : uint8
 {
-	Empty,
-	Occupied
+    Empty,
+    Occupied
 };
 
 /**
@@ -21,9 +22,9 @@ enum class EBedState : uint8
 UCLASS()
 class AA1BedBase : public AA1WorldInteractable, public IA1SpaceshipComponent
 {
-	GENERATED_BODY()
+    GENERATED_BODY()
 public:
-	AA1BedBase(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
+    AA1BedBase(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
 protected:
     virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const override;
@@ -49,7 +50,7 @@ public:
     UFUNCTION(BlueprintCallable, BlueprintPure)
     FTransform GetLayDownTransform() const;
 
-	FRotator GetArrowComponentVector() const;
+    FRotator GetArrowComponentVector() const;
 
     //  save player recover transform
     UFUNCTION(BlueprintCallable)
@@ -59,35 +60,51 @@ public:
     UFUNCTION(BlueprintCallable, BlueprintPure)
     FTransform GetPlayerReturnTransform() const;
 
-    UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly)
-    void RecoverPlayerFatigue(AActor* Player, float DeltaTime);
-
     UFUNCTION(BlueprintCallable, BlueprintPure)
     bool IsPlayerSleeping() const { return BedState == EBedState::Occupied; }
+
+    // 캐릭터를 깨우는 함수
+    UFUNCTION(BlueprintCallable, Category = "Bed")
+    void WakeUpOccupyingCharacter();
+
+    // 캐릭터가 침대에 누울 때 호출
+    UFUNCTION(BlueprintCallable, Category = "Bed")
+    void SetOccupyingCharacter(AActor* Character);
+
+    UFUNCTION(NetMulticast, Reliable)
+    void Multicast_Wakeup();
+
+    FORCEINLINE bool bIsOccupyingCharacterExist() const { return OccupyingCharacter != nullptr; }
+    FORCEINLINE AActor* GetOccupyingCharacter() const { return OccupyingCharacter; }
 
 protected:
     UFUNCTION(BlueprintImplementableEvent)
     void OnBedStateChanged(EBedState NewBedState);
 
+    void ActivateDecreaseWeight();
+    void DeactivateDecreaseWeight();
+
 private:
     UFUNCTION()
     void OnRep_BedState();
 
-    void InBedState();
-
     void SetupTags();
 
+    void OnHealthChanged(AActor* InInstigator, float OldValue, float NewValue);
+
 protected:
+    UPROPERTY(EditDefaultsOnly, Category = "Bed|GameplayEffect")
+    TSubclassOf<class UGameplayEffect> DecreaseWeightEffect;
     UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_BedState)
     EBedState BedState = EBedState::Empty;
 
-    UPROPERTY(EditDefaultsOnly, Category = "Info")
+    UPROPERTY(EditDefaultsOnly, Category = "Bed|Info")
     FA1InteractionInfo EmptyInteractionInfo;
 
-    UPROPERTY(EditDefaultsOnly, Category = "Info")
+    UPROPERTY(EditDefaultsOnly, Category = "Bed|Info")
     FA1InteractionInfo OccupiedInteractionInfo;
 
-    UPROPERTY(EditDefaultsOnly, Category = "Bed")
+    UPROPERTY(EditDefaultsOnly, Category = "Bed|Offset")
     FTransform LayDownOffset;
 
     UPROPERTY(Replicated)
@@ -99,10 +116,22 @@ protected:
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
     TObjectPtr<UStaticMeshComponent> MeshComponent;
 
-    UPROPERTY(EditDefaultsOnly, Category = "Recovery")
+    UPROPERTY(EditDefaultsOnly, Category = "Bed|Recovery")
     float FatigueRecoveryRate = 5.0f;
 
-    UPROPERTY(EditDefaultsOnly, Category = "Recovery")
+    UPROPERTY(EditDefaultsOnly, Category = "Bed|Recovery")
     float HealthRecoveryRate = 2.0f;
 
+
+    // 침대에 누워있는 캐릭터 참조 추가
+    UPROPERTY(Replicated)
+    TObjectPtr<AActor> OccupyingCharacter;
+    // 플레이어가 최대로 누워있다면 깨우는 타이머
+    FTimerHandle MaxLyingTimerHandle;
+    //최대 누워있을 수 있는 시간
+    float MaxLyingTimeRate;
+    //플레이어가 침대에 누워있을 때 Weight 감소시키는 Timer
+    FTimerHandle DecreaseWeightTimerHandle;
+
+    float DecreaseWeightTimeRate;
 };

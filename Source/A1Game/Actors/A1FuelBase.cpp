@@ -3,12 +3,16 @@
 
 #include "Actors/A1FuelBase.h"
 
+#include "A1EquipmentBase.h"
 #include "A1FuelDisplayUI.h"
 #include "A1SpaceshipBase.h"
 #include "Components/ArrowComponent.h"
+#include "Data/A1ItemData.h"
 #include "Kismet/GameplayStatics.h"
 #include "Engine/OverlapResult.h"
+#include "Item/A1ItemInstance.h"
 #include "Item/A1ItemTemplate.h"
+#include "Item/Fragments/A1ItemFragment_Equipable_Utility.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(A1FuelBase)
 
@@ -99,13 +103,21 @@ bool AA1FuelBase::IsFuelItem(AActor* Item) const
 {
 	if (!IsValid(Item))
 		return false;
-	
-	/*
-	 * TODO eric1306
-	 * Fuel Item Find Logic
-	 */
 
-	return Item->ActorHasTag(FName("Fuel"));
+
+	if (AA1EquipmentBase* Equipment = Cast<AA1EquipmentBase>(Item))
+	{
+		if (!Equipment->GetPickup()) //Pickup안된 연료만 넣기 가능.
+		{
+			const UA1ItemTemplate& ItemTemplate = UA1ItemData::Get().FindItemTemplateByID(Equipment->GetTemplateID());
+			const UA1ItemFragment_Equipable_Utility* ItemFragment = Cast<UA1ItemFragment_Equipable_Utility>(ItemTemplate.FindFragmentByClass(UA1ItemFragment_Equipable_Utility::StaticClass()));
+
+			if (ItemFragment->UtilityType == EUtilityType::Fuel)
+				return true;
+		}
+	}
+
+	return false;
 }
 
 void AA1FuelBase::DetectAndAbsorbFuelItems()
@@ -123,15 +135,18 @@ void AA1FuelBase::DetectAndAbsorbFuelItems()
 
 	FCollisionQueryParams QueryParams;
 	QueryParams.AddIgnoredActor(this);
+
 	UE_LOG(LogTemp, Log, TEXT("Find Fuel...."));
+
 	bool bResult = GetWorld()->OverlapMultiByChannel(
-		OUT OverlapResults, 
-		GetActorLocation(), 
-		FQuat::Identity, 
+		OUT OverlapResults,
+		GetActorLocation(),
+		FQuat::Identity,
 		ECC_WorldDynamic,
 		CollisionShape,
 		QueryParams);
-	UE_LOG(LogTemp, Log, TEXT("Complete. %d Actors find!"), OverlapResults.Num());
+
+	UE_LOG(LogTemp, Log, TEXT("Find %d Actors"), OverlapResults.Num());
 
 	if (bResult)
 	{
@@ -139,20 +154,19 @@ void AA1FuelBase::DetectAndAbsorbFuelItems()
 		{
 			UE_LOG(LogTemp, Log, TEXT("%s"), *Result.GetActor()->GetName());
 
-			if (Result.GetActor() /*&& IsFuelItem(Result.GetActor())*/)
+			if (Result.GetActor() && IsFuelItem(Result.GetActor()))
 			{
 				UE_LOG(LogTemp, Log, TEXT("Find Fuel!: %s"), *Result.GetActor()->GetName());
 
 				DetectedFuelItems.Add(Result.GetActor());
 
-				//TODO eric1306: cast to fuel and get fuel amount
-				//TempCode
+				//Fuel Amount is 5000 (fix)
 				{
-					float FuelAmount = 500.0f;
+					float FuelAmount = 5000.0f;
 
 					AddFuel(FuelAmount);
 
-					//Result.GetActor()->Destroy();
+					Result.GetActor()->Destroy();
 				}
 			}
 		}

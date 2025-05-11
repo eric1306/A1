@@ -16,7 +16,7 @@ UA1CharacterAttributeSet::UA1CharacterAttributeSet() :
 	InitHealth(GetMaxHealth());
 	InitOxygen(GetMaxOxygen());
 	InitHunger(GetMaxHunger());
-	InitWeight(0.0f);
+	InitWeight(0.f);
 
 	bOutOfHealth = false;
 }

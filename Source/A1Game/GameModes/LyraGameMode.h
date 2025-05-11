@@ -70,6 +70,30 @@ public:
 	// Delegate called on player initialization, described above 
 	FOnLyraGameModePlayerInitialized OnGameModePlayerInitialized;
 
+	/***********************
+	 * temp eric1306
+	 ***********************/
+
+	 // HandleGameOver -> HandleGameEnd
+	UFUNCTION(BlueprintCallable, Category = "Lyra|GameMode")
+	void HandleGameEnd(AActor* GameEndInstigator, bool bIsRescued);
+
+	UFUNCTION(BlueprintImplementableEvent, Category = "Lyra|GameMode")
+	void OnShowGameOverUI();
+
+	UFUNCTION(BlueprintImplementableEvent, Category = "Lyra|GameMode")
+	void OnShowRescuedUI();
+
+	UFUNCTION(BlueprintCallable, Category = "Lyra|GameMode")
+	bool AreAllPlayersDead();
+
+	UFUNCTION(BlueprintCallable, Category = "Lyra|GameMode")
+	void OnPlayerDied(AController* Controller);
+
+	/***********************
+	 * temp code
+	 ***********************/
+
 protected:	
 	void OnExperienceLoaded(const ULyraExperienceDefinition* CurrentExperience);
 	bool IsExperienceLoaded() const;
@@ -91,4 +115,21 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void TriggerFadeOnSpecificPlayer(ALyraPlayerController* TargetPC, float From, float To);
+
+	/***********************
+	 * temp eric1306
+	 ***********************/
+private:
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Lyra|GameEnd")
+	float GameRestartDelay = 5.0f;
+
+	bool bIsHandlingGameEnd = false;
+
+	UPROPERTY()
+	TArray<TObjectPtr<AController>> DeadPlayers;
+
+	/***********************
+	 * temp code
+	 ***********************/
 };

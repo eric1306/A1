@@ -12,6 +12,8 @@
 #include "Character/A1CreatureBase.h"
 #include "Item/Managers/A1ItemManagerComponent.h"
 #include "Actors/A1EquipmentBase.h"
+#include "Interaction/A1InteractionQuery.h"
+#include "Interaction/A1WorldInteractable.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(A1GameplayAbility_TryInteract)
 
@@ -75,11 +77,32 @@ void UA1GameplayAbility_TryInteract::TryPickup()
 				ItemManager->TryPickItem(Target);
 			}
 
-			// TODO Eric1013
-			// 상호작용 액터 캐스팅 후
-			// AA* TargetInteraction = Cast<AA>(HitResult.GetActor());
+			/*
+			 * TODO eric1013
+			 * Test this Code
+			 */
 
-			//상호작용 시도
+			AA1WorldInteractable* InteractableTarget = Cast<AA1WorldInteractable>(HitResult.GetActor());
+			if (InteractableTarget)
+			{
+				FA1InteractionQuery InteractionQuery;
+				InteractionQuery.RequestingAvatar = LyraCharacter;
+				InteractionQuery.RequestingController = LyraPlayerController;
+
+				if (InteractableTarget->CanInteraction(InteractionQuery))
+				{
+					FGameplayEventData Payload;
+					Payload.EventTag = A1GameplayTags::Ability_Interact_Active;
+					Payload.Instigator = LyraCharacter;
+					Payload.Target = InteractableTarget;
+
+					UAbilitySystemComponent* AbilitySystem = LyraCharacter->GetAbilitySystemComponent();
+					if (AbilitySystem)
+					{
+						AbilitySystem->HandleGameplayEvent(A1GameplayTags::Ability_Interact_Active, &Payload);
+					}
+				}
+			}
 		}
 	}
 

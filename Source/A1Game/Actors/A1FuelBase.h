@@ -11,12 +11,12 @@ class UArrowComponent;
 class UNiagaraSystem;
 class AA1SpaceshipBase;
 /**
- * 
+ *
  */
 UCLASS()
 class AA1FuelBase : public AA1WorldInteractable, public IA1SpaceshipComponent
 {
-	GENERATED_BODY()
+    GENERATED_BODY()
 public:
     AA1FuelBase(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
@@ -46,7 +46,7 @@ protected:
     void SetupTags();
 
     UFUNCTION()
-	AA1SpaceshipBase* FindSpaceshipOwner() const;
+    AA1SpaceshipBase* FindSpaceshipOwner() const;
 
 protected:
     UPROPERTY(EditDefaultsOnly, Category = "Info")

@@ -18,6 +18,7 @@
 #include "TimerManager.h"
 //#include "Item/Managers/A1CosmeticManagerComponent.h"
 #include "AbilitySystem/Attributes/A1CharacterAttributeSet.h"
+#include "GameModes/LyraGameMode.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(LyraCharacter)
 
@@ -238,6 +239,12 @@ void ALyraCharacter::PossessedBy(AController* NewController)
 		ControllerAsTeamProvider->GetTeamChangedDelegateChecked().AddDynamic(this, &ThisClass::OnControllerChangedTeam);
 	}
 	ConditionalBroadcastTeamChanged(this, OldTeamID, MyTeamID);
+
+	//Temp eric1306 Check Player Reconnect
+	if (ALyraPlayerController* LyraPC = Cast<ALyraPlayerController>(NewController))
+	{
+		LyraPC->ConsoleCommand(TEXT("showdebug abilitysystem"));
+	}
 }
 
 void ALyraCharacter::UnPossessed()
@@ -432,6 +439,11 @@ void ALyraCharacter::OnDeathFinished(AActor*)
 {
 	DeathState = EA1DeathState::DeathFinished;
 	GetWorld()->GetTimerManager().SetTimerForNextTick(this, &ThisClass::DestroyDueToDeath);
+
+	if (ALyraGameMode* GameMode = Cast<ALyraGameMode>(GetWorld()->GetAuthGameMode()))
+	{
+		GameMode->OnPlayerDied(GetLyraPlayerController());
+	}
 }
 
 

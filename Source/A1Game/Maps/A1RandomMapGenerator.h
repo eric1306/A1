@@ -6,12 +6,13 @@
 #include "GameFramework/Actor.h"
 #include "A1RandomMapGenerator.generated.h"
 
+class AA1RoomBridge;
 DECLARE_LOG_CATEGORY_EXTERN(LogMap, Log, All);
 
 // Network Log Macro
 #define LOG_NETMODEINFO ((GetNetMode() == ENetMode::NM_Client) ? *FString::Printf(TEXT("CLIENT_ID%d"), static_cast<int32>(GPlayInEditorID)) : ((GetNetMode() == ENetMode::NM_Standalone) ? TEXT("STANDALONE") : TEXT("SERVER")))
-#define LOG_CALLINFO ANSI_TO_TCHAR(__FUNCTION__)
-#define MAP_LOG(LogCat, Verbosity, Format, ...) UE_LOG(LogCat, Verbosity, TEXT("[%s] %s %s"), LOG_NETMODEINFO, LOG_CALLINFO, *FString::Printf(Format,##__VA_ARGS__))
+#define LOG_CALLINFO2 ANSI_TO_TCHAR(__FUNCTION__)
+#define MAP_LOG(LogCat, Verbosity, Format, ...) UE_LOG(LogCat, Verbosity, TEXT("[%s] %s %s"), LOG_NETMODEINFO, LOG_CALLINFO2, *FString::Printf(Format,##__VA_ARGS__))
 
 //forward declare
 class AA1MasterRoom;
@@ -69,6 +70,9 @@ public:
     UFUNCTION(Server, Reliable)
     void Server_SpawnEnemy();
 
+    UFUNCTION(Server, Reliable)
+    void Server_SpawnItem();
+
     //RPC Functions
 
     UFUNCTION(NetMulticast, Reliable)
@@ -101,6 +105,7 @@ public:
 protected:
     void SetupNetworkProperties(AActor* Actor);
 
+
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Generator", meta = (AllowPrivateAccess = "true"))
     TArray<TObjectPtr<USceneComponent>> ExitsList;
 
@@ -124,6 +129,9 @@ protected:
 
     UFUNCTION()
     void OnRep_DungeonGenerateComplete();
+
+    UPROPERTY(EditDefaultsOnly, Category = "Generator|StartRoom")
+    TSubclassOf<AA1RoomBridge> DockingBridge;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Generator", meta = (AllowPrivateAccess = "true"))
     float MaxDungeonTime;

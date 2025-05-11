@@ -12,9 +12,9 @@ class AA1SpaceshipBase;
 UENUM(BlueprintType)
 enum class EOutputState : uint8
 {
-	Idle,
-	Ready,
-	Active
+    Idle,
+    Ready,
+    Active
 };
 
 /**
@@ -23,7 +23,7 @@ enum class EOutputState : uint8
 UCLASS()
 class AA1ShipOutputBase : public AA1WorldInteractable, public IA1SpaceshipComponent
 {
-	GENERATED_BODY()
+    GENERATED_BODY()
 public:
     AA1ShipOutputBase(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 

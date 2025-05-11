@@ -9,6 +9,7 @@
 #include "A1RescueSignalBase.h"
 #include "A1ShipOutputBase.h"
 #include "A1StorageBase.h"
+#include "GameModes/LyraGameMode.h"
 #include "Kismet/GameplayStatics.h"
 #include "Maps/A1RandomMapGenerator.h"
 #include "Net/UnrealNetwork.h"
@@ -47,13 +48,19 @@ void AA1SpaceshipBase::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	//TODO eric1306: Check Game State
-	//if (IsGameOver())
-	//{
-	//	//Clear Fuel Timer
-	//	GetWorldTimerManager().ClearTimer(FuelConsumeTimer);
-	//	//Game Over Logic
-	//}
+
+	if (HasAuthority() && !bGameEndHandled)
+	{
+		if (CurrentFuelAmount <= 0.0f)
+		{
+			HandleGameOver();
+		}
+
+		if (bMeetRescueShip)
+		{
+			HandleRescue();
+		}
+	}
 }
 
 void AA1SpaceshipBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -62,7 +69,8 @@ void AA1SpaceshipBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
 
 	DOREPLIFETIME(AA1SpaceshipBase, CurrentFuelAmount);
 	DOREPLIFETIME(AA1SpaceshipBase, bIsExternalMapActive);
-
+	DOREPLIFETIME(AA1SpaceshipBase, GameEndState);
+	DOREPLIFETIME(AA1SpaceshipBase, bMeetRescueShip);
 
 }
 
@@ -114,6 +122,62 @@ void AA1SpaceshipBase::RegisterShipOutput(AA1ShipOutputBase* Output)
 	}
 }
 
+void AA1SpaceshipBase::HandleGameOver()
+{
+	if (!HasAuthority() || bGameEndHandled)
+		return;
+
+	bGameEndHandled = true;
+	GameEndState = EGameEndState::GameOver;
+
+	OnGameEndEvent.Broadcast(GameEndState);
+
+	GetWorldTimerManager().ClearTimer(FuelConsumeTimer);
+
+	
+	if (ALyraGameMode* GameMode = Cast<ALyraGameMode>(GetWorld()->GetAuthGameMode()))
+	{
+		GameMode->HandleGameEnd(this, false);
+	}
+}
+
+void AA1SpaceshipBase::HandleRescue()
+{
+	if (!HasAuthority() || bGameEndHandled)
+		return;
+
+	bGameEndHandled = true;
+
+	GameEndState = EGameEndState::Rescued;
+
+	OnGameEndEvent.Broadcast(GameEndState);
+
+	GetWorldTimerManager().ClearTimer(FuelConsumeTimer);
+
+	if (ALyraGameMode* GameMode = Cast<ALyraGameMode>(GetWorld()->GetAuthGameMode()))
+	{
+		GameMode->HandleGameEnd(this, true);
+	}
+}
+
+bool AA1SpaceshipBase::IsRescued() const
+{
+	return GameEndState == EGameEndState::Rescued;
+}
+
+void AA1SpaceshipBase::SetMeetRescueShip(bool bMeetRescue)
+{
+	if (HasAuthority() && !bGameEndHandled)
+	{
+		bMeetRescueShip = bMeetRescue;
+
+		if (bMeetRescueShip)
+		{
+			HandleRescue();
+		}
+	}
+}
+
 void AA1SpaceshipBase::FindSpaceshipComponents()
 {
 	if (!HasAuthority())
@@ -139,7 +203,7 @@ void AA1SpaceshipBase::FindSpaceshipComponents()
 		{
 			CacheDoor = Cast<AA1DoorBase>(FoundDoor[0]);
 		}
-		
+
 	}
 
 	if (!FuelSystem)
@@ -240,6 +304,12 @@ void AA1SpaceshipBase::OnRep_CurrentFuel()
 	OnFuelChanged.Broadcast(CurrentFuelAmount);
 }
 
+void AA1SpaceshipBase::OnRep_GameEndState()
+{
+	// 클라이언트에서 게임 종료 이벤트 발생
+	OnGameEndEvent.Broadcast(GameEndState);
+}
+
 void AA1SpaceshipBase::AddFuel(float AmountToAdd)
 {
 	if (!HasAuthority()/*Only Server*/)
@@ -276,7 +346,6 @@ void AA1SpaceshipBase::ConsumeFuel(float AmountToConsume)
 
 void AA1SpaceshipBase::ActivateExternalMap()
 {
-	//TODO eric1306
 	if (!HasAuthority()/*Only Server*/)
 		return;
 
@@ -308,15 +377,7 @@ void AA1SpaceshipBase::DeactivateExternalMap()
 
 bool AA1SpaceshipBase::IsGameOver() const
 {
-	//if fuel is zero, game over
-	return CurrentFuelAmount <= 0.0f;
-}
-
-void AA1SpaceshipBase::CheckWinCondition()
-{
-	//TODO eric1306
-	// 승리 조건 체크 로직
-	// 구조선과 조우했는지 확인하는 로직 등
+	return GameEndState == EGameEndState::GameOver;
 }
 
 bool AA1SpaceshipBase::HasEnoughFuelToSurvive() const

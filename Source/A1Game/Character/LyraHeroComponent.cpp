@@ -287,6 +287,8 @@ void ULyraHeroComponent::InitializePlayerInput(UInputComponent* PlayerInputCompo
 					LyraIC->BindNativeAction(InputConfig, A1GameplayTags::InputTag_Look_Mouse, ETriggerEvent::Triggered, this, &ThisClass::Input_LookMouse, /*bLogIfNotFound=*/ false);
 					LyraIC->BindNativeAction(InputConfig, A1GameplayTags::InputTag_Look_Stick, ETriggerEvent::Triggered, this, &ThisClass::Input_LookStick, /*bLogIfNotFound=*/ false);
 					LyraIC->BindNativeAction(InputConfig, A1GameplayTags::InputTag_Crouch, ETriggerEvent::Triggered, this, &ThisClass::Input_Crouch, /*bLogIfNotFound=*/ false);
+					LyraIC->BindNativeAction(InputConfig, A1GameplayTags::InputTag_Sprint, ETriggerEvent::Started, this, &ThisClass::Input_SprintPressed, false);
+					LyraIC->BindNativeAction(InputConfig, A1GameplayTags::InputTag_Sprint, ETriggerEvent::Completed, this, &ThisClass::Input_SprintReleased, false);
 				}
 			}
 		}
@@ -461,6 +463,36 @@ void ULyraHeroComponent::Input_Crouch(const FInputActionValue& InputActionValue)
 	if (ALyraCharacter* Character = GetPawn<ALyraCharacter>())
 	{
 		Character->ToggleCrouch();
+	}
+}
+
+void ULyraHeroComponent::Input_SprintPressed(const FInputActionValue& InputActionValue)
+{
+	UE_LOG(LogA1Player, Log, TEXT("Input_SprintPressed!"));
+	if (const APawn* Pawn = GetPawn<APawn>())
+	{
+		if (const ULyraPawnExtensionComponent* PawnExtComp = ULyraPawnExtensionComponent::FindPawnExtensionComponent(Pawn))
+		{
+			if (ULyraAbilitySystemComponent* ASC = PawnExtComp->GetLyraAbilitySystemComponent())
+			{
+				ASC->AbilityInputTagPressed(A1GameplayTags::InputTag_Sprint);
+			}
+		}
+	}
+}
+
+void ULyraHeroComponent::Input_SprintReleased(const FInputActionValue& InputActionValue)
+{
+	UE_LOG(LogA1Player, Log, TEXT("Input_SprintReleased!"));
+	if (const APawn* Pawn = GetPawn<APawn>())
+	{
+		if (const ULyraPawnExtensionComponent* PawnExtComp = ULyraPawnExtensionComponent::FindPawnExtensionComponent(Pawn))
+		{
+			if (ULyraAbilitySystemComponent* ASC = PawnExtComp->GetLyraAbilitySystemComponent())
+			{
+				ASC->AbilityInputTagReleased(A1GameplayTags::InputTag_Sprint);
+			}
+		}
 	}
 }
 
