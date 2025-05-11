@@ -6,6 +6,7 @@
 #include "GameFramework/Actor.h"
 #include "A1RandomMapGenerator.generated.h"
 
+class AA1RoomBridge;
 DECLARE_LOG_CATEGORY_EXTERN(LogMap, Log, All);
 
 // Network Log Macro
@@ -69,6 +70,9 @@ public:
     UFUNCTION(Server, Reliable)
     void Server_SpawnEnemy();
 
+    UFUNCTION(Server, Reliable)
+    void Server_SpawnItem();
+
     //RPC Functions
 
     UFUNCTION(NetMulticast, Reliable)
@@ -101,6 +105,7 @@ public:
 protected:
     void SetupNetworkProperties(AActor* Actor);
 
+
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Generator", meta = (AllowPrivateAccess = "true"))
     TArray<TObjectPtr<USceneComponent>> ExitsList;
 
@@ -124,6 +129,9 @@ protected:
 
     UFUNCTION()
     void OnRep_DungeonGenerateComplete();
+
+    UPROPERTY(EditDefaultsOnly, Category = "Generator|StartRoom")
+    TSubclassOf<AA1RoomBridge> DockingBridge;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Generator", meta = (AllowPrivateAccess = "true"))
     float MaxDungeonTime;

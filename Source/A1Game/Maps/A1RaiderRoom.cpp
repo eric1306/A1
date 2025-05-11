@@ -3,9 +3,16 @@
 
 #include "Maps/A1RaiderRoom.h"
 
+#include "Actors/A1ChestBase.h"
+#include "Actors/A1EquipmentBase.h"
 #include "Character/Raider/A1RaiderBase.h"
+#include "Data/A1ItemData.h"
+#include "Item/A1ItemInstance.h"
+#include "Item/Fragments/A1ItemFragment_Equipable_Attachment.h"
 #include "Kismet/GameplayStatics.h"
 #include "Net/UnrealNetwork.h"
+#include "Physics/LyraCollisionChannels.h"
+#include "Engine/OverlapResult.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(A1RaiderRoom)
 
@@ -16,6 +23,12 @@ AA1RaiderRoom::AA1RaiderRoom(const FObjectInitializer& ObjectInitializer)
 
 	OptionalSpawn = CreateDefaultSubobject<USceneComponent>(TEXT("Optional Spawn Area"));
 	OptionalSpawn->SetupAttachment(GetRootComponent());
+
+    ItemSpawnLocation = CreateDefaultSubobject<USceneComponent>(TEXT("ItemSpawnLocation"));
+    ItemSpawnLocation->SetupAttachment(GetRootComponent());
+
+    ItemBoxSpawnLocation = CreateDefaultSubobject<USceneComponent>(TEXT("ChestLocation"));
+    ItemBoxSpawnLocation->SetupAttachment(GetRootComponent());
 }
 
 void AA1RaiderRoom::BeginPlay()
@@ -28,6 +41,7 @@ void AA1RaiderRoom::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& 
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
     DOREPLIFETIME(AA1RaiderRoom, SpawnedRaiders);
+	DOREPLIFETIME(AA1RaiderRoom, SpawnedItems);
 }
 
 void AA1RaiderRoom::SpawnEnemy()
@@ -129,6 +143,80 @@ void AA1RaiderRoom::SpawnEnemy()
 
 }
 
+void AA1RaiderRoom::SpawnItem()
+{
+    TArray<USceneComponent*> ChildrenComp;
+    ItemSpawnLocation->GetChildrenComponents(false, ChildrenComp);
+    ItemSpawnLocations.Append(ChildrenComp);
+    int32 SpawnItemRate = FMath::RandRange(MinOptionalItemCount, MaxOptionalItemCount);
+
+    UE_LOG(LogTemp, Log, TEXT("ItemSpawnLocations size: %d"), ItemSpawnLocations.Num());
+
+    UA1ItemData::Get().GetAllItemTemplateClasses(OUT CachedItemTemplates);
+
+    UE_LOG(LogTemp, Log, TEXT("SpawnItemRate: %d"), SpawnItemRate);
+
+    for (int i = 0; i < SpawnItemRate; i++)
+    {
+        int32 ItemtoSpawn = FMath::RandRange(2, CachedItemTemplates.Num() - 1);
+        TSubclassOf<UA1ItemTemplate> ItemTemplateClass = CachedItemTemplates[ItemtoSpawn];
+        int32 ItemTemplateId = UA1ItemData::Get().FindItemTemplateIDByClass(ItemTemplateClass);
+        UA1ItemInstance* AddedItemInstance = NewObject<UA1ItemInstance>();
+        AddedItemInstance->Init(ItemTemplateId, EItemRarity::Poor);
+        const UA1ItemFragment_Equipable_Attachment* AttachmentFragment = AddedItemInstance->FindFragmentByClass<UA1ItemFragment_Equipable_Attachment>();
+        const FA1ItemAttachInfo& AttachInfo = AttachmentFragment->ItemAttachInfo;
+        if (AttachInfo.SpawnItemClass)
+        {
+            AA1EquipmentBase* NewSpawnedItem = GetWorld()->SpawnActorDeferred<AA1EquipmentBase>(AttachInfo.SpawnItemClass, FTransform::Identity, this);
+            NewSpawnedItem->Init(AddedItemInstance->GetItemTemplateID(), EEquipmentSlotType::Count, AddedItemInstance->GetItemRarity());
+            NewSpawnedItem->SetActorRelativeTransform(ItemSpawnLocations[i]->GetComponentTransform());
+            NewSpawnedItem->SetActorScale3D(FVector(1.f, 1.f, 1.f));
+            NewSpawnedItem->SetPickup(false);
+            NewSpawnedItem->SetActorHiddenInGame(false);
+            NewSpawnedItem->FinishSpawning(FTransform::Identity, true);
+        }
+    }
+
+    TArray<USceneComponent*> ChestSpawnComponent;
+    ItemBoxSpawnLocation->GetChildrenComponents(false, ChestSpawnComponent);
+    ItemBoxSpawnLocations.Append(ChestSpawnComponent);
+
+    for (auto child : ChestSpawnComponent)
+    {
+        if (child)
+        {
+            //Spawn Raider
+            FTransform childTransform = child->GetComponentTransform();
+            AA1ChestBase* Chest = GetWorld()->SpawnActorDeferred<AA1ChestBase>(ChestClass, childTransform, this);
+            if (Chest)
+            {
+                //Net Update
+                /*Chest->SetReplicates(true);
+                Chest->bAlwaysRelevant = true;
+                Chest->NetUpdateFrequency = 60.0f;
+                Chest->MinNetUpdateFrequency = 30.0f;
+                Chest->NetPriority = 3.0f;*/
+
+                UGameplayStatics::FinishSpawningActor(Chest, childTransform);
+
+                /*Chest->SetReplicates(true);
+                Chest->SetReplicateMovement(true);
+                Chest->SetActorTickEnabled(true);
+                Chest->bAlwaysRelevant = true;
+                Chest->NetUpdateFrequency = 60.0f;
+                Chest->MinNetUpdateFrequency = 30.0f;
+                Chest->NetPriority = 3.0f;
+                Chest->SetNetDormancy(ENetDormancy::DORM_Awake);
+
+                Chest->ForceNetUpdate();*/
+
+                //Replicated
+                SpawnedChests.Add(Chest);
+            }
+        }
+    }
+}
+
 void AA1RaiderRoom::RemoveEnemy()
 {
     for (auto Raider : SpawnedRaiders)
@@ -140,4 +228,47 @@ void AA1RaiderRoom::RemoveEnemy()
     }
 
     SpawnedRaiders.Empty();
+}
+
+void AA1RaiderRoom::RemoveItem()
+{
+    FCollisionShape CollisionShape;
+	CollisionShape.SetBox(FVector3f(3000.f, 3000.f, 1000.f));
+
+    FCollisionQueryParams QueryParams;
+    QueryParams.AddIgnoredActor(this);
+
+    TArray<FOverlapResult> OverlapResults;
+    bool bResult = GetWorld()->OverlapMultiByChannel(
+        OUT OverlapResults,
+        GetActorLocation(),
+        FQuat::Identity,
+        A1_TraceChannel_AimAssist,
+        CollisionShape,
+        QueryParams
+    );
+
+    if (bResult)
+    {
+        UE_LOG(LogTemp, Log, TEXT("Find %d Actors!"), OverlapResults.Num());
+        UE_LOG(LogTemp, Log, TEXT("*****************************"));
+        for (const FOverlapResult& Overlap : OverlapResults)
+        {
+            AActor* OverlappedActor = Overlap.GetActor();
+            UE_LOG(LogTemp, Log, TEXT("%s Find!"), *OverlappedActor->GetName());
+            if (!OverlappedActor)
+                continue;
+
+            if (AA1EquipmentBase* Equipment = Cast<AA1EquipmentBase>(OverlappedActor))
+            {
+                Equipment->Destroy();
+            }
+
+            if (AA1ChestBase* Chest = Cast<AA1ChestBase>(OverlappedActor))
+            {
+                Chest->Destroy();
+            }
+        }
+        UE_LOG(LogTemp, Log, TEXT("*****************************"));
+    }
 }

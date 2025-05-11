@@ -123,6 +123,21 @@ void AA1RandomMapGenerator::Server_SpawnEnemy_Implementation()
     }
 }
 
+void AA1RandomMapGenerator::Server_SpawnItem_Implementation()
+{
+    if (!HasAuthority())
+        return;
+
+    for (auto Room : SpawnedRooms)
+    {
+        MAP_LOG(LogMap, Log, TEXT("SpawnedRooms Count: %d"), SpawnedRooms.Num());
+        if (AA1RaiderRoom* RaiderRoom = Cast<AA1RaiderRoom>(Room))
+        {
+            RaiderRoom->SpawnItem();
+        }
+    }
+}
+
 void AA1RandomMapGenerator::SetupNetworkProperties(AActor* Actor)
 {
     if (!Actor)
@@ -167,13 +182,16 @@ void AA1RandomMapGenerator::Server_SpawnStartRoom_Implementation()
     if (!HasAuthority())
         return;
 
+    //Temp Code eric1306 - standalone code
+    AudioComp = UGameplayStatics::SpawnSoundAtLocation(GetWorld(), SirenSound, GetActorLocation(), GetActorRotation());
+
     Multicast_PlaySiren();
 
     FTransform InitMapTransform = RootComponent->GetComponentTransform();
 
     // SpawnActorDeferred
     AA1RoomBridge* SpawnedActor = GetWorld()->SpawnActorDeferred<AA1RoomBridge>(
-        AA1RoomBridge::StaticClass(),
+        DockingBridge,
         InitMapTransform,
         this,                  
         nullptr,               
@@ -490,6 +508,7 @@ void AA1RandomMapGenerator::Server_ResetMap_Implementation()
             if (AA1RaiderRoom* RaiderRoom = Cast<AA1RaiderRoom>(Room))
             {
                 RaiderRoom->RemoveEnemy();
+                RaiderRoom->RemoveItem();
             }
 
             Room->Destroy();
@@ -519,6 +538,9 @@ void AA1RandomMapGenerator::Server_ResetMap_Implementation()
 
     //remove reset flag
     bIsResettingMap = false;
+
+    //Temp eric1036->for standalone code
+    AudioComp->Stop();
 
     Multicast_StopSiren();
 }
@@ -621,11 +643,15 @@ void AA1RandomMapGenerator::Server_CloseHoles_Implementation()
     MAP_LOG(LogMap, Log, TEXT("Rooms created: %d"), SpawnedRooms.Num());
     MAP_LOG(LogMap, Log, TEXT("EndWalls created: %d"), SpawnedEndWalls.Num());
 
+    //Temp Code eric1306 for standalone
+    AudioComp->Stop();
+
     // Call RPC Functions
     FTimerHandle TimerHandle;
     GetWorldTimerManager().SetTimer(TimerHandle, this, &AA1RandomMapGenerator::Multicast_CloseHoles, 0.3f, false);
 
     Server_SpawnEnemy();
+    Server_SpawnItem();
 }
 
 void AA1RandomMapGenerator::Multicast_CloseHoles_Implementation()
