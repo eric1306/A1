@@ -35,6 +35,16 @@ void UA1GameplayAbility_Interact_Door::ActivateAbility(const FGameplayAbilitySpe
 		CancelAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true);
 		return;
 	}
+	//외부 맵이 활성화 됐을 때만 문과 상호작용 할 수 있게 조절.
+	if (AA1SpaceshipBase* Spaceship = DoorActor->GetOwningSpaceship())
+	{
+		if (!Spaceship->GetIsExternalMapActive())
+		{
+			CancelAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true);
+			return;
+		}
+	}
+
 	EDoorState CurrentDoorState = DoorActor->GetDoorState();
 	if (CurrentDoorState == EDoorState::Open)
 	{

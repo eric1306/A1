@@ -3,7 +3,10 @@
 
 #include "Interaction/Abilities/A1GameplayAbility_Interact_Bed.h"
 
+#include "AbilitySystem/LyraAbilitySystemComponent.h"
+#include "AbilitySystem/Attributes/A1CharacterAttributeSet.h"
 #include "Actors/A1BedBase.h"
+#include "Actors/A1DayNightManager.h"
 #include "Character/LyraCharacter.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
@@ -12,15 +15,15 @@
 #include UE_INLINE_GENERATED_CPP_BY_NAME(A1GameplayAbility_Interact_Bed)
 
 UA1GameplayAbility_Interact_Bed::UA1GameplayAbility_Interact_Bed(const FObjectInitializer& ObjectInitializer)
-	:Super(ObjectInitializer)
+    :Super(ObjectInitializer)
 {
 }
 
 void UA1GameplayAbility_Interact_Bed::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
-	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
-	const FGameplayEventData* TriggerEventData)
+    const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
+    const FGameplayEventData* TriggerEventData)
 {
-	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
+    Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 
     if (TriggerEventData == nullptr || bInitialized == false)
     {
@@ -48,41 +51,81 @@ void UA1GameplayAbility_Interact_Bed::ActivateAbility(const FGameplayAbilitySpec
         return;
     }
 
+    //이미 선점한 내가 아닌 캐릭터가 존재하는 경우
+    if (BedActor->bIsOccupyingCharacterExist() && BedActor->GetOccupyingCharacter() != LyraCharacter)
+    {
+        CancelAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true);
+        return;
+    }
 
-	switch (BedActor->GetBedState())
-	{
+    //캐릭터의 피로도가 10 이하인데 들어오려고 시도하는 경우
+    ULyraAbilitySystemComponent* ASC = LyraCharacter->GetLyraAbilitySystemComponent();
+    if (ASC)
+    {
+        const UA1CharacterAttributeSet* Attribute = ASC->GetSet<UA1CharacterAttributeSet>();
+
+        if (Attribute->GetWeight() <= 10.f && BedActor->GetBedState() == EBedState::Empty)
+        {
+            CancelAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true);
+            return;
+        }
+    }
+
+
+    switch (BedActor->GetBedState())
+    {
     case EBedState::Empty:
-		{
-			LyraCharacter->GetCharacterMovement()->SetMovementMode(MOVE_None);
-			BedActor->StorePlayerReturnTransform(LyraCharacter->GetActorTransform());
+    {
+        LyraCharacter->GetCharacterMovement()->SetMovementMode(MOVE_None);
+        BedActor->StorePlayerReturnTransform(LyraCharacter->GetActorTransform());
 
-            PlayScreenFadeEffect(false);
+        PlayScreenFadeEffect(false);
 
-            FTransform BedTransform = BedActor->GetLayDownTransform();
-            LyraCharacter->SetActorTransform(BedTransform);
+        FTransform BedTransform = BedActor->GetLayDownTransform();
+        LyraCharacter->SetActorTransform(BedTransform);
 
-            //Temp Code eric1306: sibal why big?
-            LyraCharacter->SetActorScale3D(FVector(1.f, 1.f, 1.f));
+        //TODO eric1306: fuck why rotation?
 
-            BedActor->SetBedState(EBedState::Occupied);
-	    }
+        //Temp Code eric1306: Character get BedActor's Transform -> Set Character Scale
+        LyraCharacter->SetActorScale3D(FVector(1.f, 1.f, 1.f));
 
-        break;
+        BedActor->SetBedState(EBedState::Occupied);
+
+        // 추가: 침대에 캐릭터 정보 저장
+        BedActor->SetOccupyingCharacter(LyraCharacter);
+
+        // 추가: DayNightManager에 침대 등록
+        if (AA1DayNightManager* DayNightManager = AA1DayNightManager::Get(GetWorld()))
+        {
+            DayNightManager->SetPlayerSleeping(LyraCharacter, true);
+        }
+    }
+
+    break;
 
     case EBedState::Occupied:
-	    {
-			LyraCharacter->GetCharacterMovement()->SetMovementMode(MOVE_Walking);
+    {
+        LyraCharacter->GetCharacterMovement()->SetMovementMode(MOVE_Walking);
 
-            PlayScreenFadeEffect(true);
+        PlayScreenFadeEffect(true);
 
-            FTransform ReturnTransform = BedActor->GetPlayerReturnTransform();
-            LyraCharacter->SetActorTransform(ReturnTransform);
+        FTransform ReturnTransform = BedActor->GetPlayerReturnTransform();
+        LyraCharacter->SetActorTransform(ReturnTransform);
 
-            BedActor->SetBedState(EBedState::Empty);
-	    }
+        BedActor->SetBedState(EBedState::Empty);
 
-        break;
-	}
+        // 추가: 침대에 캐릭터 정보 해제
+        BedActor->SetOccupyingCharacter(nullptr);
+
+        // 추가: DayNightManager에서 침대 등록 해제
+        if (AA1DayNightManager* DayNightManager = AA1DayNightManager::Get(GetWorld()))
+        {
+            DayNightManager->SetPlayerSleeping(LyraCharacter, false);
+        }
+    }
+
+    break;
+    }
 
     EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
 }
