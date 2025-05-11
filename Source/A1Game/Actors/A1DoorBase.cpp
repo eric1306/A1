@@ -19,7 +19,6 @@ AA1DoorBase::AA1DoorBase(const FObjectInitializer& objectInitializer) : Super(ob
 	MeshComponent->SetCollisionProfileName(TEXT("Interactable"));
 	MeshComponent->SetCanEverAffectNavigation(true);
 
-
 }
 
 void AA1DoorBase::BeginPlay()

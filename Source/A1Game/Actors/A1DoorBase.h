@@ -51,6 +51,8 @@ private:
 public:
 	EDoorState GetDoorState() const { return DoorState; }
 
+	FORCEINLINE	AA1SpaceshipBase* GetOwningSpaceship() const { return OwningSpaceship.IsValid() ? OwningSpaceship.Get() : nullptr; }
+
 protected:
 	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_DoorState)
 	EDoorState DoorState = EDoorState::Close;
