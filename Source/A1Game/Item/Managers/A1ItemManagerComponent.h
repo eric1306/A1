@@ -44,6 +44,9 @@ public:
 	UFUNCTION(Server, Reliable, BlueprintCallable)
 	void Server_DropItemFromEquipment(UA1EquipmentManagerComponent* FromEquipmentManager, EEquipmentSlotType FromEquipmentSlotType);
 
+	UFUNCTION(Server, Reliable, BlueprintCallable)
+	void Server_DropItem(bool bActivateWidget);
+
 public:
 	bool TryPickItem(AA1EquipmentBase* PickupableItemActor);
 	bool TryDropItem(UA1ItemInstance* FromItemInstance, int32 FromItemCount);

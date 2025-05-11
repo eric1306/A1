@@ -5,6 +5,7 @@
 #include "A1InventorySlotsWidget.h"
 #include "Blueprint/WidgetBlueprintLibrary.h"
 #include "Components/SizeBox.h"
+#include "Components/Image.h"
 #include "Data/A1UIData.h"
 #include "Data/A1ItemData.h"
 #include "Item/A1ItemInstance.h"
@@ -33,6 +34,8 @@ void UA1InventoryEntryWidget::Init(UA1InventorySlotsWidget* InSlotsWidget, UA1It
 	SizeBox_Root->SetWidthOverride(WidgetSize.X);
 	SizeBox_Root->SetHeightOverride(WidgetSize.Y);
 
+	Image_Clicked->SetVisibility(ESlateVisibility::Hidden);
+
 	RefreshUI(InItemInstance, InItemCount);
 }
 
@@ -49,15 +52,41 @@ FReply UA1InventoryEntryWidget::NativeOnMouseButtonDown(const FGeometry& InGeome
 	CachedFromSlotPos = ItemSlotPos;
 	CachedDeltaWidgetPos = MouseWidgetPos - ItemWidgetPos;
 
-	if (Reply.IsEventHandled() == false && UWidgetBlueprintLibrary::IsDragDropping() == false && InMouseEvent.GetEffectingButton() == EKeys::RightMouseButton)
+	if (Reply.IsEventHandled() == false && UWidgetBlueprintLibrary::IsDragDropping() == false)
 	{
 		UA1ItemManagerComponent* ItemManager = GetOwningPlayer()->FindComponentByClass<UA1ItemManagerComponent>();
 		UA1InventoryManagerComponent* FromInventoryManager = SlotsWidget->GetInventoryManager();
 
-		if (ItemManager && FromInventoryManager)
+		if (InMouseEvent.GetEffectingButton() == EKeys::RightMouseButton)
 		{
-			ItemManager->Server_QuickFromInventory(FromInventoryManager, ItemSlotPos);
-			return FReply::Handled();
+			if (ItemManager && FromInventoryManager)
+			{
+				ItemManager->Server_QuickFromInventory(FromInventoryManager, ItemSlotPos);
+				return FReply::Handled();
+			}
+		}
+
+		// 좌클릭 시 위젯 클릭
+		if (InMouseEvent.GetEffectingButton() == EKeys::LeftMouseButton)
+		{
+			if (ItemManager && FromInventoryManager)
+			{
+				// 이전 clicked widget hidden
+				FIntPoint PreviousClickedPos = FromInventoryManager->ClickedIndex;
+				if (PreviousClickedPos != NULL)
+				{
+					int32 SlotIndex = PreviousClickedPos.Y * FromInventoryManager->GetInventorySlotCount().X + PreviousClickedPos.X;
+					SlotsWidget->SetHiddenClickedWidget(SlotIndex);
+				}
+
+				// Clicked Widget On
+				Image_Clicked->SetVisibility(ESlateVisibility::Visible);
+
+				// 선택된 인덱스 전달
+				FromInventoryManager->ClickedIndex = ItemSlotPos;
+
+				return FReply::Handled().DetectDrag(TakeWidget(), EKeys::LeftMouseButton);
+			}
 		}
 	}
 
@@ -86,4 +115,12 @@ void UA1InventoryEntryWidget::NativeOnDragDetected(const FGeometry& InGeometry, 
 	DragDrop->FromItemInstance = ItemInstance;
 	DragDrop->DeltaWidgetPos = CachedDeltaWidgetPos;
 	OutOperation = DragDrop;
+}
+
+void UA1InventoryEntryWidget::ChangeStateClickedWidget(bool bVisible)
+{
+	if(bVisible)
+		Image_Clicked->SetVisibility(ESlateVisibility::Visible);
+	else
+		Image_Clicked->SetVisibility(ESlateVisibility::Hidden);
 }

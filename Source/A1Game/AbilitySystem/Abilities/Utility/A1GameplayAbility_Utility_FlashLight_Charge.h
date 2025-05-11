@@ -1,29 +1,23 @@
-// Copyright (c) 2025 THIS-ACCENT. All Rights Reserved.
+﻿#pragma once
 
-#pragma once
-
-#include "CoreMinimal.h"
 #include "AbilitySystem/Abilities/Docker/A1GameplayAbility_Equipment.h"
-#include "A1GameplayAbility_Utility_Food.generated.h"
+#include "A1GameplayAbility_Utility_FlashLight_Charge.generated.h"
 
-/**
- * 
- */
 UCLASS()
-class A1GAME_API UA1GameplayAbility_Utility_Food : public UA1GameplayAbility_Equipment
+class UA1GameplayAbility_Utility_FlashLight_Charge : public UA1GameplayAbility_Equipment
 {
 	GENERATED_BODY()
-
+	
 public:
-	UA1GameplayAbility_Utility_Food(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
+	UA1GameplayAbility_Utility_FlashLight_Charge(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
 protected:
 	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
-
+	
 	UFUNCTION()
 	void OnMontageFinished();
 
 protected:
 	UPROPERTY(EditDefaultsOnly)
-	TObjectPtr<UAnimMontage> EatMontage;
+	TObjectPtr<UAnimMontage> ChargeMontage;
 };

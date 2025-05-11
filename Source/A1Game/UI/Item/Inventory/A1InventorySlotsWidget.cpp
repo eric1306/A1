@@ -84,6 +84,7 @@ bool UA1InventorySlotsWidget::NativeOnDragOver(const FGeometry& InGeometry, cons
 	if (UA1InventoryManagerComponent* FromInventoryManager = DragDrop->FromInventoryManager)
 	{
 		MovableCount = InventoryManager->CanMoveOrMergeItem(FromInventoryManager, DragDrop->FromItemSlotPos, ToItemSlotPos);
+		FromInventoryManager->ClickedIndex = ToItemSlotPos;
 	}
 	else if (UA1EquipmentManagerComponent* FromEquipmentManager = DragDrop->FromEquipmentManager)
 	{
@@ -256,6 +257,8 @@ void UA1InventorySlotsWidget::OnInventoryEntryChanged(const FIntPoint& InItemSlo
 		EntryWidgets[SlotIndex] = EntryWidget;
 
 		EntryWidget->Init(this, InItemInstance, InItemCount);
+		if (InventoryManager->ClickedIndex == InItemSlotPos)
+			EntryWidget->ChangeStateClickedWidget(true);
 
 		UCanvasPanelSlot* CanvasPanelSlot = CanvasPanel_Entries->AddChildToCanvas(EntryWidget);
 		CanvasPanelSlot->SetAutoSize(true);
@@ -266,4 +269,12 @@ void UA1InventorySlotsWidget::OnInventoryEntryChanged(const FIntPoint& InItemSlo
 const FGeometry& UA1InventorySlotsWidget::GetSlotContainerGeometry() const
 {
 	return Overlay_Slots->GetCachedGeometry();
+}
+
+void UA1InventorySlotsWidget::SetHiddenClickedWidget(int InSlotPos)
+{
+	// TEMP Jerry
+	// Range Over를 위한 임시 조치
+	if (InSlotPos < 25 && EntryWidgets[InSlotPos])
+		EntryWidgets[InSlotPos]->ChangeStateClickedWidget(false);
 }

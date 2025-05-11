@@ -4,19 +4,19 @@
 #include "A1CosmeticManagerComponent.h"
 #include "A1EquipmentManagerComponent.h"
 #include "A1GameplayTags.h"
+#include "AbilitySystemComponent.h"
+#include "AbilitySystemBlueprintLibrary.h"
+#include "AbilitySystem/LyraAbilitySystemComponent.h"
+#include "AbilitySystem/Attributes/A1CombatSet.h"
+#include "Actors/A1EquipmentBase.h"
+#include "Character/LyraCharacter.h"
 #include "Engine/ActorChannel.h"
 #include "Item/A1ItemInstance.h"
 #include "Item/Fragments/A1ItemFragment_Equipable.h"
 #include "Item/Fragments/A1ItemFragment_Equipable_Armor.h"
 #include "Item/Fragments/A1ItemFragment_Equipable_Weapon.h"
 #include "Net/UnrealNetwork.h"
-#include "Actors/A1EquipmentBase.h"
-#include "AbilitySystem/LyraAbilitySystemComponent.h"
-#include "AbilitySystem/Attributes/A1CombatSet.h"
-#include "Character/LyraCharacter.h"
 #include "Player/LyraPlayerController.h"
-//#include "PocketWorld/A1PocketStage.h"
-//#include "PocketWorld/A1PocketWorldSubsystem.h"
 #include "System/A1GameplayTagStack.h"
 #include "System/LyraAssetManager.h"
 #include "System/LyraGameData.h"
@@ -505,6 +505,26 @@ void UA1EquipManagerComponent::ChangeMainHand()
 	BroadcastChangedMessage(CurrentMainHand);
 }
 
+void UA1EquipManagerComponent::CanInteract()
+{
+	FGameplayTag TagToCheck = FGameplayTag::RequestGameplayTag(FName("Status.TryInteract"));
+	bool HasTag = GetAbilitySystemComponent()->HasMatchingGameplayTag(TagToCheck);
+
+	FGameplayTagContainer TagContainer;
+	TagContainer.AddTag(TagToCheck);
+
+	
+	// MainHand가 비어있지 않다면 불가능 -> Tag 제거
+	if (GetEquippedActor(ConvertToEquipmentSlotType(CurrentMainHand)) != nullptr)
+		UAbilitySystemBlueprintLibrary::RemoveLooseGameplayTags(GetOwner(), TagContainer, true);
+	// TwoHand가 찼다면 불가능 -> Tag 제거
+	else if(GetEquippedActor(EEquipmentSlotType::TwoHand) != nullptr)
+		UAbilitySystemBlueprintLibrary::RemoveLooseGameplayTags(GetOwner(), TagContainer, true);
+	// MainHand Item이 비었고 Tag가 없다면 -> Interact 가능 태그 부여
+	else if(HasTag == false)
+		UAbilitySystemBlueprintLibrary::AddLooseGameplayTags(GetOwner(), TagContainer, true);
+}
+
 bool UA1EquipManagerComponent::CanChangeEquipState(EEquipState NewEquipState, bool bWear) const
 {
 	if (NewEquipState == EEquipState::Count)
@@ -610,6 +630,19 @@ EEquipmentSlotType UA1EquipManagerComponent::ConvertToEquipmentSlotType(EEquipSt
 	case EEquipState::Left:  EquipmentSlotType = EEquipmentSlotType::LeftHand;  break;
 	case EEquipState::Right: EquipmentSlotType = EEquipmentSlotType::RightHand; break;
 	case EEquipState::Both:   EquipmentSlotType = EEquipmentSlotType::TwoHand;   break;
+	}
+
+	return EquipmentSlotType;
+}
+
+EEquipmentSlotType UA1EquipManagerComponent::ConvertToEquipmentSlotType(EMainHandState EquipState)
+{
+	EEquipmentSlotType EquipmentSlotType = EEquipmentSlotType::Count;
+
+	switch (EquipState)
+	{
+	case EMainHandState::Left:  EquipmentSlotType = EEquipmentSlotType::LeftHand;  break;
+	case EMainHandState::Right: EquipmentSlotType = EEquipmentSlotType::RightHand; break;
 	}
 
 	return EquipmentSlotType;
