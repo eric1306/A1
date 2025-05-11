@@ -24,7 +24,6 @@ enum class ESpaceshipComponentType : uint8
     ShipOutput
 };
 
-// 게임 상태를 나타내는 열거형
 UENUM(BlueprintType)
 enum class EGameEndState : uint8
 {
@@ -49,7 +48,7 @@ public:
     virtual ESpaceshipComponentType GetComponentType() const = 0;
 };
 
-// 게임 종료 이벤트를 위한 델리게이트 추가
+
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnGameEndEvent, EGameEndState, EndState);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnFuelChanged, float, NewFuelAmount);
 
@@ -66,7 +65,6 @@ public:
     virtual void Tick(float DeltaTime) override;
     virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
-    // 컴포넌트 등록 메서드
     UFUNCTION(BlueprintCallable, Category = "Spaceship|Components")
     void RegisterDoor(AA1DoorBase* Door);
 
@@ -85,27 +83,27 @@ public:
     UFUNCTION(BlueprintCallable, Category = "Spaceship|Components")
     void RegisterShipOutput(AA1ShipOutputBase* Output);
 
-    // 게임 오버 처리 함수
+
     UFUNCTION(BlueprintCallable, Category = "Spaceship|GameState", BlueprintAuthorityOnly)
     void HandleGameOver();
 
-    // 구조 처리 함수
+    
     UFUNCTION(BlueprintCallable, Category = "Spaceship|GameState", BlueprintAuthorityOnly)
     void HandleRescue();
 
-    // 구조 상태 확인 함수
+    
     UFUNCTION(BlueprintPure, Category = "Spaceship|GameState")
     bool IsRescued() const;
 
-    // 게임 종료 상태 확인 함수
+    
     UFUNCTION(BlueprintPure, Category = "Spaceship|GameState")
     EGameEndState GetGameEndState() const { return GameEndState; }
 
-    // 게임 상태 확인 함수
+    
     UFUNCTION(BlueprintPure, Category = "Spaceship|GameState")
     bool IsGameOver() const;
 
-    // 연료 관련 함수
+    
     UFUNCTION(BlueprintCallable, Category = "Spaceship|Fuel")
     float GetCurrentFuelAmount() const { return CurrentFuelAmount; }
 
@@ -121,7 +119,7 @@ public:
     UFUNCTION(BlueprintCallable, Category = "Spaceship|Fuel", BlueprintAuthorityOnly)
     void ConsumeFuel(float AmountToConsume);
 
-    // 맵 관련 함수
+    
     UFUNCTION(BlueprintCallable, Category = "Spaceship|ExternalMap", BlueprintAuthorityOnly)
     void ActivateExternalMap();
 
@@ -131,7 +129,7 @@ public:
     UFUNCTION(BlueprintPure, Category = "Spaceship|ExternalMap")
     bool IsExternalMapActive() const { return bIsExternalMapActive; }
 
-    // 생존 조건 확인
+    
     UFUNCTION(BlueprintCallable, Category = "Spaceship|GameState")
     bool HasEnoughFuelToSurvive() const;
 
@@ -145,7 +143,6 @@ public:
     FORCEINLINE void SetIsExternamMapActive(bool InExternalMapActive) { bIsExternalMapActive = InExternalMapActive; }
     FORCEINLINE AA1DoorBase* GetCachedDoor() const { return CacheDoor; }
 
-    // 구조선 만남 여부 설정 함수
     UFUNCTION(BlueprintCallable, Category = "Spaceship|GameState", BlueprintAuthorityOnly)
     void SetMeetRescueShip(bool bMeetRescue);
 
@@ -161,7 +158,6 @@ public:
     UPROPERTY(BlueprintAssignable, Category = "Spaceship|Fuel")
     FOnFuelChanged OnFuelChanged;
 
-    // 게임 종료 이벤트
     UPROPERTY(BlueprintAssignable, Category = "Spaceship|GameState")
     FOnGameEndEvent OnGameEndEvent;
 
@@ -196,11 +192,9 @@ protected:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spaceship|ExternalMap", Replicated)
     bool bIsExternalMapActive = false;
 
-    // 게임 종료 상태를 복제하기 위한 변수
     UPROPERTY(BlueprintReadOnly, Category = "Spaceship|GameState", ReplicatedUsing = OnRep_GameEndState)
     EGameEndState GameEndState = EGameEndState::None;
 
-    // 컴포넌트 테그
     UPROPERTY(EditDefaultsOnly, Category = "Spaceship|Tags")
     FName SpaceshipComponentTag = "SpaceshipComponent";
 
@@ -225,13 +219,11 @@ protected:
     UPROPERTY(EditDefaultsOnly, Category = "Spaceship|Tags")
     FName ShipOutputTag = "ShipOutput";
 
-    // 구조선 만남 여부
     UPROPERTY(Replicated)
     bool bMeetRescueShip = false;
 
 private:
     FTimerHandle FuelConsumeTimer;
 
-    // 게임 종료가 이미 처리되었는지 확인하는 플래그
     bool bGameEndHandled = false;
 };

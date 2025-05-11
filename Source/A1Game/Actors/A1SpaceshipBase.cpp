@@ -49,16 +49,13 @@ void AA1SpaceshipBase::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 
-	// 게임 종료 조건 확인
 	if (HasAuthority() && !bGameEndHandled)
 	{
-		// 연료가 0이면 게임 오버 처리
 		if (CurrentFuelAmount <= 0.0f)
 		{
 			HandleGameOver();
 		}
 
-		// 구조선을 만났다면 구조 처리
 		if (bMeetRescueShip)
 		{
 			HandleRescue();

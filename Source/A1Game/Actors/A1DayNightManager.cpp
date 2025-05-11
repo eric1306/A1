@@ -16,9 +16,9 @@ AA1DayNightManager::AA1DayNightManager()
 	bReplicates = true;
 
 	/*
-	 * 기본 설정
-	 * - 20분 = 1일
-	 * - 10분 낫/밤
+	 * 
+	 * - 20 minutes = 1 day
+	 * - 10 minue day/night
 	 */
 	DayDurationMinutes = 1.f;
 	DayPhaseDurationMinutes = 0.5f;
@@ -28,10 +28,10 @@ AA1DayNightManager::AA1DayNightManager()
 	DayProgress = 0.f;
 	ElapsedTime = 0.f;
 
-	//단위 초 변환
+	//minute -> second
 	PhaseChangeDuration = DayPhaseDurationMinutes * 60.f;
 
-	//초기화.
+	//Init
 	LastUpdatedHour = -1;
 	LastUpdatedMinute = -1;
 }
@@ -40,12 +40,12 @@ void AA1DayNightManager::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// 서버에서만 싱글톤 인스턴스 설정
+	// Init Singleton only server
 	if (HasAuthority())
 	{
 		DayNightInstance = this;
 
-		//World 상의 모든 Bed 등록
+		//enroll all bed in server
 		TArray<AActor*> FoundActors;
 		UGameplayStatics::GetAllActorsOfClass(GetWorld(), AA1BedBase::StaticClass(), OUT FoundActors);
 		for (auto Actor : FoundActors)
@@ -74,14 +74,11 @@ void AA1DayNightManager::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	// 서버에서만 시간 업데이트
 	if (!HasAuthority())
 		return;
 	
 	UpdateTime(DeltaTime);
 
-	//서버에서 스킵 조건 체크
-	// - 모든 플레이어가 자고 있다면 스킵
 	if (!SkipNightflag && AreAllPlayersSleeping()) 
 	{
 		FTimerHandle TimerHandle;
@@ -115,29 +112,24 @@ void AA1DayNightManager::TrySkipNight()
 		return;
 	}
 
-	// 모든 플레이어가 자고 있는지 확인
 	if (AreAllPlayersSleeping()) {
 		if (CurrentPhase == EDayPhase::Day)
 		{
-			// 낮 스킵: 밤으로 이동
 			ElapsedTime = DayDurationMinutes * 30.f;
 			DayProgress = 0.5f;
 			CurrentPhase = EDayPhase::Night;
 		}
 		else
 		{
-			// 밤 스킵: 다음 날 아침으로 이동
 			ElapsedTime = 0.0f;
 			DayProgress = 0.0f;
 			CurrentDay++;
 			CurrentPhase = EDayPhase::Day;
 		}
 
-		// 이벤트 발생
 		OnDayChanged.Broadcast(CurrentDay);
 		OnDayPhaseChanged.Broadcast(CurrentPhase, CurrentDay);
 
-		// 모든 플레이어 깨우기
 		WakeAllPlayers();
 	}
 }
@@ -159,11 +151,9 @@ void AA1DayNightManager::SetPlayerSleeping(AActor* Player, bool bIsSleeping)
 
 void AA1DayNightManager::GetGameTime(int32& OutHours, int32& OutMinutes) const
 {
-	// 전체 하루(24시간) 중 진행된 비율을 기반으로 시간 계산
-	constexpr float TotalDayMinutes = 24.0f * 60.0f; // 하루의 총 분 수
+	constexpr float TotalDayMinutes = 24.0f * 60.0f;
 	const float ElapsedMinutes = DayProgress * TotalDayMinutes;
 
-	// 시간과 분 계산
 	OutHours = FMath::FloorToInt(ElapsedMinutes / 60.0f);
 	OutMinutes = FMath::FloorToInt(FMath::Fmod(ElapsedMinutes, 60.0f));
 }
@@ -179,17 +169,14 @@ FString AA1DayNightManager::GetTimeString() const
 
 void AA1DayNightManager::WakeAllPlayers()
 {
-	// 서버에서만 실행
 	if (!HasAuthority()) {
 		return;
 	}
 
-	// 모든 플레이어의 수면 상태를 깨어난 상태로 변경
 	for (auto& Pair : SleepingPlayers) {
 		Pair.Value = false;
 	}
 
-	// 등록된 모든 침대의 캐릭터 깨우기
 	for (AA1BedBase* Bed : OccupiedBeds)
 	{
 		if (Bed && Bed->GetBedState() == EBedState::Occupied)
@@ -200,10 +187,8 @@ void AA1DayNightManager::WakeAllPlayers()
 		}
 	}
 
-	// 깨우는 이벤트 발생 - 다른 컴포넌트들을 위한 알림
 	OnWakeUpPlayers.Broadcast();
 
-	//재설정 가능하게 하기 위한 flag값 설정
 	SkipNightflag = false;
 }
 
@@ -213,7 +198,6 @@ void AA1DayNightManager::UpdateTime(float DeltaTime)
 	ElapsedTime += DeltaTime;
 	DayProgress = ElapsedTime / (DayDurationMinutes * 60.f);
 
-	//하루 지나면 초기화
 	if (DayProgress >= 1.f)
 	{
 		ElapsedTime = 0.f;
@@ -222,7 +206,6 @@ void AA1DayNightManager::UpdateTime(float DeltaTime)
 		OnDayChanged.Broadcast(CurrentDay);
 	}
 
-	// 낮/밤 전환 체크
 	if (CurrentPhase == EDayPhase::Day && ElapsedTime >= PhaseChangeDuration)
 	{
 		ChangePhase(EDayPhase::Night);
@@ -231,11 +214,9 @@ void AA1DayNightManager::UpdateTime(float DeltaTime)
 		ChangePhase(EDayPhase::Day);
 	}
 
-	// 시간 업데이트 확인 및 이벤트 발생
 	int32 CurrentHour, CurrentMinute;
 	GetGameTime(CurrentHour, CurrentMinute);
 
-	// 시간이 변경되었을 때만 이벤트 발생
 	if (CurrentHour != LastUpdatedHour || CurrentMinute != LastUpdatedMinute)
 	{
 		LastUpdatedHour = CurrentHour;
@@ -260,11 +241,11 @@ bool AA1DayNightManager::AreAllPlayersSleeping() const
 	//UE_LOG(LogTemp, Log, TEXT("Connected Clients: %d"), GetActivePlayerCount(GetWorld()));
 	for (const auto& Pair : SleepingPlayers) {
 		if (!Pair.Value) {
-			return false; // 자고 있지 않은 플레이어가 있음
+			return false;
 		}
 	}
 
-	return true; // 모든 플레이어가 자고 있음
+	return true;
 }
 
 void AA1DayNightManager::OnRep_CurrentPhase()
@@ -282,7 +263,6 @@ int32 AA1DayNightManager::GetActivePlayerCount(const UObject* WorldContextObject
 	if (WorldContextObject == nullptr)
 		return 0;
 
-	// 컨텍스트 오브젝트로부터 World 얻기
 	UWorld* World = WorldContextObject->GetWorld();
 	if (!World || World->GetNetMode() == NM_Client)
 	{
