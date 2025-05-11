@@ -5,6 +5,7 @@
 #include "Engine/GameInstance.h"
 #include "Engine/World.h"
 #include "A1LogChannels.h"
+#include "AbilitySystemComponent.h"
 #include "Misc/CommandLine.h"
 #include "System/LyraAssetManager.h"
 #include "LyraGameState.h"
@@ -27,6 +28,7 @@
 #include "CommonSessionSubsystem.h"
 #include "TimerManager.h"
 #include "GameMapsSettings.h"
+#include "AbilitySystem/Attributes/A1CharacterAttributeSet.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(LyraGameMode)
 
@@ -466,6 +468,100 @@ bool ALyraGameMode::ControllerCanRestart(AController* Controller)
 	}
 
 	return true;
+}
+
+void ALyraGameMode::HandleGameEnd(AActor* GameEndInstigator, bool bIsRescued)
+{
+	if (bIsHandlingGameEnd)
+	{
+		return;
+	}
+
+	bIsHandlingGameEnd = true;
+
+	for (FConstPlayerControllerIterator Iterator = GetWorld()->GetPlayerControllerIterator(); Iterator; ++Iterator)
+	{
+		if (ALyraPlayerController* PC = Cast<ALyraPlayerController>(Iterator->Get()))
+		{
+			// Fade Effect
+			FLinearColor FadeColor = bIsRescued ? FLinearColor::Blue : FLinearColor::Red;
+			PC->Client_FadeCamera(0.0f, 1.0f, 1.0f, FadeColor, true);
+
+			PC->DisableInput(PC);
+
+			//Temp eric1306 Fuel zero -> Game Over
+			if (ALyraCharacter* LyraCharacter = Cast<ALyraCharacter>(PC->GetPawn()))
+			{
+				if (LyraCharacter->GetDeathState() == EA1DeathState::NotDead)
+				{
+					if (UAbilitySystemComponent* ASC = LyraCharacter->GetAbilitySystemComponent())
+					{
+						if (const UA1CharacterAttributeSet* Attribute = ASC->GetSet<UA1CharacterAttributeSet>())
+						{
+							Attribute->OnOutOfHealth.Broadcast(LyraCharacter, Attribute->GetHealth(), 0.f);
+						}
+					}
+				}
+			}
+		}
+	}
+
+	if (bIsRescued)
+	{
+		OnShowRescuedUI();
+	}
+	else
+	{
+		OnShowGameOverUI();
+	}
+
+	FTimerHandle RestartTimerHandle;
+	GetWorldTimerManager().SetTimer(RestartTimerHandle, [this]()
+		{
+			//TODO eric1306 : fix hard coding
+			UGameplayStatics::OpenLevel(GetWorld(), FName(*GetWorld()->GetName()), true);
+		}, GameRestartDelay, false);
+}
+
+bool ALyraGameMode::AreAllPlayersDead()
+{
+	int32 TotalPlayers = 0;
+	int32 DeadPlayersCount = DeadPlayers.Num();
+
+	for (FConstPlayerControllerIterator Iterator = GetWorld()->GetPlayerControllerIterator(); Iterator; ++Iterator)
+	{
+		APlayerController* PC = Iterator->Get();
+		if (PC && !PC->IsInState(NAME_Spectating))
+		{
+			TotalPlayers++;
+		}
+	}
+
+	if (TotalPlayers == 0)
+	{
+		return false;
+	}
+
+	return DeadPlayersCount >= TotalPlayers;
+}
+
+void ALyraGameMode::OnPlayerDied(AController* Controller)
+{
+	if (!Controller)
+	{
+		return;
+	}
+
+	if (!DeadPlayers.Contains(Controller))
+	{
+		DeadPlayers.Add(Controller);
+
+		if (AreAllPlayersDead())
+		{
+			UE_LOG(LogTemp, Warning, TEXT("All players are dead! Triggering game over."));
+			HandleGameEnd(Controller, false);
+		}
+	}
 }
 
 void ALyraGameMode::InitGameState()
