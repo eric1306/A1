@@ -126,11 +126,11 @@ void UA1GameplayAbility_Weapon_MeleeAttack::ConsumeOxygen()
 
 		const TSubclassOf<UGameplayEffect> OxygenGE = ULyraAssetManager::GetSubclassByPath(ULyraGameData::Get().ConsumeOxygenByWeapon_SetByCaller);
 		FGameplayEffectSpecHandle OxygenEffectSpecHandle = MakeOutgoingGameplayEffectSpec(OxygenGE);
+		OxygenEffectSpecHandle.Data->SetContext(EffectContextHandle);
 
 		if (OxygenEffectSpecHandle.IsValid())
 		{
-			// 무기에 희귀도에 따른 대미지 차별화
-
+			// 무기에 희귀도에 따른 대미지 차별화			
 			OxygenEffectSpecHandle.Data->SetSetByCallerMagnitude(A1GameplayTags::SetByCaller_BaseOxygen, Oxygen);
 			float DamageSet = OxygenEffectSpecHandle.Data->GetSetByCallerMagnitude(A1GameplayTags::SetByCaller_BaseOxygen, false);
 			ApplyGameplayEffectSpecToTarget(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, OxygenEffectSpecHandle, TargetDataHandle);
