@@ -29,6 +29,9 @@ AA1RaiderRoom::AA1RaiderRoom(const FObjectInitializer& ObjectInitializer)
 
     ItemBoxSpawnLocation = CreateDefaultSubobject<USceneComponent>(TEXT("ChestLocation"));
     ItemBoxSpawnLocation->SetupAttachment(GetRootComponent());
+
+    RemoveItemPosition = CreateDefaultSubobject<USceneComponent>(TEXT("Remove Pos Location"));
+    RemoveItemPosition->SetupAttachment(GetRootComponent());
 }
 
 void AA1RaiderRoom::BeginPlay()
@@ -145,6 +148,7 @@ void AA1RaiderRoom::SpawnEnemy()
 
 void AA1RaiderRoom::SpawnItem()
 {
+    //Spawn Items
     TArray<USceneComponent*> ChildrenComp;
     ItemSpawnLocation->GetChildrenComponents(false, ChildrenComp);
     ItemSpawnLocations.Append(ChildrenComp);
@@ -177,6 +181,7 @@ void AA1RaiderRoom::SpawnItem()
         }
     }
 
+    //Spawn Chest
     TArray<USceneComponent*> ChestSpawnComponent;
     ItemBoxSpawnLocation->GetChildrenComponents(false, ChestSpawnComponent);
     ItemBoxSpawnLocations.Append(ChestSpawnComponent);
@@ -185,7 +190,6 @@ void AA1RaiderRoom::SpawnItem()
     {
         if (child)
         {
-            //Spawn Raider
             FTransform childTransform = child->GetComponentTransform();
             AA1ChestBase* Chest = GetWorld()->SpawnActorDeferred<AA1ChestBase>(ChestClass, childTransform, this);
             if (Chest)
@@ -215,6 +219,15 @@ void AA1RaiderRoom::SpawnItem()
             }
         }
     }
+    /*if (SpawnedChests.Num() > 0)
+    {
+        DrawDebugBox(
+            GetWorld(),
+            RemoveItemPosition->GetComponentLocation(),
+            FVector(1500.f, 1500.f, 500.f),
+            FColor::Red,
+            true);
+    }*/
 }
 
 void AA1RaiderRoom::RemoveEnemy()
@@ -232,43 +245,53 @@ void AA1RaiderRoom::RemoveEnemy()
 
 void AA1RaiderRoom::RemoveItem()
 {
-    FCollisionShape CollisionShape;
-	CollisionShape.SetBox(FVector3f(3000.f, 3000.f, 1000.f));
-
     FCollisionQueryParams QueryParams;
     QueryParams.AddIgnoredActor(this);
 
     TArray<FOverlapResult> OverlapResults;
+    
     bool bResult = GetWorld()->OverlapMultiByChannel(
         OUT OverlapResults,
-        GetActorLocation(),
+        RemoveItemPosition->GetComponentLocation(),
         FQuat::Identity,
         A1_TraceChannel_AimAssist,
-        CollisionShape,
+        FCollisionShape::MakeBox(FVector(1500.f,1500.f,1000.f)),
         QueryParams
     );
-
+    
     if (bResult)
     {
+        UE_LOG(LogTemp, Log, TEXT("Start Remove Outer map Items and chest"));
         UE_LOG(LogTemp, Log, TEXT("Find %d Actors!"), OverlapResults.Num());
         UE_LOG(LogTemp, Log, TEXT("*****************************"));
         for (const FOverlapResult& Overlap : OverlapResults)
         {
             AActor* OverlappedActor = Overlap.GetActor();
-            UE_LOG(LogTemp, Log, TEXT("%s Find!"), *OverlappedActor->GetName());
+
             if (!OverlappedActor)
                 continue;
 
+            UE_LOG(LogTemp, Log, TEXT("%s"), *OverlappedActor->GetName());
+
             if (AA1EquipmentBase* Equipment = Cast<AA1EquipmentBase>(OverlappedActor))
             {
-                Equipment->Destroy();
-            }
-
-            if (AA1ChestBase* Chest = Cast<AA1ChestBase>(OverlappedActor))
-            {
-                Chest->Destroy();
+                UE_LOG(LogTemp, Log, TEXT("[Remove] %s"), *Equipment->GetName());
+                Equipment->SetLifeSpan(0.01f);
+                Equipment->Destroy(true);
             }
         }
         UE_LOG(LogTemp, Log, TEXT("*****************************"));
+    }
+}
+
+void AA1RaiderRoom::RemoveChest()
+{
+    for (auto c : SpawnedChests)
+    {
+	    if (c)
+	    {
+            c->SetLifeSpan(0.01f);
+            c->Destroy(true);
+	    }
     }
 }

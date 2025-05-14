@@ -34,6 +34,9 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void RemoveItem();
+
+	UFUNCTION(BlueprintCallable)
+	void RemoveChest();
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Raider|EssentialSpawn")
 	TObjectPtr<USceneComponent> EssentialSpawn;
@@ -43,6 +46,9 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Raider|ItemSpawnLocations")
 	TObjectPtr<USceneComponent> ItemSpawnLocation;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Raider|RemoveItemPos")
+	TObjectPtr<USceneComponent> RemoveItemPosition;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Raider|ItemSpawnLocations")
 	TArray<TObjectPtr<USceneComponent>> ItemSpawnLocations;
