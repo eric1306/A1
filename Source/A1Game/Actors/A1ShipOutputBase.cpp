@@ -6,6 +6,7 @@
 #include "A1DoorBase.h"
 #include "A1SpaceshipBase.h"
 #include "Components/ArrowComponent.h"
+#include "Components/AudioComponent.h"
 #include "GameModes/LyraGameMode.h"
 #include "Kismet/GameplayStatics.h"
 #include "Net/UnrealNetwork.h"
@@ -127,18 +128,25 @@ void AA1ShipOutputBase::DeactivateExternalMap()
 
         OwningSpaceship->DeactivateExternalMap();
 
+        PlayLaunchSound();
+
         SetOutputState(EOutputState::Idle);
 
         FTimerHandle TimerHandle;
-        GetWorldTimerManager().SetTimer(TimerHandle, [=]()
+        GetWorldTimerManager().SetTimer(TimerHandle, [this]()
             {
-
-                if (GameMode)
+                //AudioComp->Stop();
+                if (auto GameMode = Cast<ALyraGameMode>(UGameplayStatics::GetGameMode(GetWorld())))
                 {
                     GameMode->TriggerFadeOnAllPlayer(1.f, 0.f);
                 }
-            }, 3.0f, false);
+            }, 5.0f, false);
     }
+}
+
+void AA1ShipOutputBase::PlayLaunchSound()
+{
+    AudioComp = UGameplayStatics::SpawnSoundAtLocation(GetWorld(), LaunchSound, GetActorLocation(), GetActorRotation(), 1, 1);
 }
 
 void AA1ShipOutputBase::SetupTags()

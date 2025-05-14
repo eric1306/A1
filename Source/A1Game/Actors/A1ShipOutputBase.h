@@ -46,6 +46,10 @@ public:
     UFUNCTION(BlueprintCallable)
     void DeactivateExternalMap();
 
+    void PlayLaunchSound();
+
+    
+
 protected:
     void SetupTags();
     UFUNCTION(BlueprintImplementableEvent)
@@ -82,4 +86,10 @@ protected:
 
     UPROPERTY(VisibleAnywhere, Transient)
     TWeakObjectPtr<AA1SpaceshipBase> OwningSpaceship;
+
+    UPROPERTY(EditDefaultsOnly, Category = "Info")
+    TObjectPtr<USoundBase> LaunchSound;
+
+    UPROPERTY(VisibleAnywhere)
+    TObjectPtr<UAudioComponent> AudioComp;
 };

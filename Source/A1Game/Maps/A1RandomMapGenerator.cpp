@@ -491,6 +491,19 @@ void AA1RandomMapGenerator::Server_ResetMap_Implementation()
     if (!HasAuthority())
         return;
 
+    for (auto Room : SpawnedRooms)
+    {
+        if (Room)
+        {
+            if (AA1RaiderRoom* RaiderRoom = Cast<AA1RaiderRoom>(Room))
+            {
+                RaiderRoom->RemoveEnemy();
+                RaiderRoom->RemoveItem();
+                RaiderRoom->RemoveChest();
+            }
+        }
+    }
+
     //Destory Endwalls and Rooms
     for (auto EndWall : SpawnedEndWalls)
     {
@@ -505,12 +518,6 @@ void AA1RandomMapGenerator::Server_ResetMap_Implementation()
     {
         if (Room)
         {
-            if (AA1RaiderRoom* RaiderRoom = Cast<AA1RaiderRoom>(Room))
-            {
-                RaiderRoom->RemoveEnemy();
-                RaiderRoom->RemoveItem();
-            }
-
             Room->Destroy();
         }
     }
@@ -540,7 +547,8 @@ void AA1RandomMapGenerator::Server_ResetMap_Implementation()
     bIsResettingMap = false;
 
     //Temp eric1036->for standalone code
-    AudioComp->Stop();
+    if (AudioComp)
+		AudioComp->Stop();
 
     Multicast_StopSiren();
 }
