@@ -15,21 +15,17 @@ AA1MasterRoom::AA1MasterRoom()
     DefaultSceneRoot = CreateDefaultSubobject<USceneComponent>(TEXT("DefaultSceneRoot"));
     RootComponent = DefaultSceneRoot;
 
-    // Arrow 컴포넌트 생성 및 루트에 부착
     Arrow = CreateDefaultSubobject<UArrowComponent>(TEXT("Arrow"));
     Arrow->SetupAttachment(RootComponent);
     Arrow->ArrowSize = 8.f;
     Arrow->SetRelativeLocation(FVector(580.f, 0.f, 130.f));
 
-    // GeometryFolder 생성 및 루트에 부착
     GeometryFolder = CreateDefaultSubobject<USceneComponent>(TEXT("GeometryFolder"));
     GeometryFolder->SetupAttachment(RootComponent);
 
-    // OverlapFolder 생성 및 루트에 부착
     OverlapFolder = CreateDefaultSubobject<USceneComponent>(TEXT("OverlapFolder"));
     OverlapFolder->SetupAttachment(RootComponent);
 
-    // OverlapBox1 생성 및 OverlapFolder에 부착
     OverlapBox1 = CreateDefaultSubobject<UBoxComponent>(TEXT("OverlapBox1"));
     OverlapBox1->SetRelativeLocation(FVector(1000.f, 0.f, 0.f));
     OverlapBox1->SetRelativeScale3D(FVector(30.f, 30.f, 1.f));
@@ -38,7 +34,6 @@ AA1MasterRoom::AA1MasterRoom()
     OverlapBox1->SetBoxExtent(FVector(32.f, 32.f, 32.f));
 
 
-    // ExitsFolder 생성 및 OverlapFolder에 부착
     ExitsFolder = CreateDefaultSubobject<USceneComponent>(TEXT("ExitsFolder"));
     ExitsFolder->SetupAttachment(RootComponent);
 
