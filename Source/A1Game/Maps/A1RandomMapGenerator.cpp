@@ -182,8 +182,11 @@ void AA1RandomMapGenerator::Server_SpawnStartRoom_Implementation()
     if (!HasAuthority())
         return;
 
-    //Temp Code eric1306 - standalone code
-    AudioComp = UGameplayStatics::SpawnSoundAtLocation(GetWorld(), SirenSound, GetActorLocation(), GetActorRotation());
+    //Play Sound by NetMode
+    if (GetNetMode() == NM_Standalone)
+        AudioComp = UGameplayStatics::SpawnSoundAtLocation(GetWorld(), SirenSound, GetActorLocation(), GetActorRotation());
+    else
+        Multicast_PlaySiren();
 
     Multicast_PlaySiren();
 
@@ -546,9 +549,14 @@ void AA1RandomMapGenerator::Server_ResetMap_Implementation()
     //remove reset flag
     bIsResettingMap = false;
 
-    //Temp eric1036->for standalone code
+    //Play Sound depend on NetMode
     if (AudioComp)
-		AudioComp->Stop();
+    {
+        if (GetNetMode() == NM_Standalone)
+            AudioComp->Stop();
+        else
+            Multicast_StopSiren();
+    }
 
     Multicast_StopSiren();
 }
@@ -651,8 +659,11 @@ void AA1RandomMapGenerator::Server_CloseHoles_Implementation()
     MAP_LOG(LogMap, Log, TEXT("Rooms created: %d"), SpawnedRooms.Num());
     MAP_LOG(LogMap, Log, TEXT("EndWalls created: %d"), SpawnedEndWalls.Num());
 
-    //Temp Code eric1306 for standalone
-    AudioComp->Stop();
+    //Play Sound depend on NetMode
+    if (GetNetMode() == NM_Standalone)
+        AudioComp->Stop();
+    else
+        Multicast_StopSiren();
 
     // Call RPC Functions
     FTimerHandle TimerHandle;
