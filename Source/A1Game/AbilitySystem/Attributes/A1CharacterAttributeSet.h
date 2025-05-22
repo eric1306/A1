@@ -63,6 +63,7 @@ private:
 public:
 	mutable FA1AttributeEvent OnHealthChanged;
 	mutable FA1AttributeEvent OnOutOfHealth;
+	mutable FAttributeEvent OnNoticeWarning;
 	
 private:
 	bool bOutOfHealth;
