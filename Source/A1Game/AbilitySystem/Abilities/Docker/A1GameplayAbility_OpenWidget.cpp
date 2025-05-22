@@ -45,15 +45,18 @@ void UA1GameplayAbility_OpenWidget::EndAbility(const FGameplayAbilitySpecHandle 
 	if (SourceASC == nullptr)
 		return;
 
-	if (WidgetTag.Num() > 0)
+	if (HasAuthority(&CurrentActivationInfo) == true)
 	{
-		if (SourceASC->HasAnyMatchingGameplayTags(WidgetTag) == false)
+		if (WidgetTag.Num() > 0)
 		{
-			UAbilitySystemBlueprintLibrary::AddLooseGameplayTags(GetAvatarActorFromActorInfo(), WidgetTag, true);
-		}
-		else
-		{
-			UAbilitySystemBlueprintLibrary::RemoveLooseGameplayTags(GetAvatarActorFromActorInfo(), WidgetTag, true);
+			if (SourceASC->HasAnyMatchingGameplayTags(WidgetTag) == false)
+			{
+				UAbilitySystemBlueprintLibrary::AddLooseGameplayTags(GetAvatarActorFromActorInfo(), WidgetTag, true);
+			}
+			else
+			{
+				UAbilitySystemBlueprintLibrary::RemoveLooseGameplayTags(GetAvatarActorFromActorInfo(), WidgetTag, true);
+			}
 		}
 	}
 

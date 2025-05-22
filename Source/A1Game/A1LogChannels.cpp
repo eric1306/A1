@@ -2,6 +2,7 @@
 #include "GameFramework/Actor.h"
 
 DEFINE_LOG_CATEGORY(LogA1);
+DEFINE_LOG_CATEGORY(LogA1System);
 DEFINE_LOG_CATEGORY(LogA1Player);
 DEFINE_LOG_CATEGORY(LogA1Raider);
 DEFINE_LOG_CATEGORY(LogA1Experience);
