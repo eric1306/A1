@@ -45,6 +45,9 @@ void UA1CharacterAttributeSet::PostAttributeChange(const FGameplayAttribute& Att
 {
 	// TODO Jerry
 	// Replication 작업 시 이주
+	bool bNotice = (NewValue < OldValue);
+	int NoticeIndex = -1;
+
 	if (Attribute == GetHealthAttribute())
 	{
 		const float CurrentHealth = GetHealth();
@@ -53,20 +56,35 @@ void UA1CharacterAttributeSet::PostAttributeChange(const FGameplayAttribute& Att
 		if (bOutOfHealth == false && CurrentHealth <= 0.0f)
 			OnOutOfHealth.Broadcast(nullptr, OldValue, NewValue);
 
+		if (CurrentHealth <= GetMaxHealth() / 2)
+			NoticeIndex = 2;
+
 		bOutOfHealth = (CurrentHealth <= 0.0f);
 	}
 	else if (Attribute == GetWeightAttribute())
 	{
 		UE_LOG(LogA1Player, Log, TEXT("Weight : %f -> %f"), OldValue, NewValue);
+
+		if (GetWeight() >= GetMaxWeight() / 2)
+			NoticeIndex = 1;
 	}
 	else if (Attribute == GetOxygenAttribute())
 	{
 		UE_LOG(LogA1Player, Log, TEXT("Oxygen : %f -> %f"), OldValue, NewValue);
+
+		if (GetOxygen() <= GetMaxOxygen() / 2)
+			NoticeIndex = 0;
 	}
 	else if (Attribute == GetHungerAttribute())
 	{
 		UE_LOG(LogA1Player, Log, TEXT("Hunger : %f -> %f"), OldValue, NewValue);
+
+		if (GetHunger() <= GetMaxHunger() / 2)
+			NoticeIndex = 3;
 	}		
+
+	if (bNotice && NoticeIndex >= 0)
+		OnNoticeWarning.Broadcast(NoticeIndex);
 }
 
 void UA1CharacterAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data)

@@ -17,6 +17,12 @@ public:
 	UA1NoticeWidget(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
 protected:
+	virtual void NativeConstruct() override;
+
+	void TryInitPawn();
+	void ShowWarning(FText WarningText);
+
+protected:
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<class UTextBlock> TxtNotice;	
 };
