@@ -51,6 +51,10 @@ void UA1AbilityTask_WaitForInteractableTraceHit::PerformTrace()
 	if (AvatarActor == nullptr)
 		return;
 
+	APlayerController* PlayerController = Ability->GetCurrentActorInfo()->PlayerController.Get();
+	if (PlayerController == nullptr)
+		return;
+
 	TArray<AActor*> ActorsToIgnore;
 	ActorsToIgnore.Add(AvatarActor);
 	AvatarActor->GetAttachedActors(ActorsToIgnore, false, true);
@@ -58,7 +62,9 @@ void UA1AbilityTask_WaitForInteractableTraceHit::PerformTrace()
 	FCollisionQueryParams Params(SCENE_QUERY_STAT(A1AbilityTask_WaitForInteractableTraceHit), false);
 	Params.AddIgnoredActors(ActorsToIgnore);
 
-	FVector TraceStart = StartLocation.GetTargetingTransform().GetLocation();
+	FVector TraceStart;
+	FRotator TraceRotation;
+	PlayerController->GetPlayerViewPoint(TraceStart, TraceRotation);
 	FVector TraceEnd;
 	AimWithPlayerController(AvatarActor, Params, TraceStart, InteractionTraceRange, TraceEnd);
 

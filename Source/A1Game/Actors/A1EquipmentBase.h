@@ -11,6 +11,8 @@ class USkeletalMeshComponent;
 class UArrowComponent;
 class UBoxComponent;
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnItemPickupChanged);
+
 UCLASS(BlueprintType, Abstract)
 class AA1EquipmentBase : public AActor, public IAbilitySystemInterface, public IA1HighlightInterface
 {
@@ -69,6 +71,8 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TObjectPtr<UBoxComponent> TraceDebugCollision;
+
+	FOnItemPickupChanged OnItemPickupChanged;
 	
 protected:
 	UPROPERTY(EditAnyWhere, Replicated)

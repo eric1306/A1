@@ -5,6 +5,8 @@
 #include "Actors/A1DoorBase.h"
 #include "Kismet/KismetMathLibrary.h"
 
+#include UE_INLINE_GENERATED_CPP_BY_NAME(A1GameplayAbility_Interact_Door)
+
 UA1GameplayAbility_Interact_Door::UA1GameplayAbility_Interact_Door(const FObjectInitializer& ObjectInitializer)
 	:Super(ObjectInitializer)
 {

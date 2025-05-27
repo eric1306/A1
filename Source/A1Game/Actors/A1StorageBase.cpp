@@ -4,12 +4,14 @@
 #include "Actors/A1StorageBase.h"
 
 #include "A1EquipmentBase.h"
+#include "A1StorageEntryBase.h"
 #include "Character/LyraCharacter.h"
 #include "Components/ArrowComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Engine/OverlapResult.h"
 #include "DrawDebugHelpers.h"
 #include "Data/A1ItemData.h"
+#include "Net/UnrealNetwork.h"
 #include "Physics/LyraCollisionChannels.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(A1StorageBase)
@@ -24,38 +26,34 @@ AA1StorageBase::AA1StorageBase(const FObjectInitializer& ObjectInitializer)
     MeshComponent->SetupAttachment(GetRootComponent());
     MeshComponent->SetCollisionProfileName(TEXT("Interactable"));
     MeshComponent->SetCanEverAffectNavigation(true);
+    MeshComponent->SetWorldScale3D(FVector(1.5f, 1.5f, 1.5f));
 
-    StoreLocation = CreateDefaultSubobject<USceneComponent>(TEXT("StoreLocation"));
-    StoreLocation->SetupAttachment(GetRootComponent());
-
-    ItemDetectionRadius = 300.f;
-
-    MaxStorageSize = 16;
-
-    //Interact 대상이 아니기 때문에
-    bCanUsed = false;
-
-    //처음엔 idx가 0
-    LatestIdx = 0;
+    // 4*4 = 16 Entries
+    StorageWidthNum = 4;
+    StorageHeightNum = 4;
 }
 
 void AA1StorageBase::BeginPlay()
 {
     Super::BeginPlay();
 
-    if (HasAuthority())
-        GetWorldTimerManager().SetTimer(ItemDetectTimerHandle, this, &AA1StorageBase::TryDetectItem, 3.f, true);
-
-    //아이템을 위치시킬 Location 정보 받아오기(Scene Component)
-    TArray<USceneComponent*> TmpList;
-    StoreLocation->GetChildrenComponents(false, TmpList);
-    StoreLocations.Append(TmpList);
-
+    FActorSpawnParameters Params;
+    Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+    SpawnStartLocation = GetActorLocation() + FVector(0.f, 0.f, 0.f);
+    for (int32 row = 0; row < StorageHeightNum ; row++) for (int32 col=0; col < StorageWidthNum ; col++)
+    {
+        FVector FinalSpawnLocation = SpawnStartLocation + FVector(-60.f + 50.f * col, -30.f, 50.f + 60.f * row);
+        FRotator SpawnRotation = FRotator(0.f ,- 90.f, 0.f);
+        AA1StorageEntryBase* Entry = GetWorld()->SpawnActor<AA1StorageEntryBase>(EntryClass, FinalSpawnLocation, SpawnRotation, Params);
+        StorageEntries.Add(Entry);
+    }
 }
 
 void AA1StorageBase::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const
 {
     Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+    DOREPLIFETIME(AA1StorageBase, StorageEntries);
 }
 
 void AA1StorageBase::RegisterWithSpaceship(AA1SpaceshipBase* Spaceship)
@@ -84,78 +82,4 @@ AA1SpaceshipBase* AA1StorageBase::FindSpaceshipOwner() const
     }
 
     return nullptr;
-}
-
-void AA1StorageBase::TryDetectItem()
-{
-    UE_LOG(LogTemp, Log, TEXT("Start Detect Item!"));
-    TArray<FOverlapResult> Overlaps;
-
-    FCollisionQueryParams QueryParams;
-    QueryParams.AddIgnoredActor(this); // 창고 자체는 무시
-    QueryParams.AddIgnoredActors(SavedEquips);
-
-    // 구체 형태로 오버랩 검사
-    FCollisionShape CollisionShape;
-    CollisionShape.SetSphere(ItemDetectionRadius);
-
-    // 오버랩 검사 수행
-    bool bResult = GetWorld()->OverlapMultiByChannel(
-        Overlaps,
-        GetActorLocation(),
-        FQuat::Identity,
-        A1_TraceChannel_AimAssist, // 물리 물체 감지 채널
-        CollisionShape,
-        QueryParams
-    );
-
-    if (bResult)
-    {
-        UE_LOG(LogTemp, Log, TEXT("Find %d Actors!"), Overlaps.Num());
-        UE_LOG(LogTemp, Log, TEXT("============================"));
-        for (const FOverlapResult& Overlap : Overlaps)
-        {
-            AActor* OverlappedActor = Overlap.GetActor();
-            UE_LOG(LogTemp, Log, TEXT("%s Find!"), *OverlappedActor->GetName());
-            if (!OverlappedActor)
-                continue;
-
-            if (AA1EquipmentBase* Equipment = Cast<AA1EquipmentBase>(OverlappedActor))
-            {
-                if (SavedEquips.Find(Equipment) && !Equipment->GetPickup())
-                {
-                    SavedEquips.Add(Equipment);
-
-                    UE_LOG(LogTemp, Log, TEXT("%s added to Saved Equips"), *Equipment->GetName());
-
-                    TryStoreItem(Equipment);
-                }
-            }
-        }
-        UE_LOG(LogTemp, Log, TEXT("============================"));
-    }
-
-#if ENABLE_DRAW_DEBUG
-
-    DrawDebugSphere(
-        GetWorld(),
-        GetActorLocation(),
-        ItemDetectionRadius,
-        16,
-        FColor::Blue,
-        false,
-        0.5f
-    );
-#endif
-}
-
-void AA1StorageBase::TryStoreItem(AA1EquipmentBase* Equip)
-{
-    if (LatestIdx >= MaxStorageSize)
-        return;
-
-    FVector Location = StoreLocations[LatestIdx++]->GetComponentLocation();
-    Equip->SetActorRelativeRotation(FRotator(0.f, 0.f, 0.f));
-    Equip->SetActorRelativeLocation(Location);
-
 }

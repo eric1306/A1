@@ -73,6 +73,9 @@ void UA1GameplayAbility_TryInteract::TryPickup()
 			AA1EquipmentBase* Target = Cast<AA1EquipmentBase>(HitResult.GetActor());
 			if (Target)
 			{
+				Target->OnItemPickupChanged.Broadcast();
+				Target->OnItemPickupChanged.Clear();
+
 				UA1ItemManagerComponent* ItemManager = LyraPlayerController->GetComponentByClass<UA1ItemManagerComponent>();
 				ItemManager->TryPickItem(Target);
 			}

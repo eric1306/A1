@@ -21,6 +21,9 @@ public:
 	FText Content;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FText InteractKey;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float Duration = 0.f;
 
 public:
