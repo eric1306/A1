@@ -36,6 +36,9 @@ public:
 public:
 	UPROPERTY(EditDefaultsOnly)
 	TSoftObjectPtr<USkeletalMesh> DefaultMesh;
+	UPROPERTY(EditDefaultsOnly)
+	TSoftObjectPtr<USkeletalMesh> DefaultArmMesh;
+
 };
 
 UCLASS(BlueprintType)

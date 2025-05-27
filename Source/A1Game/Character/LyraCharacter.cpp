@@ -241,10 +241,10 @@ void ALyraCharacter::PossessedBy(AController* NewController)
 	ConditionalBroadcastTeamChanged(this, OldTeamID, MyTeamID);
 
 	//Temp eric1306 Check Player Reconnect
-	if (ALyraPlayerController* LyraPC = Cast<ALyraPlayerController>(NewController))
+	/*if (ALyraPlayerController* LyraPC = Cast<ALyraPlayerController>(NewController))
 	{
 		LyraPC->ConsoleCommand(TEXT("showdebug abilitysystem"));
-	}
+	}*/
 }
 
 void ALyraCharacter::UnPossessed()
