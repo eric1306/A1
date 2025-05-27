@@ -30,7 +30,7 @@ public:
     virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
     virtual void PreReplication(IRepChangedPropertyTracker& ChangedPropertyTracker) override;
 
-    //Call by GA_Interaction_RescueSignal
+    //Call by GA_Interaction_DockingSignalHandler
     UFUNCTION(BlueprintImplementableEvent)
     void StartRandomMap();
 

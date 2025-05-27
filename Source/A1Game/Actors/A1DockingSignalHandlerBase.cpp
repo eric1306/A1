@@ -1,7 +1,7 @@
 // Copyright (c) 2025 THIS-ACCENT. All Rights Reserved.
 
 
-#include "Actors/A1RescueSignalBase.h"
+#include "Actors/A1DockingSignalHandlerBase.h"
 
 #include "Components/ArrowComponent.h"
 #include "Kismet/GameplayStatics.h"
@@ -10,9 +10,9 @@
 #include "Math/TransformCalculus3D.h"
 
 
-#include UE_INLINE_GENERATED_CPP_BY_NAME(A1RescueSignalBase)
+#include UE_INLINE_GENERATED_CPP_BY_NAME(A1DockingSignalHandlerBase)
 
-AA1RescueSignalBase::AA1RescueSignalBase(const FObjectInitializer& ObjectInitializer)
+AA1DockingSignalHandlerBase::AA1DockingSignalHandlerBase(const FObjectInitializer& ObjectInitializer)
 	:Super(ObjectInitializer)
 {
 	PrimaryActorTick.bCanEverTick = false;
@@ -27,7 +27,7 @@ AA1RescueSignalBase::AA1RescueSignalBase(const FObjectInitializer& ObjectInitial
 	MeshComponent->SetCanEverAffectNavigation(true);
 }
 
-void AA1RescueSignalBase::BeginPlay()
+void AA1DockingSignalHandlerBase::BeginPlay()
 {
 	Super::BeginPlay();
 
@@ -44,14 +44,14 @@ void AA1RescueSignalBase::BeginPlay()
 	}
 }
 
-void AA1RescueSignalBase::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const
+void AA1DockingSignalHandlerBase::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(ThisClass, SignalState);
 }
 
-FA1InteractionInfo AA1RescueSignalBase::GetPreInteractionInfo(const FA1InteractionQuery& InteractionQuery) const
+FA1InteractionInfo AA1DockingSignalHandlerBase::GetPreInteractionInfo(const FA1InteractionQuery& InteractionQuery) const
 {
 	switch (SignalState)
 	{
@@ -61,21 +61,21 @@ FA1InteractionInfo AA1RescueSignalBase::GetPreInteractionInfo(const FA1Interacti
 	}
 }
 
-void AA1RescueSignalBase::GetMeshComponents(TArray<UMeshComponent*>& OutMeshComponents) const
+void AA1DockingSignalHandlerBase::GetMeshComponents(TArray<UMeshComponent*>& OutMeshComponents) const
 {
 	OutMeshComponents.Add(MeshComponent);
 }
 
-void AA1RescueSignalBase::RegisterWithSpaceship(class AA1SpaceshipBase* Spaceship)
+void AA1DockingSignalHandlerBase::RegisterWithSpaceship(class AA1SpaceshipBase* Spaceship)
 {
 	if (Spaceship && HasAuthority())
 	{
 		OwningSpaceship = Spaceship;
-		Spaceship->RegisterRescueSignal(this);
+		Spaceship->RegisterDockingSignalHandler(this);
 	}
 }
 
-void AA1RescueSignalBase::SetSignalState(ESignalState NewSignalState)
+void AA1DockingSignalHandlerBase::SetSignalState(ESignalState NewSignalState)
 {
 	if (HasAuthority() == false || NewSignalState == SignalState)
 		return;
@@ -84,13 +84,13 @@ void AA1RescueSignalBase::SetSignalState(ESignalState NewSignalState)
 	OnRep_SignalState();
 }
 
-void AA1RescueSignalBase::SetupTags()
+void AA1DockingSignalHandlerBase::SetupTags()
 {
 	Tags.AddUnique("SpaceshipComponent");
-	Tags.AddUnique("RescueSignal");
+	Tags.AddUnique("DockingSignalHandler");
 }
 
-AA1SpaceshipBase* AA1RescueSignalBase::FindSpaceshipOwner() const
+AA1SpaceshipBase* AA1DockingSignalHandlerBase::FindSpaceshipOwner() const
 {
 	TArray<AActor*> FoundActors;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AA1SpaceshipBase::StaticClass(), FoundActors);
@@ -103,7 +103,7 @@ AA1SpaceshipBase* AA1RescueSignalBase::FindSpaceshipOwner() const
 	return nullptr;
 }
 
-void AA1RescueSignalBase::OnRep_SignalState()
+void AA1DockingSignalHandlerBase::OnRep_SignalState()
 {
 	OnSignalStateChanged(SignalState);
 }

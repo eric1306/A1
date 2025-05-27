@@ -4,7 +4,7 @@
 
 #include "A1SpaceshipBase.h"
 #include "Interaction/A1WorldInteractable.h"
-#include "A1RescueSignalBase.generated.h"
+#include "A1DockingSignalHandlerBase.generated.h"
 
 class ALevelSequenceActor;
 class ULevelSequencePlayer;
@@ -19,11 +19,11 @@ enum class ESignalState : uint8
 };
 
 UCLASS()
-class AA1RescueSignalBase : public AA1WorldInteractable, public IA1SpaceshipComponent
+class AA1DockingSignalHandlerBase : public AA1WorldInteractable, public IA1SpaceshipComponent
 {
 	GENERATED_BODY()
 public:
-	AA1RescueSignalBase(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
+	AA1DockingSignalHandlerBase(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 public:
 	virtual void BeginPlay() override;
 	virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const override;
@@ -34,7 +34,7 @@ public:
 
 	//IA1SpaceshipComponent
 	virtual void RegisterWithSpaceship(class AA1SpaceshipBase* Spaceship) override;
-	virtual ESpaceshipComponentType GetComponentType() const override { return ESpaceshipComponentType::RescueSignal; }
+	virtual ESpaceshipComponentType GetComponentType() const override { return ESpaceshipComponentType::DockingSignalHandler; }
 
 public:
 	UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly)

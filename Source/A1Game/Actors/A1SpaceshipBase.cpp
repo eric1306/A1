@@ -6,8 +6,9 @@
 #include "A1BedBase.h"
 #include "A1DoorBase.h"
 #include "A1FuelBase.h"
-#include "A1RescueSignalBase.h"
+#include "A1DockingSignalHandlerBase.h"
 #include "A1ShipOutputBase.h"
+#include "A1SignalDetectionBase.h"
 #include "A1StorageBase.h"
 #include "GameModes/LyraGameMode.h"
 #include "Kismet/GameplayStatics.h"
@@ -30,7 +31,7 @@ void AA1SpaceshipBase::BeginPlay()
 	{
 		FindComponentsByTags();
 
-		if (!RescueSignal || !CacheDoor || !FuelSystem || !ShipOutput || Beds.IsEmpty()/*|| Storages.IsEmpty()*/)
+		if (!DockingSignalHandler || !CacheDoor || !FuelSystem || !ShipOutput || Beds.IsEmpty()/*|| Storages.IsEmpty()*/)
 		{
 			FindSpaceshipComponents();
 		}
@@ -82,11 +83,11 @@ void AA1SpaceshipBase::RegisterDoor(AA1DoorBase* Door)
 	}
 }
 
-void AA1SpaceshipBase::RegisterRescueSignal(AA1RescueSignalBase* Signal)
+void AA1SpaceshipBase::RegisterDockingSignalHandler(AA1DockingSignalHandlerBase* Signal)
 {
-	if (Signal && HasAuthority() && !RescueSignal)
+	if (Signal && HasAuthority() && !DockingSignalHandler)
 	{
-		RescueSignal = Signal;
+		DockingSignalHandler = Signal;
 	}
 }
 
@@ -119,6 +120,14 @@ void AA1SpaceshipBase::RegisterShipOutput(AA1ShipOutputBase* Output)
 	if (Output && HasAuthority() && !ShipOutput)
 	{
 		ShipOutput = Output;
+	}
+}
+
+void AA1SpaceshipBase::RegisterSignalDetection(AA1SignalDetectionBase* Output)
+{
+	if (Output && HasAuthority() && !SignalDetection)
+	{
+		SignalDetection = Output;
 	}
 }
 
@@ -184,13 +193,13 @@ void AA1SpaceshipBase::FindSpaceshipComponents()
 		return;
 
 	// 이미 할당된 참조가 있으면 재할당하지 않음
-	if (!RescueSignal)
+	if (!DockingSignalHandler)
 	{
-		TArray<AActor*> FoundRescueSignals;
-		UGameplayStatics::GetAllActorsOfClass(GetWorld(), AA1RescueSignalBase::StaticClass(), FoundRescueSignals);
-		if (FoundRescueSignals.Num() > 0)
+		TArray<AActor*> FoundDockingSignalHandlers;
+		UGameplayStatics::GetAllActorsOfClass(GetWorld(), AA1DockingSignalHandlerBase::StaticClass(), FoundDockingSignalHandlers);
+		if (FoundDockingSignalHandlers.Num() > 0)
 		{
-			RescueSignal = Cast<AA1RescueSignalBase>(FoundRescueSignals[0]);
+			DockingSignalHandler = Cast<AA1DockingSignalHandlerBase>(FoundDockingSignalHandlers[0]);
 		}
 	}
 
@@ -251,6 +260,19 @@ void AA1SpaceshipBase::FindSpaceshipComponents()
 			}
 		}
 	}
+
+	if (!SignalDetection)
+	{
+		TArray<AActor*> FoundStorages;
+		UGameplayStatics::GetAllActorsOfClass(GetWorld(), AA1SignalDetectionBase::StaticClass(), FoundStorages);
+		for (AActor* Actor : FoundStorages)
+		{
+			if (AA1SignalDetectionBase* FoundSignalDetection = Cast<AA1SignalDetectionBase>(Actor))
+			{
+				SignalDetection = Cast<AA1SignalDetectionBase>(FoundSignalDetection);
+			}
+		}
+	}
 }
 
 void AA1SpaceshipBase::FindComponentsByTags()
@@ -268,9 +290,9 @@ void AA1SpaceshipBase::FindComponentsByTags()
 		{
 			CacheDoor = Cast<AA1DoorBase>(Actor);;
 		}
-		else if (Actor->ActorHasTag(RescueSignalTag) && !RescueSignal)
+		else if (Actor->ActorHasTag(DockingSignalHandlerTag) && !DockingSignalHandler)
 		{
-			RescueSignal = Cast<AA1RescueSignalBase>(Actor);
+			DockingSignalHandler = Cast<AA1DockingSignalHandlerBase>(Actor);
 		}
 		else if (Actor->ActorHasTag(BedTag))
 		{
@@ -369,7 +391,7 @@ void AA1SpaceshipBase::DeactivateExternalMap()
 		if (TargetActor && TargetActor->GetbDungeonGenerateComplete())
 		{
 			TargetActor->Server_ResetMap();
-			RescueSignal->SetSignalState(ESignalState::Released);
+			DockingSignalHandler->SetSignalState(ESignalState::Released);
 			break;
 		}
 	}

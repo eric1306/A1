@@ -5,23 +5,25 @@
 #include "GameFramework/Actor.h"
 #include "A1SpaceshipBase.generated.h"
 
+class AA1SignalDetectionBase;
 class AA1FuelDisplayUI;
 class AA1StorageBase;
 class AA1ShipOutputBase;
 class AA1FuelBase;
 class AA1BedBase;
-class AA1RescueSignalBase;
+class AA1DockingSignalHandlerBase;
 class AA1DoorBase;
 
 UENUM(BlueprintType)
 enum class ESpaceshipComponentType : uint8
 {
     Door,
-    RescueSignal,
+    DockingSignalHandler,
     Bed,
     Fuel,
     Storage,
-    ShipOutput
+    ShipOutput,
+    SignalDetection
 };
 
 UENUM(BlueprintType)
@@ -69,7 +71,7 @@ public:
     void RegisterDoor(AA1DoorBase* Door);
 
     UFUNCTION(BlueprintCallable, Category = "Spaceship|Components")
-    void RegisterRescueSignal(AA1RescueSignalBase* Signal);
+    void RegisterDockingSignalHandler(AA1DockingSignalHandlerBase* Signal);
 
     UFUNCTION(BlueprintCallable, Category = "Spaceship|Components")
     void RegisterBed(AA1BedBase* Bed);
@@ -82,6 +84,9 @@ public:
 
     UFUNCTION(BlueprintCallable, Category = "Spaceship|Components")
     void RegisterShipOutput(AA1ShipOutputBase* Output);
+
+    UFUNCTION(BlueprintCallable, Category = "Spaceship|Components")
+    void RegisterSignalDetection(AA1SignalDetectionBase* Output);
 
 
     UFUNCTION(BlueprintCallable, Category = "Spaceship|GameState", BlueprintAuthorityOnly)
@@ -142,6 +147,9 @@ public:
     FORCEINLINE bool GetIsExternalMapActive() const { return bIsExternalMapActive; }
     FORCEINLINE void SetIsExternamMapActive(bool InExternalMapActive) { bIsExternalMapActive = InExternalMapActive; }
     FORCEINLINE AA1DoorBase* GetCachedDoor() const { return CacheDoor; }
+    FORCEINLINE AA1SignalDetectionBase* GetSignalDetection() const { return SignalDetection; }
+    FORCEINLINE bool GetCanUseDockingSignalHandler() const { return bCanUseDockingSignalHandler; }
+    FORCEINLINE void SetCanUseDockingSignalHandler(bool InDockingSingalHandler) { bCanUseDockingSignalHandler = InDockingSingalHandler; }
 
     UFUNCTION(BlueprintCallable, Category = "Spaceship|GameState", BlueprintAuthorityOnly)
     void SetMeetRescueShip(bool bMeetRescue);
@@ -175,7 +183,7 @@ protected:
     TObjectPtr<AA1DoorBase> CacheDoor;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spaceship|Interactables")
-    TObjectPtr<AA1RescueSignalBase> RescueSignal;
+    TObjectPtr<AA1DockingSignalHandlerBase> DockingSignalHandler;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spaceship|Interactables")
     TArray<TObjectPtr<AA1BedBase>> Beds;
@@ -188,6 +196,9 @@ protected:
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spaceship|Interactables")
     TObjectPtr<AA1ShipOutputBase> ShipOutput;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spaceship|Interactables")
+    TObjectPtr<AA1SignalDetectionBase> SignalDetection;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spaceship|ExternalMap", Replicated)
     bool bIsExternalMapActive = false;
@@ -202,7 +213,7 @@ protected:
     FName DoorTag = "Door";
 
     UPROPERTY(EditDefaultsOnly, Category = "Spaceship|Tags")
-    FName RescueSignalTag = "RescueSignal";
+    FName DockingSignalHandlerTag = "DockingSignalHandler";
 
     UPROPERTY(EditDefaultsOnly, Category = "Spaceship|Tags")
     FName BedTag = "Bed";
@@ -219,8 +230,14 @@ protected:
     UPROPERTY(EditDefaultsOnly, Category = "Spaceship|Tags")
     FName ShipOutputTag = "ShipOutput";
 
+    UPROPERTY(EditDefaultsOnly, Category = "Spaceship|Tags")
+    FName SignalDetectionTag = "SignalDetection";
+
     UPROPERTY(Replicated)
     bool bMeetRescueShip = false;
+
+    UPROPERTY(Replicated)
+    bool bCanUseDockingSignalHandler = false;
 
 private:
     FTimerHandle FuelConsumeTimer;
