@@ -28,6 +28,7 @@ protected:
 private:
 	void OnEquipmentEntryChanged(EEquipmentSlotType EquipmentSlotType, UA1ItemInstance* ItemInstance, int32 ItemCount);
 	void OnMainHandChanged(EMainHandState NewEquipState);
+	void TryInitPawn();
 	
 public:
 	EMainHandState ChoosedItemSlot = EMainHandState::Count;

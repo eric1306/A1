@@ -8,6 +8,7 @@
 #include "Character/LyraPawnExtensionComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/SkeletalMeshComponent.h"
+#include "Data/A1TextData.h"
 #include "LyraCharacterMovementComponent.h"
 #include "A1GameplayTags.h"
 #include "A1LogChannels.h"
@@ -211,6 +212,7 @@ void ALyraCharacter::OnAbilitySystemInitialized()
 
 	// Register to listen for attribute changes.
 	Vital->OnOutOfHealth.AddUObject(this, &ThisClass::HandleOutOfHealth);
+	Vital->OnNoticeWarning.AddUObject(this, &ThisClass::HandleNoticeWarning);
 	LyraASC->GetGameplayAttributeValueChangeDelegate(UA1CharacterAttributeSet::GetWeightAttribute()).AddUObject(this, &ThisClass::HandleChangeOfWeight);
 
 	InitializeGameplayTags();
@@ -427,6 +429,15 @@ void ALyraCharacter::HandleOutOfHealth(AActor* InActor, float OldValue, float Ne
 	}
 
 	OnDeathFinished(this);
+}
+
+void ALyraCharacter::HandleNoticeWarning(int index)
+{
+
+	const FTextSet& TextSet = UA1TextData::Get().GetTextSetByLabel("System");
+	FText WaringText = TextSet.TextEntries[index];
+
+	OnNotice.Broadcast(WaringText);
 }
 
 void ALyraCharacter::OnDeathStarted(AActor*)

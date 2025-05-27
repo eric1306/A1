@@ -112,8 +112,11 @@ enum class EUtilityType : uint8
 {
 	Fuel,
 	Food,
+	EnergyDrink,
 	LightSource,
-
+	Documents,
+	MachineParts,
+	
 	Count	UMETA(Hidden)
 };
 

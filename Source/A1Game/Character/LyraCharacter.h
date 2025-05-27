@@ -31,6 +31,8 @@ struct FGameplayTagContainer;
 
 class UA1CharacterAttributeSet;
 
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnNotice, FText);
+
 /**
  * FLyraReplicatedAcceleration: Compressed representation of acceleration
  */
@@ -249,6 +251,7 @@ protected:
 	void DeleteStatEffect(int index);
 	void HandleChangeOfWeight(const FOnAttributeChangeData& ChangeData);
 	void HandleOutOfHealth(AActor* InActor, float OldValue, float NewValue);
+	void HandleNoticeWarning(int index);
 	
 	UPROPERTY()
 	TObjectPtr<const UA1CharacterAttributeSet> Vital;
@@ -267,6 +270,9 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = Stat, Meta = (AllowPrivateAccess = "true"))
 	TArray<TSubclassOf<UGameplayEffect>> StatEffects;
+
+public:
+	FOnNotice OnNotice;
 
 	/* ---------------------
 	*	   TEMP Space

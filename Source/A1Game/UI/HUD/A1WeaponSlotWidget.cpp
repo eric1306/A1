@@ -27,29 +27,41 @@ void UA1WeaponSlotWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
 
-	ALyraCharacter* LyraCharacter = Cast<ALyraCharacter>(GetOwningPlayerPawn());
-	if (LyraCharacter == nullptr)
-		return;
-	
-	EquipManager = LyraCharacter->GetComponentByClass<UA1EquipManagerComponent>();
-	EquipmentManager = LyraCharacter->GetComponentByClass<UA1EquipmentManagerComponent>();
-	if (EquipManager == nullptr || EquipmentManager == nullptr)
-		return;
+	GetWorld()->GetTimerManager().SetTimerForNextTick(this, &UA1WeaponSlotWidget::TryInitPawn);
+}
 
-	const TArray<FA1EquipmentEntry>& Entries = EquipmentManager->GetAllEntries();
-	for (int32 i = 0; i < Entries.Num(); i++)
+void UA1WeaponSlotWidget::TryInitPawn()
+{
+	ALyraCharacter* LyraCharacter = Cast<ALyraCharacter>(GetOwningPlayerPawn());
+	if (LyraCharacter != nullptr)
 	{
-		const FA1EquipmentEntry& Entry = Entries[i];
-		if (UA1ItemInstance* ItemInstance = Entry.GetItemInstance())
+		EquipManager = LyraCharacter->GetComponentByClass<UA1EquipManagerComponent>();
+		EquipmentManager = LyraCharacter->GetComponentByClass<UA1EquipmentManagerComponent>();
+		if (EquipManager == nullptr || EquipmentManager == nullptr)
 		{
-			OnEquipmentEntryChanged((EEquipmentSlotType)i, ItemInstance, Entry.GetItemCount());
+			GetWorld()->GetTimerManager().SetTimerForNextTick(this, &UA1WeaponSlotWidget::TryInitPawn);
+			return;
 		}
+
+		const TArray<FA1EquipmentEntry>& Entries = EquipmentManager->GetAllEntries();
+		for (int32 i = 0; i < Entries.Num(); i++)
+		{
+			const FA1EquipmentEntry& Entry = Entries[i];
+			if (UA1ItemInstance* ItemInstance = Entry.GetItemInstance())
+			{
+				OnEquipmentEntryChanged((EEquipmentSlotType)i, ItemInstance, Entry.GetItemCount());
+			}
+		}
+		EntryChangedDelegateHandle = EquipmentManager->OnEquipmentEntryChanged.AddUObject(this, &ThisClass::OnEquipmentEntryChanged);
+
+		EMainHandState CurrentMainHand = EquipManager->GetCurrentMainHand();
+		OnMainHandChanged(CurrentMainHand);
+		MainHandChangedDelegateHandle = EquipManager->OnMainHandChanged.AddUObject(this, &ThisClass::OnMainHandChanged);
 	}
-	EntryChangedDelegateHandle = EquipmentManager->OnEquipmentEntryChanged.AddUObject(this, &ThisClass::OnEquipmentEntryChanged);
-	
-	EMainHandState CurrentMainHand = EquipManager->GetCurrentMainHand();
-	OnMainHandChanged(CurrentMainHand);
-	MainHandChangedDelegateHandle = EquipManager->OnMainHandChanged.AddUObject(this, &ThisClass::OnMainHandChanged);
+	else
+	{
+		GetWorld()->GetTimerManager().SetTimerForNextTick(this, &UA1WeaponSlotWidget::TryInitPawn);
+	}
 }
 
 void UA1WeaponSlotWidget::NativeDestruct()
