@@ -5,6 +5,7 @@
 #include "Character/LyraCharacter.h"
 #include "Data/A1CharacterData.h"
 //#include "Item/Fragments/A1ItemFragment_Equipable_Armor.h"
+#include "Player/LyraPlayerController.h"
 #include "System/LyraAssetManager.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(A1CosmeticManagerComponent)
@@ -180,9 +181,17 @@ void UA1CosmeticManagerComponent::InitializeManager()
 				SkinMaterialSlotName[i] = FName(*Enum->GetNameStringByIndex(i));
 				SkinMaterial[i] = DefaultArmorMeshSet.BodySkinMaterial[i];
 			}
-			
+			/*if (HasAuthority())
+				return;*/
 
-			CosmeticSlots = SpawnCosmeticSlotActor(DefaultArmorMeshSet.DefaultMesh, SkinMaterialSlotName, SkinMaterial);
+			if (Character->GetLocalRole() == ROLE_AutonomousProxy || Character->GetNetMode() == NM_Standalone)
+			{
+				CosmeticSlots = SpawnCosmeticSlotActor(DefaultArmorMeshSet.DefaultArmMesh, SkinMaterialSlotName, SkinMaterial);
+			}
+			else
+			{
+				CosmeticSlots = SpawnCosmeticSlotActor(DefaultArmorMeshSet.DefaultMesh, SkinMaterialSlotName, SkinMaterial);
+			}
 			
 		}
 	}

@@ -52,21 +52,31 @@ void UA1AbilityTask_GrantNearbyInteraction::QueryInteractables()
 
 		FCollisionQueryParams Params(SCENE_QUERY_STAT(UA1AbilityTask_GrantNearbyInteraction), false);
 
-		TArray<FOverlapResult> OverlapResults;
-		World->OverlapMultiByChannel(OverlapResults, AvatarActor->GetActorLocation(), FQuat::Identity, A1_TraceChannel_Interaction, FCollisionShape::MakeSphere(InteractionAbilityScanRange), Params);
+		APlayerController* PlayerController = Ability->GetCurrentActorInfo()->PlayerController.Get();
+		if (PlayerController == nullptr)
+			return;
 
-		if (OverlapResults.Num() > 0)
+		FVector CameraStart;
+		FRotator CameraRotation;
+		PlayerController->GetPlayerViewPoint(CameraStart, CameraRotation);
+		const FVector CameraDirection = CameraRotation.Vector();
+		FVector CameraEnd = CameraStart + (CameraDirection * 1000.f); //Temp eric1306 hardcoding, after FP, must fix distance
+		
+
+		TArray<FHitResult> HitResults;
+		World->LineTraceMultiByChannel(OUT HitResults, CameraStart, CameraEnd, A1_TraceChannel_Interaction, Params);
+		if (HitResults.Num() > 0)
 		{
 			TArray<TScriptInterface<IA1Interactable>> Interactables;
-			for (const FOverlapResult& OverlapResult : OverlapResults)
+			for (const FHitResult& HitResult : HitResults)
 			{
-				TScriptInterface<IA1Interactable> InteractableActor(OverlapResult.GetActor());
+				TScriptInterface<IA1Interactable> InteractableActor(HitResult.GetActor());
 				if (InteractableActor)
 				{
 					Interactables.AddUnique(InteractableActor);
 				}
 
-				TScriptInterface<IA1Interactable> InteractableComponent(OverlapResult.GetComponent());
+				TScriptInterface<IA1Interactable> InteractableComponent(HitResult.GetComponent());
 				if (InteractableComponent)
 				{
 					Interactables.AddUnique(InteractableComponent);

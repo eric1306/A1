@@ -6,6 +6,7 @@
 #include "Interaction/A1WorldInteractable.h"
 #include "A1StorageBase.generated.h"
 
+class AA1StorageEntryBase;
 class AA1EquipmentBase;
 class UBoxComponent;
 class UA1StorageComponent;
@@ -15,7 +16,7 @@ class UArrowComponent;
  * - Can Store Item Instance
  */
 UCLASS()
-class AA1StorageBase : public AA1WorldInteractable, public IA1SpaceshipComponent
+class AA1StorageBase : public AActor, public IA1SpaceshipComponent
 {
 	GENERATED_BODY()
 
@@ -39,10 +40,6 @@ protected:
 
 	FORCEINLINE	AA1SpaceshipBase* GetOwningSpaceship() const { return OwningSpaceship.IsValid() ? OwningSpaceship.Get() : nullptr; }
 
-	void TryDetectItem();
-
-	void TryStoreItem(AA1EquipmentBase* Equip);
-
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TObjectPtr<UArrowComponent> ArrowComponent;
@@ -50,23 +47,18 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TObjectPtr<UStaticMeshComponent> MeshComponent;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	TObjectPtr<USceneComponent> StoreLocation;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	TArray<TObjectPtr<USceneComponent>> StoreLocations;
-
 	UPROPERTY(VisibleAnywhere, Transient)
 	TWeakObjectPtr<AA1SpaceshipBase> OwningSpaceship;
 
-	UPROPERTY(VisibleAnywhere)
-	TArray<TObjectPtr<AActor>> SavedEquips;
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<AA1StorageEntryBase> EntryClass;
 
-	FTimerHandle ItemDetectTimerHandle;
+	UPROPERTY(VisibleAnywhere, Replicated)
+	TArray<TObjectPtr<AA1StorageEntryBase>> StorageEntries;
 
-	float ItemDetectionRadius;
-
-	int32 MaxStorageSize;
-
-	int32 LatestIdx;
+	
+	int32 StorageWidthNum;
+	int32 StorageHeightNum;
+	FVector SpawnStartLocation;
+	
 };

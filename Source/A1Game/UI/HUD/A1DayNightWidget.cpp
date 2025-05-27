@@ -23,7 +23,7 @@ void UA1DayNightWidget::NativeConstruct()
 		//초기 UI 설정
 		UpdateUI();
 		UpdateTimeDisplay(12, 0);
-		Text_Time->SetColorAndOpacity(FSlateColor(FLinearColor::Black));
+		Text_Time->SetColorAndOpacity(FSlateColor(FLinearColor::White));
 	}
 }
 
