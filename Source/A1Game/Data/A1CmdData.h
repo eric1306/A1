@@ -3,26 +3,13 @@
 #include "A1CmdData.generated.h"
 
 USTRUCT()
-struct FCmdTextEntry
-{
-	GENERATED_BODY()
-
-public:
-	UPROPERTY(EditDefaultsOnly)
-	FName TextLabel;
-
-	UPROPERTY(EditDefaultsOnly)
-	FText Text;
-};
-
-USTRUCT()
 struct FCmdTextSet
 {
 	GENERATED_BODY()
 
 public:
 	UPROPERTY(EditDefaultsOnly)
-	TArray<FCmdTextEntry> TextEntries;
+	TMap<FName, FString> TextEntries;
 };
 
 UCLASS(Const, CollapseCategories, meta=(DisplayName="A1 Cmd Data"))
@@ -40,7 +27,7 @@ protected:
 #endif
 	
 public:
-	const FCmdTextSet& GetTextSetByLabel(const FName& Label) const;
+	const FCmdTextSet* GetTextSetByLabel(const FName& Label) const;
 	
 private:
 	UPROPERTY(EditDefaultsOnly)

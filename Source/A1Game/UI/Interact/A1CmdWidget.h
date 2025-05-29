@@ -6,7 +6,9 @@
 #include "GameFramework/GameplayMessageSubsystem.h"
 #include "A1CmdWidget.generated.h"
 
+class UTextBlock;
 class UEditableText;
+class UVerticalBox;
 class UAbilitySystemComponent;
 
 USTRUCT(BlueprintType)
@@ -36,12 +38,19 @@ protected:
 
 private:
 	void ConstructUI(FGameplayTag Channel, const FASCInitializeMessage& Message);
+	void DestructUI();
 
 public:
 	UPROPERTY(EditAnywhere, meta = (Categories = "Message"))
 	FGameplayTag MessageChannelTag;
 
 private:
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UTextBlock> SuperviseText;
+
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UVerticalBox> MenuBox;
+
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UEditableText> InputText;
 
