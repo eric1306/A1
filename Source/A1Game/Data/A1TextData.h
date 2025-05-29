@@ -19,7 +19,8 @@ class UA1TextData : public UPrimaryDataAsset
 	GENERATED_BODY()
 
 public:
-	static const UA1TextData& Get();
+	static const UA1TextData& GetNoticeData();
+	static const UA1TextData& GetGuideData();
 	
 protected:
 #if WITH_EDITOR

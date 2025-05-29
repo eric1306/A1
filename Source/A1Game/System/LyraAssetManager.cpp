@@ -127,8 +127,9 @@ void ULyraAssetManager::StartInitialLoading()
 		STARTUP_JOB_WEIGHTED(GetItemData(), 25.f);
 		STARTUP_JOB_WEIGHTED(GetAssetData(), 25.f);
 		STARTUP_JOB_WEIGHTED(GetUIData(), 25.f);
-		STARTUP_JOB_WEIGHTED(GetTextData(), 25.f);
-		//STARTUP_JOB_WEIGHTED(GetCmdData(), 25.f);
+		STARTUP_JOB_WEIGHTED(GetNoticeData(), 25.f);
+		STARTUP_JOB_WEIGHTED(GetGuideData(), 25.f);
+		STARTUP_JOB_WEIGHTED(GetCmdData(), 25.f);
 	}
 
 	// Run all the queued up startup jobs
@@ -180,9 +181,14 @@ const UA1UIData& ULyraAssetManager::GetUIData()
 	return GetOrLoadTypedGameData<UA1UIData>(UIDataPath);
 }
 
-const UA1TextData& ULyraAssetManager::GetTextData()
+const UA1TextData& ULyraAssetManager::GetNoticeData()
 {
-	return GetOrLoadTypedGameData<UA1TextData>(TextDataPath);
+	return GetOrLoadTypedGameData<UA1TextData>(NoticeDataPath);
+}
+
+const UA1TextData& ULyraAssetManager::GetGuideData()
+{
+	return GetOrLoadTypedGameData<UA1TextData>(GuideDataPath);
 }
 
 const UA1CmdData& ULyraAssetManager::GetCmdData()

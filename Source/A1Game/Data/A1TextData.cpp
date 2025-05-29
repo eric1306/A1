@@ -10,9 +10,14 @@
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(A1TextData)
 
-const UA1TextData& UA1TextData::Get()
+const UA1TextData& UA1TextData::GetNoticeData()
 {
-	return ULyraAssetManager::Get().GetTextData();
+	return ULyraAssetManager::Get().GetNoticeData();
+}
+
+const UA1TextData& UA1TextData::GetGuideData()
+{
+	return ULyraAssetManager::Get().GetGuideData();
 }
 
 #if WITH_EDITOR

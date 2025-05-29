@@ -67,7 +67,8 @@ public:
 	const UA1ItemData& GetItemData();
 	const UA1AssetData& GetAssetData();
 	const UA1UIData& GetUIData();
-	const UA1TextData& GetTextData();
+	const UA1TextData& GetNoticeData();
+	const UA1TextData& GetGuideData();
 	const UA1CmdData& GetCmdData();
 	
 protected:
@@ -128,7 +129,10 @@ protected:
 	TSoftObjectPtr<UA1UIData> UIDataPath;
 
 	UPROPERTY(Config)
-	TSoftObjectPtr<UA1TextData> TextDataPath;
+	TSoftObjectPtr<UA1TextData> NoticeDataPath;
+
+	UPROPERTY(Config)
+	TSoftObjectPtr<UA1TextData> GuideDataPath;
 
 	UPROPERTY(Config)
 	TSoftObjectPtr<UA1CmdData> CmdDataPath;
