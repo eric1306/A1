@@ -123,6 +123,8 @@ namespace A1GameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(GameplayEvent_Gun_ADS,							"GameplayEvent.Gun.ADS");
 	UE_DEFINE_GAMEPLAY_TAG(GameplayEvent_Widget_Inventory,					"GameplayEvent.Widget.Inventory");
 	UE_DEFINE_GAMEPLAY_TAG(GameplayEvent_HitReact,							"GameplayEvent.HitReact");
+	UE_DEFINE_GAMEPLAY_TAG(GameplayEvent_Cmd_Close,							"GameplayEvent.Cmd.Close");
+	UE_DEFINE_GAMEPLAY_TAG(GameplayEvent_Cmd_Map,							"GameplayEvent.Cmd.Map");
 	
 	// Cheat
 	UE_DEFINE_GAMEPLAY_TAG(Cheat_GodMode,									"Cheat.GodMode");
@@ -144,6 +146,7 @@ namespace A1GameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(Message_Initialize_OtherInventory,				"Message.Initialize.OtherInventory");
 	UE_DEFINE_GAMEPLAY_TAG(Message_Initialize_MyEquipment,					"Message.Initialize.MyEquipment");
 	UE_DEFINE_GAMEPLAY_TAG(Message_Initialize_OtherEquipment,				"Message.Initialize.OtherEquipment");
+	UE_DEFINE_GAMEPLAY_TAG(Message_Initialize_Cmd,							"Message.Initialize.Cmd");
 	UE_DEFINE_GAMEPLAY_TAG(Message_HUD_Spell_Input,							"Message.HUD.Spell.Input");
 	UE_DEFINE_GAMEPLAY_TAG(Message_HUD_Spell_Progress_Construct,			"Message.HUD.Spell.Progress.Construct");
 	UE_DEFINE_GAMEPLAY_TAG(Message_HUD_Spell_Progress_Refresh,				"Message.HUD.Spell.Progress.Refresh");

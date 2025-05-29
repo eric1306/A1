@@ -18,6 +18,7 @@ class UA1ItemData;
 class UA1AssetData;
 class UA1UIData;
 class UA1TextData;
+class UA1CmdData;
 
 struct FLyraBundles
 {
@@ -67,8 +68,8 @@ public:
 	const UA1AssetData& GetAssetData();
 	const UA1UIData& GetUIData();
 	const UA1TextData& GetTextData();
+	const UA1CmdData& GetCmdData();
 	
-
 protected:
 	template <typename GameDataClass>
 	const GameDataClass& GetOrLoadTypedGameData(const TSoftObjectPtr<GameDataClass>& DataPath)
@@ -128,6 +129,9 @@ protected:
 
 	UPROPERTY(Config)
 	TSoftObjectPtr<UA1TextData> TextDataPath;
+
+	UPROPERTY(Config)
+	TSoftObjectPtr<UA1CmdData> CmdDataPath;
 
 private:
 	// Flushes the StartupJobs array. Processes all startup work.
