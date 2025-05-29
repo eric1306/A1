@@ -6,6 +6,7 @@
 #include "A1GameplayTags.h"
 #include "AbilitySystem/LyraAbilitySystemComponent.h"
 #include "Components/EditableText.h"
+#include "Data/A1CmdData.h"
 
 UA1CmdWidget::UA1CmdWidget(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
@@ -36,16 +37,22 @@ void UA1CmdWidget::ConstructUI(FGameplayTag Channel, const FASCInitializeMessage
 
 void UA1CmdWidget::InputEnded(FText InText)
 {
-	UE_LOG(LogA1System, Log, TEXT("%s"), *InText.ToString());
+    if (InText.ToString() == TEXT(""))
+        return;
 
-	// Map Open
-	if (InText.ToString() == TEXT("Map"))
-	{
-		if (ASC)
-		{
-			FGameplayEventData Payload;
-			ASC->HandleGameplayEvent(A1GameplayTags::GameplayEvent_Cmd_Map, &Payload);
-		}
-	}
+    UE_LOG(LogA1System, Log, TEXT("%s"), *InText.ToString());
+
+    // Map Open
+    if (InText.ToString() == TEXT("Map"))
+    {
+        if (ASC)
+        {
+            FGameplayEventData Payload;
+            ASC->HandleGameplayEvent(A1GameplayTags::GameplayEvent_Cmd_Map, &Payload);
+        }
+
+    }
+
+    InputText->SetText(FText::FromString(""));
 }
 

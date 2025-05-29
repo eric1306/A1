@@ -1,0 +1,45 @@
+// Copyright (c) 2025 THIS-ACCENT. All Rights Reserved.
+
+#pragma once
+
+#include "Interaction/Abilities/A1GameplayAbility_Interact_Object.h"
+#include "A1GameplayAbility_Interact_Cmd.generated.h"
+
+class UAbilityTask_WaitGameplayEvent;
+class UA1GameplayAbility_Cmd;
+/**
+ * 
+ */
+UCLASS()
+class UA1GameplayAbility_Interact_Cmd : public UA1GameplayAbility_Interact_Object
+{
+	GENERATED_BODY()
+public:
+	UA1GameplayAbility_Interact_Cmd();
+protected:
+	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
+	virtual void EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled) override;
+public:
+	UFUNCTION(BlueprintImplementableEvent)
+	void ActiveWidget();
+	UFUNCTION(BlueprintImplementableEvent)
+	void DeactiveWidget();
+
+protected:
+	UFUNCTION()
+	void OpenMap(FGameplayEventData Payload);
+
+	UFUNCTION()
+	void CloseCmd(FGameplayEventData Payload);
+
+protected:
+	UPROPERTY(EditDefaultsOnly)
+	TObjectPtr<UMaterialInterface> MinimapMaterial;
+
+private:
+	UPROPERTY()
+	TObjectPtr<UAbilityTask_WaitGameplayEvent> OpenMapTask;
+
+	UPROPERTY()
+	TObjectPtr<UAbilityTask_WaitGameplayEvent> ExitWidgetTask;
+};
