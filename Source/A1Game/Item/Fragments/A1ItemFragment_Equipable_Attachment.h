@@ -37,9 +37,6 @@ public:
 	FA1ItemAttachInfo ItemAttachInfo;
 
 	UPROPERTY(EditDefaultsOnly)
-	TSoftObjectPtr<UAnimMontage> EquipMontage;
-
-	UPROPERTY(EditDefaultsOnly)
 	TSoftObjectPtr<UAnimMontage> FrontHitMontage;
 	
 	UPROPERTY(EditDefaultsOnly)
@@ -50,12 +47,6 @@ public:
 
 	UPROPERTY(EditDefaultsOnly)
 	TSoftObjectPtr<UAnimMontage> RightHitMontage;
-
-	UPROPERTY(EditDefaultsOnly)
-	TSoftObjectPtr<UAnimMontage> BlockHitMontage;
-
-	UPROPERTY(EditDefaultsOnly)
-	TSoftObjectPtr<UAnimMontage> PocketWorldIdleMontage;
 	
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<UAnimInstance> AnimInstanceClass;

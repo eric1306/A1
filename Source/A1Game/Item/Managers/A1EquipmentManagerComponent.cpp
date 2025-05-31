@@ -36,7 +36,10 @@ void FA1EquipmentEntry::Init(UA1ItemInstance* InItemInstance, int32 InItemCount)
 	
 	const UA1ItemTemplate& ItemTemplate = UA1ItemData::Get().FindItemTemplateByID(ItemInstance->GetItemTemplateID());
 	ItemCount = FMath::Clamp(InItemCount, 1, ItemTemplate.MaxStackCount);
-	
+
+	//TEMP Jerry
+	EquipmentManager->OnEquipmentEntryChanged.Broadcast(EquipmentSlotType, ItemInstance, ItemCount);
+
 	EquipManager->Equip(EquipmentSlotType, ItemInstance);
 	EquipManager->ChangeEquipState(EquipmentSlotType, true);
 }
@@ -58,6 +61,10 @@ UA1ItemInstance* FA1EquipmentEntry::Reset()
 
 	// 해당 장비 벗었다고 전환
 	EquipManager->ChangeEquipState(EquipmentSlotType, false);
+	EquipManager->CanInteract();
+
+	//TEMP Jerry
+	EquipmentManager->OnEquipmentEntryChanged.Broadcast(EquipmentSlotType, ItemInstance, ItemCount);
 
 	return RemovedItemInstance;
 }

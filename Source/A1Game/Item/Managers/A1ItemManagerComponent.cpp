@@ -372,7 +372,6 @@ void UA1ItemManagerComponent::Server_DropItem_Implementation(bool bActivateWidge
 			Server_DropItemFromEquipment(MyEquipment, EEquipmentSlotType::TwoHand);
 		else
 			Server_DropItemFromEquipment(MyEquipment, MyEquip->ConvertToEquipmentSlotType(MyEquip->GetCurrentMainHand()));
-		MyEquipment->GetEquipManager()->CanInteract();
 	}
 
 }
@@ -418,81 +417,9 @@ bool UA1ItemManagerComponent::TryPickItem(AA1EquipmentBase* PickupableItemActor)
 		MyEquipmentManager->GetEquipManager()->CanInteract();
 		return true;
 	}
-	//else
-	//{
-	//	TArray<FIntPoint> ToItemSlotPoses;
-	//	TArray<int32> ToItemCounts;
-	//
-	//	MovableCount = MyInventoryManager->CanAddItem(ItemTemplateID, ItemRarity, ItemCount, ToItemSlotPoses, ToItemCounts);
-	//	if (MovableCount == ItemCount)
-	//	{
-	//		if (ItemInstance == nullptr)
-	//		{
-	//			ItemInstance = NewObject<UA1ItemInstance>();
-	//			ItemInstance->Init(ItemTemplateID, ItemRarity);
-	//		}
-	//
-	//		for (int32 i = 0; i < ToItemSlotPoses.Num(); i++)
-	//		{
-	//			MyInventoryManager->AddItem_Unsafe(ToItemSlotPoses[i], ItemInstance, ToItemCounts[i]);
-	//		}
-	//
-	//		PickupableItemActor->Destroy();
-	//		return true;
-	//	}
-	//}
 
 	return false;
 }
-
-/*
-bool UA1ItemManagerComponent::TryDropItem(UA1ItemInstance* FromItemInstance, int32 FromItemCount)
-{
-	if (HasAuthority() == false)
-		return false;
-
-	if (FromItemInstance == nullptr || FromItemCount <= 0)
-		return false;
-
-	AController* Controller = Cast<AController>(GetOwner());
-	ACharacter* Character = Controller ? Cast<ACharacter>(Controller->GetPawn()) : Cast<ACharacter>(GetOwner());
-	if (Character == nullptr)
-		return false;
-	
-	const float MaxDistance = 100.f;
-	const int32 MaxTryCount = 5.f;
-	float HalfRadius = Character->GetCapsuleComponent()->GetScaledCapsuleRadius() / 2.f;
-	float QuarterHeight = Character->GetCapsuleComponent()->GetScaledCapsuleHalfHeight() / 2.f;
-	TArray<AActor*> ActorsToIgnore = { Character };
-
-	FActorSpawnParameters SpawnParameters;
-	SpawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButDontSpawnIfColliding;
-
-	for (int32 i = 0; i < MaxTryCount; i++)
-	{
-		FHitResult HitResult;
-		FVector2D RandPoint = FMath::RandPointInCircle(MaxDistance);
-		FVector TraceStartLocation = Character->GetCapsuleComponent()->GetComponentLocation();
-		FVector TraceEndLocation = TraceStartLocation + FVector(RandPoint.X, RandPoint.Y, 0.f);
-		
-		if (UKismetSystemLibrary::CapsuleTraceSingle(GetWorld(), TraceStartLocation, TraceEndLocation, HalfRadius, QuarterHeight, UEngineTypes::ConvertToTraceType(ECC_Visibility), false, ActorsToIgnore, EDrawDebugTrace::None, HitResult, true))
-			continue;
-		
-		TSubclassOf<AA1PickupableItemBase> PickupableItemBaseClass = ULyraAssetManager::Get().GetSubclassByName<AA1PickupableItemBase>("PickupableItemBaseClass");
-		AA1PickupableItemBase* PickupableItemActor = GetWorld()->SpawnActor<AA1PickupableItemBase>(PickupableItemBaseClass, TraceEndLocation, FRotator::ZeroRotator, SpawnParameters);
-		if (PickupableItemActor == nullptr)
-			continue;
-		
-		FA1PickupInfo PickupInfo;
-		PickupInfo.PickupInstance.ItemInstance = FromItemInstance;
-		PickupInfo.PickupInstance.ItemCount = FromItemCount;
-		PickupableItemActor->SetPickupInfo(PickupInfo);
-		return true;
-	}
-	
-	return false;
-}
-*/
 
 bool UA1ItemManagerComponent::TryDropItem(UA1ItemInstance* FromItemInstance, int32 FromItemCount)
 {
@@ -512,7 +439,7 @@ bool UA1ItemManagerComponent::TryDropItem(UA1ItemInstance* FromItemInstance, int
 	SpawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButDontSpawnIfColliding;
 
 	FVector SpawnLocation = Character->GetActorLocation();
-	SpawnLocation.Z = 5.0f;
+	SpawnLocation.Z = 50.0f;
 	
 	const UA1ItemFragment_Equipable_Attachment* EquippableFragment = FromItemInstance->FindFragmentByClass<UA1ItemFragment_Equipable_Attachment>();
 	if (EquippableFragment == nullptr)
