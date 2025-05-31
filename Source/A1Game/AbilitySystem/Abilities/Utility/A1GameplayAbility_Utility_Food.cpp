@@ -64,7 +64,7 @@ void UA1GameplayAbility_Utility_Food::OnMontageFinished()
 
 	// 장착 장비 제거
 	EquipmentManager->RemoveEquipment_Unsafe(EquipedItem->GetEquipmentSlotType(), 1);
-
+	
 	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
 	
 }

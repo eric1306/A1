@@ -34,18 +34,12 @@ EDataValidationResult UA1CmdData::IsDataValid(FDataValidationContext& Context) c
 	for (const auto& Pair : TextGroupNameToSet)
 	{
 		const FCmdTextSet& TextSet = Pair.Value;
-		for (int32 i = 0; i < TextSet.TextEntries.Num(); i++)
+		for (const auto& TextPair : TextSet.TextEntries)
 		{
-			const FCmdTextEntry& CmdTextEntry = TextSet.TextEntries[i];
-			if (CmdTextEntry.TextLabel.IsNone())
+			const FString& CmdText = TextPair.Value;
+			if (CmdText.IsEmpty())
 			{
-				Context.AddError(FText::FromString(FString::Printf(TEXT("CmdTextLabel is None : [Group Name : %s] - [Entry Index : %d]"), *Pair.Key.ToString(), i)));
-				Result = EDataValidationResult::Invalid;
-			}
-
-			if (CmdTextEntry.Text.IsEmpty())
-			{
-				Context.AddError(FText::FromString(FString::Printf(TEXT("CmdText is Invalid : [Group Name : %s] - [Entry Index : %d]"), *Pair.Key.ToString(), i)));
+				Context.AddError(FText::FromString(FString::Printf(TEXT("CmdTextLabel is None : [Group Name : %s] - [Entry Name : %s]"), *Pair.Key.ToString(), *TextPair.Key.ToString())));
 				Result = EDataValidationResult::Invalid;
 			}
 		}
@@ -55,9 +49,9 @@ EDataValidationResult UA1CmdData::IsDataValid(FDataValidationContext& Context) c
 }
 #endif // WITH_EDITOR
 
-const FCmdTextSet& UA1CmdData::GetTextSetByLabel(const FName& Label) const
+const FCmdTextSet* UA1CmdData::GetTextSetByLabel(const FName& Label) const
 {
 	const FCmdTextSet* TextSet = TextGroupNameToSet.Find(Label);
 	ensureAlwaysMsgf(TextSet, TEXT("Can't find CmdText Set from Label [%s]."), *Label.ToString());
-	return *TextSet;
+	return TextSet;
 }

@@ -1,4 +1,4 @@
-﻿#include "A1TextData.h"
+﻿#include "A1NoticeData.h"
 
 #include "UObject/ObjectSaveContext.h"
 
@@ -8,15 +8,15 @@
 
 #include "System/LyraAssetManager.h"
 
-#include UE_INLINE_GENERATED_CPP_BY_NAME(A1TextData)
+#include UE_INLINE_GENERATED_CPP_BY_NAME(A1NoticeData)
 
-const UA1TextData& UA1TextData::Get()
+const UA1NoticeData& UA1NoticeData::Get()
 {
-	return ULyraAssetManager::Get().GetTextData();
+	return ULyraAssetManager::Get().GetNoticeData();
 }
 
 #if WITH_EDITOR
-void UA1TextData::PreSave(FObjectPreSaveContext ObjectSaveContext)
+void UA1NoticeData::PreSave(FObjectPreSaveContext ObjectSaveContext)
 {
 	Super::PreSave(ObjectSaveContext);
 
@@ -27,13 +27,13 @@ void UA1TextData::PreSave(FObjectPreSaveContext ObjectSaveContext)
 	
 }
 
-EDataValidationResult UA1TextData::IsDataValid(FDataValidationContext& Context) const
+EDataValidationResult UA1NoticeData::IsDataValid(FDataValidationContext& Context) const
 {
 	EDataValidationResult Result = Super::IsDataValid(Context);
 
 	for (const auto& Pair : TextGroupNameToSet)
 	{
-		const FTextSet& TextSet = Pair.Value;
+		const FNoticeTextSet& TextSet = Pair.Value;
 		for (int32 i = 0; i < TextSet.TextEntries.Num(); i++)
 		{
 			const FText& Text = TextSet.TextEntries[i];
@@ -49,9 +49,9 @@ EDataValidationResult UA1TextData::IsDataValid(FDataValidationContext& Context) 
 }
 #endif // WITH_EDITOR
 
-const FTextSet& UA1TextData::GetTextSetByLabel(const FName& Label) const
+const FNoticeTextSet& UA1NoticeData::GetTextSetByLabel(const FName& Label) const
 {
-	const FTextSet* TextSet = TextGroupNameToSet.Find(Label);
+	const FNoticeTextSet* TextSet = TextGroupNameToSet.Find(Label);
 	ensureAlwaysMsgf(TextSet, TEXT("Can't find Asset Set from Label [%s]."), *Label.ToString());
 	return *TextSet;
 }

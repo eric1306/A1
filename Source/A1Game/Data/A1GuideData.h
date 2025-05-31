@@ -1,10 +1,10 @@
 ﻿#pragma once
 
-#include "A1TextData.generated.h"
+#include "A1GuideData.generated.h"
 
 
 USTRUCT()
-struct FTextSet
+struct FGuideTextSet
 {
 	GENERATED_BODY()
 
@@ -13,13 +13,13 @@ public:
 	TArray<FText> TextEntries;
 };
 
-UCLASS(Const, CollapseCategories, meta=(DisplayName="A1 Text Data"))
-class UA1TextData : public UPrimaryDataAsset
+UCLASS(Const, CollapseCategories, meta=(DisplayName="A1 Guide Data"))
+class UA1GuideData : public UPrimaryDataAsset
 {
 	GENERATED_BODY()
 
 public:
-	static const UA1TextData& Get();
+	static const UA1GuideData& Get();
 	
 protected:
 #if WITH_EDITOR
@@ -28,9 +28,9 @@ protected:
 #endif
 	
 public:
-	const FTextSet& GetTextSetByLabel(const FName& Label) const;
+	const FGuideTextSet& GetTextSetByLabel(const FName& Label) const;
 	
 private:
 	UPROPERTY(EditDefaultsOnly)
-	TMap<FName, FTextSet> TextGroupNameToSet;
+	TMap<FName, FGuideTextSet> TextGroupNameToSet;
 };

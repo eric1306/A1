@@ -1,24 +1,25 @@
 ﻿#pragma once
 
-#include "A1CmdData.generated.h"
+#include "A1NoticeData.generated.h"
+
 
 USTRUCT()
-struct FCmdTextSet
+struct FNoticeTextSet
 {
 	GENERATED_BODY()
 
 public:
 	UPROPERTY(EditDefaultsOnly)
-	TMap<FName, FString> TextEntries;
+	TArray<FText> TextEntries;
 };
 
-UCLASS(Const, CollapseCategories, meta=(DisplayName="A1 Cmd Data"))
-class UA1CmdData : public UPrimaryDataAsset
+UCLASS(Const, CollapseCategories, meta=(DisplayName="A1 Notice Data"))
+class UA1NoticeData : public UPrimaryDataAsset
 {
 	GENERATED_BODY()
 
 public:
-	static const UA1CmdData& Get();
+	static const UA1NoticeData& Get();
 	
 protected:
 #if WITH_EDITOR
@@ -27,9 +28,9 @@ protected:
 #endif
 	
 public:
-	const FCmdTextSet* GetTextSetByLabel(const FName& Label) const;
+	const FNoticeTextSet& GetTextSetByLabel(const FName& Label) const;
 	
 private:
 	UPROPERTY(EditDefaultsOnly)
-	TMap<FName, FCmdTextSet> TextGroupNameToSet;
+	TMap<FName, FNoticeTextSet> TextGroupNameToSet;
 };

@@ -8,7 +8,7 @@
 #include "Character/LyraPawnExtensionComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/SkeletalMeshComponent.h"
-#include "Data/A1TextData.h"
+#include "Data/A1NoticeData.h"
 #include "LyraCharacterMovementComponent.h"
 #include "A1GameplayTags.h"
 #include "A1LogChannels.h"
@@ -410,6 +410,7 @@ void ALyraCharacter::HandleChangeOfWeight(const FOnAttributeChangeData& ChangeDa
 {
 	// 이동 최대 속도 변경
 	ULyraCharacterMovementComponent* LyraMoveComp = CastChecked<ULyraCharacterMovementComponent>(GetCharacterMovement());
+	
 	LyraMoveComp->MaxWalkSpeed = MaxSpeed * (10 / (1 + ChangeData.NewValue));
 	
 	if (ChangeData.NewValue >= 100.f)			// 새 값이 100이상이면 HP감소 적용
@@ -434,7 +435,7 @@ void ALyraCharacter::HandleOutOfHealth(AActor* InActor, float OldValue, float Ne
 void ALyraCharacter::HandleNoticeWarning(int index)
 {
 
-	const FTextSet& TextSet = UA1TextData::Get().GetTextSetByLabel("System");
+	const FNoticeTextSet& TextSet = UA1NoticeData::Get().GetTextSetByLabel("System");
 	FText WaringText = TextSet.TextEntries[index];
 
 	OnNotice.Broadcast(WaringText);

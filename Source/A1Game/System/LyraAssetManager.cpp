@@ -9,7 +9,8 @@
 #include "Data/A1ItemData.h"
 #include "Data/A1AssetData.h"
 #include "Data/A1UIData.h"
-#include "Data/A1TextData.h"
+#include "Data/A1NoticeData.h"
+#include "Data/A1GuideData.h"
 #include "Data/A1CmdData.h"
 #include "AbilitySystemGlobals.h"
 #include "Character/LyraPawnData.h"
@@ -127,8 +128,9 @@ void ULyraAssetManager::StartInitialLoading()
 		STARTUP_JOB_WEIGHTED(GetItemData(), 25.f);
 		STARTUP_JOB_WEIGHTED(GetAssetData(), 25.f);
 		STARTUP_JOB_WEIGHTED(GetUIData(), 25.f);
-		STARTUP_JOB_WEIGHTED(GetTextData(), 25.f);
-		//STARTUP_JOB_WEIGHTED(GetCmdData(), 25.f);
+		STARTUP_JOB_WEIGHTED(GetNoticeData(), 25.f);
+		STARTUP_JOB_WEIGHTED(GetGuideData(), 25.f);
+		STARTUP_JOB_WEIGHTED(GetCmdData(), 25.f);
 	}
 
 	// Run all the queued up startup jobs
@@ -180,9 +182,14 @@ const UA1UIData& ULyraAssetManager::GetUIData()
 	return GetOrLoadTypedGameData<UA1UIData>(UIDataPath);
 }
 
-const UA1TextData& ULyraAssetManager::GetTextData()
+const UA1NoticeData& ULyraAssetManager::GetNoticeData()
 {
-	return GetOrLoadTypedGameData<UA1TextData>(TextDataPath);
+	return GetOrLoadTypedGameData<UA1NoticeData>(NoticeDataPath);
+}
+
+const UA1GuideData& ULyraAssetManager::GetGuideData()
+{
+	return GetOrLoadTypedGameData<UA1GuideData>(GuideDataPath);
 }
 
 const UA1CmdData& ULyraAssetManager::GetCmdData()
