@@ -37,6 +37,12 @@ void UA1GameplayAbility_Raider_HitReact::ActivateAbility(const FGameplayAbilityS
 		return;
 	}
 
+	if(Cast<AA1CreatureBase>(ActorInfo->OwnerActor.Get())->IsDead())
+	{
+		CancelAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true);
+		return;
+	}
+
 	if (UAbilityTask_NetworkSyncPoint* NetSyncTask = UAbilityTask_NetworkSyncPoint::WaitNetSync(this, EAbilityTaskNetSyncType::OnlyServerWait))
 	{
 		NetSyncTask->OnSync.AddDynamic(this, &ThisClass::OnNetSync);

@@ -6,6 +6,8 @@
 #include "Controller/Player/A1PlayerState.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
+#include UE_INLINE_GENERATED_CPP_BY_NAME(A1CreatureBase)
+
 // Sets default values
 AA1CreatureBase::AA1CreatureBase(const FObjectInitializer& ObjectInitializer)
 {
@@ -19,6 +21,13 @@ UAbilitySystemComponent* AA1CreatureBase::GetAbilitySystemComponent() const
 
 void AA1CreatureBase::SetDead()
 {
+	DeatState = EA1DeathState::DeathStarted;
+
+	if (ASC)
+	{
+		ASC->CancelAllAbilities();
+	}
+
 	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_None);
 	GetMesh()->SetAnimInstanceClass(nullptr);
 	if (DeadMontage)

@@ -175,51 +175,43 @@ UAnimMontage* AA1EquipmentBase::GetEquipMontage()
 UAnimMontage* AA1EquipmentBase::GetHitMontage(AActor* InstigatorActor, const FVector& HitLocation, bool IsBlocked)
 {
 	UAnimMontage* SelectedMontage = nullptr;
-	
+
 	if (InstigatorActor && TemplateID > 0)
 	{
 		const UA1ItemTemplate& ItemTemplate = UA1ItemData::Get().FindItemTemplateByID(TemplateID);
 		if (const UA1ItemFragment_Equipable_Attachment* AttachmentFragment = ItemTemplate.FindFragmentByClass<UA1ItemFragment_Equipable_Attachment>())
 		{
-			if (IsBlocked)
+			AActor* CharacterActor = GetOwner();
+			const FVector& CharacterLocation = CharacterActor->GetActorLocation();
+			const FVector& CharacterDirection = CharacterActor->GetActorForwardVector();
+
+			const FRotator& FacingRotator = UKismetMathLibrary::Conv_VectorToRotator(CharacterDirection);
+			const FRotator& CharacterToHitRotator = UKismetMathLibrary::Conv_VectorToRotator((HitLocation - CharacterLocation).GetSafeNormal());
+
+			const FRotator& DeltaRotator = UKismetMathLibrary::NormalizedDeltaRotator(CharacterToHitRotator, FacingRotator);
+			float YawAbs = FMath::Abs(DeltaRotator.Yaw);
+
+			if (YawAbs < 60.f)
 			{
-				SelectedMontage = ULyraAssetManager::GetAssetByPath<UAnimMontage>(AttachmentFragment->BlockHitMontage);
+				SelectedMontage = ULyraAssetManager::GetAssetByPath<UAnimMontage>(AttachmentFragment->FrontHitMontage);
+			}
+			else if (YawAbs > 120.f)
+			{
+				SelectedMontage = ULyraAssetManager::GetAssetByPath<UAnimMontage>(AttachmentFragment->BackHitMontage);
+			}
+			else if (DeltaRotator.Yaw < 0.f)
+			{
+				SelectedMontage = ULyraAssetManager::GetAssetByPath<UAnimMontage>(AttachmentFragment->LeftHitMontage);
 			}
 			else
 			{
-				AActor* CharacterActor = GetOwner();
-				const FVector& CharacterLocation = CharacterActor->GetActorLocation();
-				const FVector& CharacterDirection = CharacterActor->GetActorForwardVector();
-			
-				const FRotator& FacingRotator = UKismetMathLibrary::Conv_VectorToRotator(CharacterDirection);
-				const FRotator& CharacterToHitRotator = UKismetMathLibrary::Conv_VectorToRotator((HitLocation - CharacterLocation).GetSafeNormal());
-			
-				const FRotator& DeltaRotator = UKismetMathLibrary::NormalizedDeltaRotator(CharacterToHitRotator, FacingRotator);
-				float YawAbs = FMath::Abs(DeltaRotator.Yaw);
-
-				if (YawAbs < 60.f)
-				{
-					SelectedMontage = ULyraAssetManager::GetAssetByPath<UAnimMontage>(AttachmentFragment->FrontHitMontage);
-				}
-				else if (YawAbs > 120.f)
-				{
-					SelectedMontage = ULyraAssetManager::GetAssetByPath<UAnimMontage>(AttachmentFragment->BackHitMontage);
-				}
-				else if (DeltaRotator.Yaw < 0.f)
-				{
-					SelectedMontage = ULyraAssetManager::GetAssetByPath<UAnimMontage>(AttachmentFragment->LeftHitMontage);
-				}
-				else
-				{
-					SelectedMontage = ULyraAssetManager::GetAssetByPath<UAnimMontage>(AttachmentFragment->RightHitMontage);
-				}
+				SelectedMontage = ULyraAssetManager::GetAssetByPath<UAnimMontage>(AttachmentFragment->RightHitMontage);
 			}
 		}
 	}
-	
 	return SelectedMontage;
 }
-
+	
 void AA1EquipmentBase::Highlight()
 {
 	// 이미 주워진 아이템임
