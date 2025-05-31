@@ -6,8 +6,9 @@
 #include "A1GameplayTags.h"
 #include "A1LogChannels.h"
 #include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
-#include "AbilitySystem/Abilities/Docker/A1GameplayAbility_Cmd.h"
 #include "Actors/A1CMDBase.h"
+#include "GameFramework/GameplayMessageSubsystem.h"
+#include "Player/LyraPlayerController.h"
 #include "UIExtensionSystem.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(A1GameplayAbility_Interact_Cmd)
@@ -42,7 +43,7 @@ void UA1GameplayAbility_Interact_Cmd::ActivateAbility(const FGameplayAbilitySpec
 		return;
 	}
 
-	ExitWidgetTask = UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(this, A1GameplayTags::GameplayEvent_Cmd_Close, nullptr, false, true);
+	ExitWidgetTask = UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(this, A1GameplayTags::GameplayEvent_Cmd_Exit, nullptr, false, true);
 	if (ExitWidgetTask)
 	{
 		ExitWidgetTask->EventReceived.AddDynamic(this, &ThisClass::CloseCmd);
@@ -54,6 +55,26 @@ void UA1GameplayAbility_Interact_Cmd::ActivateAbility(const FGameplayAbilitySpec
 	{
 		OpenMapTask->EventReceived.AddDynamic(this, &ThisClass::OpenMap);
 		OpenMapTask->ReadyForActivation();
+	}
+
+	// CMD 오픈에 따른 UI 비활성화
+	FA1WidgetActiveMessage Message;
+	Message.bActive = false;
+
+	UGameplayMessageSubsystem& MessageSubsystem = UGameplayMessageSubsystem::Get(this);
+	MessageSubsystem.BroadcastMessage(A1GameplayTags::Message_HUD_Active, Message);
+
+	// 시점 전환
+	ALyraPlayerController* LyraPlayerController = GetLyraPlayerControllerFromActorInfo();
+	if (LyraPlayerController == nullptr)
+	{
+		CancelAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true);
+		return;
+	}
+
+	if (AA1CMDBase* CMD = Cast<AA1CMDBase>(InteractableActor))
+	{
+		LyraPlayerController->SetViewTargetWithBlend(CMD, 0.5f, EViewTargetBlendFunction::VTBlend_Linear);
 	}
 
 }
@@ -85,5 +106,23 @@ void UA1GameplayAbility_Interact_Cmd::OpenMap(FGameplayEventData Payload)
 
 void UA1GameplayAbility_Interact_Cmd::CloseCmd(FGameplayEventData Payload)
 {
+	// 시점 전환
+	ALyraPlayerController* LyraPlayerController = GetLyraPlayerControllerFromActorInfo();
+	if (LyraPlayerController == nullptr)
+	{
+		CancelAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true);
+		return;
+	}
+	AActor* LyraCharacter = Cast<AActor>(CurrentActorInfo->AvatarActor.Get());
+
+	LyraPlayerController->SetViewTargetWithBlend(LyraCharacter, 0.5f, EViewTargetBlendFunction::VTBlend_Linear);
+
 	DeactiveWidget();
+	
+	// CMD 오픈에 따른 UI 활성화
+	FA1WidgetActiveMessage Message;
+	Message.bActive = true;
+
+	UGameplayMessageSubsystem& MessageSubsystem = UGameplayMessageSubsystem::Get(this);
+	MessageSubsystem.BroadcastMessage(A1GameplayTags::Message_HUD_Active, Message);
 }

@@ -44,15 +44,15 @@ public:
 	UPROPERTY(EditAnywhere, meta = (Categories = "Message"))
 	FGameplayTag MessageChannelTag;
 
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+	TObjectPtr<UEditableText> InputText;
+
 private:
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UTextBlock> SuperviseText;
 
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UVerticalBox> MenuBox;
-
-	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<UEditableText> InputText;
 
 	UPROPERTY()
 	TObjectPtr<UAbilitySystemComponent> ASC;

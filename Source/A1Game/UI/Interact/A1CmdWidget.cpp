@@ -79,7 +79,11 @@ void UA1CmdWidget::InputEnded(FText InText)
     else if (InText.ToString() == TEXT("Exit"))
     {
         DestructUI();
-        Deactivate();
+        if (ASC)
+        {
+            FGameplayEventData Payload;
+            ASC->HandleGameplayEvent(A1GameplayTags::GameplayEvent_Cmd_Exit, &Payload);
+        }    
     }
 
     // 없는 명령어 입력

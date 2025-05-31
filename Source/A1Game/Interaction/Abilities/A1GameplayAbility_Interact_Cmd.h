@@ -6,10 +6,17 @@
 #include "A1GameplayAbility_Interact_Cmd.generated.h"
 
 class UAbilityTask_WaitGameplayEvent;
-class UA1GameplayAbility_Cmd;
-/**
- * 
- */
+
+USTRUCT(BlueprintType)
+struct FA1WidgetActiveMessage
+{
+	GENERATED_BODY()
+
+public:
+	UPROPERTY(BlueprintReadWrite)
+	bool bActive = false;
+};
+
 UCLASS()
 class UA1GameplayAbility_Interact_Cmd : public UA1GameplayAbility_Interact_Object
 {
