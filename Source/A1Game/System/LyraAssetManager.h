@@ -17,7 +17,8 @@ class UA1RaiderData;
 class UA1ItemData;
 class UA1AssetData;
 class UA1UIData;
-class UA1TextData;
+class UA1NoticeData;
+class UA1GuideData;
 class UA1CmdData;
 
 struct FLyraBundles
@@ -67,8 +68,8 @@ public:
 	const UA1ItemData& GetItemData();
 	const UA1AssetData& GetAssetData();
 	const UA1UIData& GetUIData();
-	const UA1TextData& GetNoticeData();
-	const UA1TextData& GetGuideData();
+	const UA1NoticeData& GetNoticeData();
+	const UA1GuideData& GetGuideData();
 	const UA1CmdData& GetCmdData();
 	
 protected:
@@ -129,10 +130,10 @@ protected:
 	TSoftObjectPtr<UA1UIData> UIDataPath;
 
 	UPROPERTY(Config)
-	TSoftObjectPtr<UA1TextData> NoticeDataPath;
+	TSoftObjectPtr<UA1NoticeData> NoticeDataPath;
 
 	UPROPERTY(Config)
-	TSoftObjectPtr<UA1TextData> GuideDataPath;
+	TSoftObjectPtr<UA1GuideData> GuideDataPath;
 
 	UPROPERTY(Config)
 	TSoftObjectPtr<UA1CmdData> CmdDataPath;

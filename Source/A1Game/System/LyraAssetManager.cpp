@@ -9,7 +9,8 @@
 #include "Data/A1ItemData.h"
 #include "Data/A1AssetData.h"
 #include "Data/A1UIData.h"
-#include "Data/A1TextData.h"
+#include "Data/A1NoticeData.h"
+#include "Data/A1GuideData.h"
 #include "Data/A1CmdData.h"
 #include "AbilitySystemGlobals.h"
 #include "Character/LyraPawnData.h"
@@ -181,14 +182,14 @@ const UA1UIData& ULyraAssetManager::GetUIData()
 	return GetOrLoadTypedGameData<UA1UIData>(UIDataPath);
 }
 
-const UA1TextData& ULyraAssetManager::GetNoticeData()
+const UA1NoticeData& ULyraAssetManager::GetNoticeData()
 {
-	return GetOrLoadTypedGameData<UA1TextData>(NoticeDataPath);
+	return GetOrLoadTypedGameData<UA1NoticeData>(NoticeDataPath);
 }
 
-const UA1TextData& ULyraAssetManager::GetGuideData()
+const UA1GuideData& ULyraAssetManager::GetGuideData()
 {
-	return GetOrLoadTypedGameData<UA1TextData>(GuideDataPath);
+	return GetOrLoadTypedGameData<UA1GuideData>(GuideDataPath);
 }
 
 const UA1CmdData& ULyraAssetManager::GetCmdData()
