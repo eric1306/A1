@@ -99,8 +99,8 @@ UENUM(BlueprintType)
 enum class EWeaponType : uint8
 {
 	Unarmed,
-	OneHandSword,
-	TwoHandSword,
+	OHS,
+	THS,
 	Gun,
 
 	Count	UMETA(Hidden)
@@ -112,8 +112,8 @@ enum class EUtilityType : uint8
 {
 	Fuel,
 	Food,
-	EnergyDrink,
-	LightSource,
+	Drink,
+	Light,
 	Documents,
 	MachineParts,
 	
