@@ -380,6 +380,9 @@ void ALyraCharacter::OutsideOrNot(bool bOut)
 
 void ALyraCharacter::ApplyStatEffect(int index)
 {
+	if (StatEffects.Num() == 0) 
+		return;
+
 	TSubclassOf<UGameplayEffect> WantedEffect = StatEffects[index];
 
 	ULyraAbilitySystemComponent* ASC = GetLyraAbilitySystemComponent();
@@ -397,6 +400,9 @@ void ALyraCharacter::ApplyStatEffect(int index)
 
 void ALyraCharacter::DeleteStatEffect(int index)
 {
+	if (StatEffects.Num() == 0) 
+		return;
+
 	TSubclassOf<UGameplayEffect> WantedEffect = StatEffects[index];
 
 	ULyraAbilitySystemComponent* ASC = GetLyraAbilitySystemComponent();
