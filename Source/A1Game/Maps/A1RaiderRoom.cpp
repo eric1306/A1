@@ -169,6 +169,7 @@ void AA1RaiderRoom::SpawnItem()
         AddedItemInstance->Init(ItemTemplateId, EItemRarity::Poor);
         const UA1ItemFragment_Equipable_Attachment* AttachmentFragment = AddedItemInstance->FindFragmentByClass<UA1ItemFragment_Equipable_Attachment>();
         const FA1ItemAttachInfo& AttachInfo = AttachmentFragment->ItemAttachInfo;
+
         if (AttachInfo.SpawnItemClass)
         {
             AA1EquipmentBase* NewSpawnedItem = GetWorld()->SpawnActorDeferred<AA1EquipmentBase>(AttachInfo.SpawnItemClass, FTransform::Identity, this);
@@ -194,40 +195,12 @@ void AA1RaiderRoom::SpawnItem()
             AA1ChestBase* Chest = GetWorld()->SpawnActorDeferred<AA1ChestBase>(ChestClass, childTransform, this);
             if (Chest)
             {
-                //Net Update
-                /*Chest->SetReplicates(true);
-                Chest->bAlwaysRelevant = true;
-                Chest->NetUpdateFrequency = 60.0f;
-                Chest->MinNetUpdateFrequency = 30.0f;
-                Chest->NetPriority = 3.0f;*/
-
                 UGameplayStatics::FinishSpawningActor(Chest, childTransform);
-
-                /*Chest->SetReplicates(true);
-                Chest->SetReplicateMovement(true);
-                Chest->SetActorTickEnabled(true);
-                Chest->bAlwaysRelevant = true;
-                Chest->NetUpdateFrequency = 60.0f;
-                Chest->MinNetUpdateFrequency = 30.0f;
-                Chest->NetPriority = 3.0f;
-                Chest->SetNetDormancy(ENetDormancy::DORM_Awake);
-
-                Chest->ForceNetUpdate();*/
-
                 //Replicated
                 SpawnedChests.Add(Chest);
             }
         }
     }
-    /*if (SpawnedChests.Num() > 0)
-    {
-        DrawDebugBox(
-            GetWorld(),
-            RemoveItemPosition->GetComponentLocation(),
-            FVector(1500.f, 1500.f, 500.f),
-            FColor::Red,
-            true);
-    }*/
 }
 
 void AA1RaiderRoom::RemoveEnemy()
