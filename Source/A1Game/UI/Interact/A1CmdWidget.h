@@ -9,6 +9,7 @@
 class UTextBlock;
 class UEditableText;
 class UVerticalBox;
+class UProgressBar;
 class UAbilitySystemComponent;
 
 USTRUCT(BlueprintType)
@@ -36,6 +37,9 @@ protected:
 	UFUNCTION(BlueprintCallable)
 	void InputEnded(FText InText);
 
+	UFUNCTION(blueprintimplementableevent)
+	void ShowRefairPercent(float Percent);
+
 private:
 	void ConstructUI(FGameplayTag Channel, const FASCInitializeMessage& Message);
 	void DestructUI();
@@ -54,8 +58,20 @@ private:
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UVerticalBox> MenuBox;
 
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UVerticalBox> EscapeScreen;
+
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UTextBlock> EscapeGuideTxt;
+
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UTextBlock> EscapeKeyTxt;
+
+private:
 	UPROPERTY()
 	TObjectPtr<UAbilitySystemComponent> ASC;
 
 	FGameplayMessageListenerHandle MessageListenerHandle;
+
+	bool EscapeMode;
 };
