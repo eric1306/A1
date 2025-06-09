@@ -436,10 +436,10 @@ bool UA1ItemManagerComponent::TryDropItem(UA1ItemInstance* FromItemInstance, int
 
 	
 	FActorSpawnParameters SpawnParameters;
-	SpawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButDontSpawnIfColliding;
+	SpawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
 
 	FVector SpawnLocation = Character->GetActorLocation();
-	SpawnLocation.Z = 50.0f;
+	SpawnLocation.Z -= 90.0f;
 	
 	const UA1ItemFragment_Equipable_Attachment* EquippableFragment = FromItemInstance->FindFragmentByClass<UA1ItemFragment_Equipable_Attachment>();
 	if (EquippableFragment == nullptr)

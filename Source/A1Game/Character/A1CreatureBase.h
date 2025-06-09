@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "CoreMinimal.h"
+#include "A1Define.h"
 #include "GameFramework/Character.h"
 #include "AbilitySystemInterface.h"
 #include "A1CreatureBase.generated.h"
@@ -19,10 +19,13 @@ public:
 	AA1CreatureBase(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
+	bool IsDead() { return (DeatState != EA1DeathState::NotDead); }
 
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Stat, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UAnimMontage> DeadMontage;
+
+	EA1DeathState DeatState = EA1DeathState::NotDead;
 
 // Dead Section
 protected:

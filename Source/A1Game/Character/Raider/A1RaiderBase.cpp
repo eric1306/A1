@@ -10,6 +10,8 @@
 #include "Abilities/GameplayAbility.h"
 #include "Actors/A1EquipmentBase.h"
 #include "Actors/A1PickupableItemBase.h"
+#include "Kismet/KismetMathLibrary.h"
+#include "System/LyraAssetManager.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(A1RaiderBase)
 
@@ -53,6 +55,42 @@ void AA1RaiderBase::Tick(float DeltaTime)
 
 }
 
+UAnimMontage* AA1RaiderBase::GetHitMontage(AActor* InstigatorActor, const FVector& HitLocation, bool IsBlocked)
+{
+	UAnimMontage* SelectedMontage = nullptr;
+
+	if (InstigatorActor)
+	{
+		const FVector& CharacterLocation = GetActorLocation();
+		const FVector& CharacterDirection = GetActorForwardVector();
+
+		const FRotator& FacingRotator = UKismetMathLibrary::Conv_VectorToRotator(CharacterDirection);
+		const FRotator& CharacterToHitRotator = UKismetMathLibrary::Conv_VectorToRotator((HitLocation - CharacterLocation).GetSafeNormal());
+
+		const FRotator& DeltaRotator = UKismetMathLibrary::NormalizedDeltaRotator(CharacterToHitRotator, FacingRotator);
+		float YawAbs = FMath::Abs(DeltaRotator.Yaw);
+
+		if (YawAbs < 60.f)
+		{
+			SelectedMontage = ULyraAssetManager::GetAssetByPath<UAnimMontage>(FrontHitMontage);
+		}
+		else if (YawAbs > 120.f)
+		{
+			SelectedMontage = ULyraAssetManager::GetAssetByPath<UAnimMontage>(BackHitMontage);
+		}
+		else if (DeltaRotator.Yaw < 0.f)
+		{
+			SelectedMontage = ULyraAssetManager::GetAssetByPath<UAnimMontage>(LeftHitMontage);
+		}
+		else
+		{
+			SelectedMontage = ULyraAssetManager::GetAssetByPath<UAnimMontage>(RightHitMontage);
+		}
+	}
+
+	return SelectedMontage;
+}
+
 void AA1RaiderBase::BeAttacked(AActor* InInstigator, float OldValue, float NewValue)
 {
 	AAIController* AIController = Cast<AAIController>(GetController());
@@ -72,66 +110,16 @@ void AA1RaiderBase::HandleOutOfHealth(AActor* InActor, float OldValue, float New
 	
 	// 애니메이션이 처리될 시간 기다리기
 	GetWorld()->GetTimerManager().ClearTimer(TimerHandle);
-	GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &AA1RaiderBase::DestroyDueToDeath, 1.5f, false);
+	GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &AA1RaiderBase::SpawnDropItem, 1.5f, false);
 
 
 	GetController()->UnPossess();  // AI가 더 이상 캐릭터를 제어하지 않도록 함
 
 	SetDead();
-	//GetMesh()->SetAnimInstanceClass(nullptr);
-	//
-	//if (DeadMontage)
-	//{
-	//	GetMesh()->PlayAnimation(DeadMontage, false);
-	//}
 }
 
-void AA1RaiderBase::DestroyDueToDeath()
+void AA1RaiderBase::SpawnDropItem()
 {
-	// 천천히 사라지는 효과(연구중)
-	//int32 NumMaterials = GetMesh()->GetNumMaterials();
-	//TArray<UMaterialInstanceDynamic*> DynamicMats;
-	//
-	//for (int32 i = 0; i < NumMaterials; ++i)
-	//{
-	//	UMaterialInstanceDynamic* DynMat = GetMesh()->CreateAndSetMaterialInstanceDynamic(i);
-	//	if (DynMat)
-	//		DynamicMats.Add(DynMat);
-	//}
-	//
-	//if (DynamicMats.Num() == 0) return;
-	//
-	//float FadeDuration = 1.5f;
-	//float TickInterval = 0.05f;
-	//int32 TotalSteps = FadeDuration / TickInterval;
-	//float FadeStep = 1.0f / TotalSteps;
-	//
-	//float* CurrentFade = new float(1.0f);
-	//
-	//FTimerDelegate FadeDelegate;
-	//
-	//FadeDelegate = FTimerDelegate::CreateLambda([=, this]() mutable
-	//	{
-	//		*CurrentFade -= FadeStep;
-	//		float FadeValue = FMath::Clamp(*CurrentFade, 0.0f, 1.0f);
-	//
-	//		for (UMaterialInstanceDynamic* Mat : DynamicMats)
-	//		{
-	//			if (Mat)
-	//				Mat->SetScalarParameterValue(FName("Opacity"), FadeValue);
-	//		}
-	//
-	//		if (FadeValue <= 0.0f)
-	//		{
-	//			GetWorld()->GetTimerManager().ClearTimer(TimerHandle);
-	//			delete CurrentFade;				// 할당 해제
-	//			this->Destroy();
-	//		}
-	//	});
-	//
-	//GetWorld()->GetTimerManager().SetTimer(TimerHandle, FadeDelegate, TickInterval, true);
-
-
 	// 아이템 스폰
 	int ItemNum = dropItems.Num();
 
@@ -146,82 +134,5 @@ void AA1RaiderBase::DestroyDueToDeath()
 	else
 		GetWorld()->SpawnActor<AA1EquipmentBase>(dropItems[0], ItemSpawnLocation, GetActorRotation());
 
+	DeatState = EA1DeathState::DeathFinished;
 }
-
-//void AA1RaiderBase::Server_PerformTrace(USkeletalMeshComponent* MeshComponent)
-//{
-//	FTransform CurrentSocketTransform = MeshComponent->GetSocketTransform(TraceSocketName);
-//	float Distance = (PreviousSocketTransform.GetLocation() - CurrentSocketTransform.GetLocation()).Length();
-//
-//	int SubStepCount = FMath::CeilToInt(Distance / TargetDistance);
-//	if (SubStepCount <= 0)
-//		return;
-//
-//	float SubstepRatio = 1.f / SubStepCount;
-//
-//	TArray<FHitResult> FinalHitResults;
-//
-//	for (int32 i = 0; i < SubStepCount; i++)
-//	{
-//		FTransform StartTraceTransform = UKismetMathLibrary::TLerp(PreviousSocketTransform, CurrentSocketTransform, SubstepRatio * i, ELerpInterpolationMode::DualQuatInterp);
-//		FTransform EndTraceTransform = UKismetMathLibrary::TLerp(PreviousSocketTransform, CurrentSocketTransform, SubstepRatio * (i + 1), ELerpInterpolationMode::DualQuatInterp);
-//		FTransform AverageTraceTransform = UKismetMathLibrary::TLerp(StartTraceTransform, EndTraceTransform, 0.5f, ELerpInterpolationMode::DualQuatInterp);
-//
-//		FComponentQueryParams Params = FComponentQueryParams::DefaultComponentQueryParams;
-//		Params.bReturnPhysicalMaterial = true;
-//
-//		TArray<AActor*> IgnoredActors = { MeshComponent->GetOwner() };
-//		Params.AddIgnoredActors(IgnoredActors);
-//
-//		TArray<FHitResult> HitResults;
-//
-//		bool bHit = MeshComponent->GetWorld()->SweepMultiByChannel(HitResults, StartTraceTransform.GetLocation(), EndTraceTransform.GetLocation(),
-//			AverageTraceTransform.GetRotation(), A1_TraceChannel_Raider, FCollisionShape::MakeCapsule(CapsuleRadius, CapsuleHalfHeight), Params);
-//
-//		for (const FHitResult& HitResult : HitResults)
-//		{
-//			AActor* HitActor = HitResult.GetActor();
-//			if (HitActors.Contains(HitActor) == false)
-//			{
-//				HitActors.Add(HitActor);
-//				FinalHitResults.Add(HitResult);
-//			}
-//		}
-//
-//#if UE_EDITOR
-//		if (GIsEditor)
-//		{
-//			const UA1DeveloperSettings* DeveloperSettings = GetDefault<UA1DeveloperSettings>();
-//			if (DeveloperSettings->bForceDisableDebugTrace == false && bDrawDebugShape)
-//			{
-//				FColor Color = (HitResults.Num() > 0) ? HitColor : TraceColor;
-//
-//				DrawDebugCapsule(MeshComponent->GetWorld(), AverageTraceTransform.GetLocation(), CapsuleHalfHeight, CapsuleRadius, AverageTraceTransform.GetRotation(), Color, false, 1.f);
-//			}
-//		}
-//#endif
-//	}
-//
-//	PreviousSocketTransform = CurrentSocketTransform;
-//
-//	if (FinalHitResults.Num() > 0)
-//	{
-//		FGameplayAbilityTargetDataHandle TargetDataHandle;
-//
-//		for (const FHitResult& HitResult : FinalHitResults)
-//		{
-//			FGameplayAbilityTargetData_SingleTargetHit* NewTargetData = new FGameplayAbilityTargetData_SingleTargetHit();
-//			NewTargetData->HitResult = HitResult;
-//			TargetDataHandle.Add(NewTargetData);
-//		}
-//
-//		FGameplayEventData EventData;
-//		EventData.TargetData = TargetDataHandle;
-//		EventData.Instigator = MeshComponent->GetOwner();
-//
-//		if (EventTag.IsValid())
-//		{
-//			UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(MeshComponent->GetOwner(), EventTag, EventData);
-//		}
-//	}
-//}

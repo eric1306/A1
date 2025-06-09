@@ -52,8 +52,5 @@ public:
 	TSoftObjectPtr<UAnimMontage> RightHitMontage;
 
 	UPROPERTY(EditDefaultsOnly)
-	TSoftObjectPtr<UAnimMontage> BlockHitMontage;
-
-	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<UAnimInstance> AnimInstanceClass;
 };

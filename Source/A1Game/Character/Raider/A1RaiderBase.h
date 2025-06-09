@@ -26,15 +26,28 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	UAnimMontage* GetHitMontage(AActor* InstigatorActor, const FVector& HitLocation, bool IsBlocked);
+
 protected:
 	void BeAttacked(AActor* Instigator, float OldValue, float NewValue);
 	void HandleOutOfHealth(AActor* InActor, float OldValue, float NewValue);
 	
 	UFUNCTION()
-	void DestroyDueToDeath();
+	void SpawnDropItem();
 
-	//UFUNCTION(Server, Reliable)
-	//void Server_PerformTrace(USkeletalMeshComponent* MeshComponent);
+public:
+	UPROPERTY(EditDefaultsOnly)
+	TSoftObjectPtr<UAnimMontage> FrontHitMontage;
+
+	UPROPERTY(EditDefaultsOnly)
+	TSoftObjectPtr<UAnimMontage> BackHitMontage;
+
+	UPROPERTY(EditDefaultsOnly)
+	TSoftObjectPtr<UAnimMontage> LeftHitMontage;
+
+	UPROPERTY(EditDefaultsOnly)
+	TSoftObjectPtr<UAnimMontage> RightHitMontage;
 
 protected:
 	UPROPERTY()
