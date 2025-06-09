@@ -5,14 +5,18 @@
 #include "A1LogChannels.h"
 #include "A1GameplayTags.h"
 #include "AbilitySystem/LyraAbilitySystemComponent.h"
+#include "Actors/A1RepairBase.h"
 #include "Components/VerticalBox.h"
 #include "Components/TextBlock.h"
 #include "Components/EditableText.h"
+#include "Components/ProgressBar.h"
 #include "Data/A1CmdData.h"
+#include "EngineUtils.h"
 
 UA1CmdWidget::UA1CmdWidget(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
+    EscapeMode = false;
 }
 
 void UA1CmdWidget::NativeConstruct()
@@ -50,6 +54,20 @@ void UA1CmdWidget::InputEnded(FText InText)
 
     UE_LOG(LogA1System, Log, TEXT("%s"), *InText.ToString());
 
+    if (EscapeMode)
+    {
+        if (InText.ToString() == TEXT("Confirm"))
+        {
+
+        }
+        else if (InText.ToString() == TEXT("Deny"))
+        {
+
+        }
+        EscapeMode = false;
+    }
+
+
     // Map Open
     if (InText.ToString() == TEXT("Map"))
     {
@@ -60,7 +78,7 @@ void UA1CmdWidget::InputEnded(FText InText)
         }
 
     }
-
+    
     // 현 상황에 맞는 도움말 제공
     else if (InText.ToString() == TEXT("Help"))
     {
@@ -76,6 +94,45 @@ void UA1CmdWidget::InputEnded(FText InText)
     {
 
     }
+    else if (InText.ToString() == TEXT("Escape"))
+    {
+        MenuBox->SetVisibility(ESlateVisibility::Hidden);
+        EscapeScreen->SetVisibility(ESlateVisibility::Visible);
+
+        UWorld* World = GetWorld();
+
+        int32 Count = 0;
+        for (TActorIterator<AA1RepairBase> It(World); It; ++It)
+        {
+            ++Count;
+        }
+        ShowRefairPercent(Count);
+
+        if (Count > 0)
+        {
+            const FCmdTextSet* TextSet = UA1CmdData::Get().GetTextSetByLabel("Escape");
+            const FString* Text = TextSet->TextEntries.Find("Cannot");
+
+            if (Text != nullptr)
+                EscapeGuideTxt->SetText(FText::FromString(*Text));
+            EscapeKeyTxt->SetText(FText::FromString("Back"));
+        }
+        else
+        {
+            const FCmdTextSet* TextSet = UA1CmdData::Get().GetTextSetByLabel("Escape");
+            const FString* Text = TextSet->TextEntries.Find("Can");
+
+            if (Text != nullptr)
+                EscapeGuideTxt->SetText(FText::FromString(*Text));
+            EscapeKeyTxt->SetText(FText::FromString("Confirm / Deny"));
+        }
+
+        EscapeGuideTxt->SetVisibility(ESlateVisibility::Visible);
+        EscapeKeyTxt->SetVisibility(ESlateVisibility::Visible);
+
+        EscapeMode = true;
+
+    }
     else if (InText.ToString() == TEXT("Exit"))
     {
         DestructUI();
@@ -85,6 +142,7 @@ void UA1CmdWidget::InputEnded(FText InText)
             ASC->HandleGameplayEvent(A1GameplayTags::GameplayEvent_Cmd_Exit, &Payload);
         }    
     }
+
 
     // 없는 명령어 입력
     else

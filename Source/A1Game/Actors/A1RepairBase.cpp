@@ -1,13 +1,13 @@
 // Copyright (c) 2025 THIS-ACCENT. All Rights Reserved.
 
 
-#include "Actors/A1EmptyBase.h"
+#include "Actors/A1RepairBase.h"
 
 #include "Components/ArrowComponent.h"
 
-#include UE_INLINE_GENERATED_CPP_BY_NAME(A1EmptyBase)
+#include UE_INLINE_GENERATED_CPP_BY_NAME(A1RepairBase)
 
-AA1EmptyBase::AA1EmptyBase(const FObjectInitializer& objectInitializer) : Super(objectInitializer)
+AA1RepairBase::AA1RepairBase(const FObjectInitializer& objectInitializer) : Super(objectInitializer)
 {
 	ArrowComponent = CreateDefaultSubobject<UArrowComponent>(TEXT("ArrowComponent"));
 	SetRootComponent(ArrowComponent);
@@ -19,22 +19,22 @@ AA1EmptyBase::AA1EmptyBase(const FObjectInitializer& objectInitializer) : Super(
 	MeshComponent->SetCanEverAffectNavigation(true);
 }
 
-void AA1EmptyBase::BeginPlay()
+void AA1RepairBase::BeginPlay()
 {
 	Super::BeginPlay();
 }
 
-void AA1EmptyBase::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const
+void AA1RepairBase::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 }
 
-FA1InteractionInfo AA1EmptyBase::GetPreInteractionInfo(const FA1InteractionQuery& InteractionQuery) const
+FA1InteractionInfo AA1RepairBase::GetPreInteractionInfo(const FA1InteractionQuery& InteractionQuery) const
 {
 	return InteractionInfo;
 }
 
-void AA1EmptyBase::GetMeshComponents(TArray<UMeshComponent*>& OutMeshComponents) const
+void AA1RepairBase::GetMeshComponents(TArray<UMeshComponent*>& OutMeshComponents) const
 {
 	if (MeshComponent->GetStaticMesh())
 	{

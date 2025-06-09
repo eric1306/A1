@@ -3,21 +3,24 @@
 #pragma once
 
 #include "Interaction/A1WorldInteractable.h"
-#include "A1EmptyBase.generated.h"
+#include "A1RepairBase.generated.h"
 
 class UArrowComponent;
 /**
  * 
  */
 UCLASS()
-class AA1EmptyBase : public AA1WorldInteractable
+class AA1RepairBase : public AA1WorldInteractable
 {
 	GENERATED_BODY()
+
 public:
-	AA1EmptyBase(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
+	AA1RepairBase(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
+
 protected:
 	virtual void BeginPlay() override;
 	virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const override;
+
 public:
 	virtual FA1InteractionInfo GetPreInteractionInfo(const FA1InteractionQuery& InteractionQuery) const override;
 	virtual void GetMeshComponents(TArray<UMeshComponent*>& OutMeshComponents) const override;
@@ -25,6 +28,7 @@ public:
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Info")
 	FA1InteractionInfo InteractionInfo;
+
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TObjectPtr<UArrowComponent> ArrowComponent;
