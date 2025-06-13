@@ -67,4 +67,6 @@ public:
 	
 private:
 	bool bOutOfHealth;
+
+	TArray<bool> bHalf;
 };

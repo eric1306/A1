@@ -59,9 +59,6 @@ public:
 	UPROPERTY(EditAnywhere, meta = (Categories = "Message"))
 	FGameplayTag MessageChannelTag;
 
-	UPROPERTY(EditAnywhere)
-	FText TitleText;
-
 private:
 	UPROPERTY()
 	TArray<TObjectPtr<UA1InventorySlotWidget>> SlotWidgets;
@@ -76,9 +73,6 @@ private:
 	TObjectPtr<UA1InventoryManagerComponent> InventoryManager;
 
 private:
-	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<UTextBlock> Text_Title;
-
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UOverlay> Overlay_Slots;
 

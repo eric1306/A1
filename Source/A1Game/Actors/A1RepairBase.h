@@ -6,9 +6,15 @@
 #include "A1RepairBase.generated.h"
 
 class UArrowComponent;
-/**
- * 
- */
+
+UENUM()
+enum class RepairState
+{
+	NotBroken,
+	Break,
+	Complete
+};
+
 UCLASS()
 class AA1RepairBase : public AA1WorldInteractable
 {
@@ -35,4 +41,7 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TObjectPtr<UStaticMeshComponent> MeshComponent;
+
+public:
+	RepairState CurrentState = RepairState::Break;
 };

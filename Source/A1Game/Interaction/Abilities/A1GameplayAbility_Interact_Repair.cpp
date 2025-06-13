@@ -43,6 +43,12 @@ void UA1GameplayAbility_Interact_Repair::ActivateAbility(const FGameplayAbilityS
         return;
     }
 
+    AA1RepairBase* RepairActor = Cast<AA1RepairBase>(InteractableActor);
+    if (RepairActor == nullptr || RepairActor->CurrentState != RepairState::Break)
+    {
+        CancelAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true);
+        return;
+    }
 
     if (!CheckHoldRefairKit())
     {
@@ -102,12 +108,7 @@ void UA1GameplayAbility_Interact_Repair::DoRepair()
 
     // 수리 객체 제거
     AA1RepairBase* RepairActor = Cast<AA1RepairBase>(InteractableActor);
-    if (RepairActor == nullptr)
-    {
-        CancelAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true);
-        return;
-    }
-    RepairActor->Destroy();
+    RepairActor->CurrentState = RepairState::Complete;
 
     ALyraPlayerController* PlayerController = GetLyraPlayerControllerFromActorInfo();
     Character->EnableInput(PlayerController);

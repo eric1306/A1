@@ -22,6 +22,15 @@ public:
 	TObjectPtr<UAbilitySystemComponent> ASC;
 };
 
+struct FTypingState
+{
+	FString FullText;
+	FString CurrentText;
+	int32 CurrentIndex = 0;
+	UTextBlock* TargetTextBlock;
+	FTimerHandle TimerHandle;
+};
+
 UCLASS()
 class A1GAME_API UA1CmdWidget : public UA1ActivatableWidget
 {
@@ -34,15 +43,20 @@ protected:
 	virtual void NativeConstruct() override;
 	virtual void NativeDestruct() override;
 
-	UFUNCTION(BlueprintCallable)
-	void InputEnded(FText InText);
-
-	UFUNCTION(blueprintimplementableevent)
-	void ShowRefairPercent(float Percent);
-
 private:
 	void ConstructUI(FGameplayTag Channel, const FASCInitializeMessage& Message);
 	void DestructUI();
+
+protected:
+	UFUNCTION(BlueprintCallable)
+	void InputEnded(FText InText);
+
+	UFUNCTION(Blueprintimplementableevent)
+	void ShowRepairPercent(float Percent);
+
+	void ShowMenu();
+	void HiddenMenu();
+	void AffectTypingEffect(UTextBlock* TargetTextBlock, FString InText, float delta ,float startdelay);
 
 public:
 	UPROPERTY(EditAnywhere, meta = (Categories = "Message"))
@@ -59,6 +73,22 @@ private:
 	TObjectPtr<UVerticalBox> MenuBox;
 
 	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UTextBlock> MenuText1;
+
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UTextBlock> MenuText2;
+
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UTextBlock> MenuText3;
+
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UTextBlock> MenuText4;
+
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UTextBlock> MenuText5;
+
+
+	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UVerticalBox> EscapeScreen;
 
 	UPROPERTY(meta = (BindWidget))
@@ -72,6 +102,8 @@ private:
 	TObjectPtr<UAbilitySystemComponent> ASC;
 
 	FGameplayMessageListenerHandle MessageListenerHandle;
+
+	float TypingDelta = 0.1f;
 
 	bool EscapeMode;
 };
