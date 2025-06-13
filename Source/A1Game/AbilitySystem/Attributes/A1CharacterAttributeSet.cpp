@@ -19,6 +19,7 @@ UA1CharacterAttributeSet::UA1CharacterAttributeSet() :
 	InitWeight(0.f);
 
 	bOutOfHealth = false;
+	bHalf = { true, true,  true,  true };
 }
 
 void UA1CharacterAttributeSet::PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue)
@@ -45,7 +46,7 @@ void UA1CharacterAttributeSet::PostAttributeChange(const FGameplayAttribute& Att
 {
 	// TODO Jerry
 	// Replication 작업 시 이주
-	bool bNotice = (NewValue < OldValue);
+	bool bChange = (NewValue < OldValue);
 	int NoticeIndex = -1;
 
 	if (Attribute == GetHealthAttribute())
@@ -56,35 +57,48 @@ void UA1CharacterAttributeSet::PostAttributeChange(const FGameplayAttribute& Att
 		if (bOutOfHealth == false && CurrentHealth <= 0.0f)
 			OnOutOfHealth.Broadcast(nullptr, OldValue, NewValue);
 
-		if (CurrentHealth <= GetMaxHealth() / 2)
+		if (bChange && CurrentHealth <= GetMaxHealth() / 2)
 			NoticeIndex = 2;
+		else if(!bChange && CurrentHealth > GetMaxHealth() / 2)
+			bHalf[2] = true;
 
 		bOutOfHealth = (CurrentHealth <= 0.0f);
 	}
 	else if (Attribute == GetWeightAttribute())
 	{
+		bChange = (NewValue > OldValue);
 		UE_LOG(LogA1Player, Log, TEXT("Weight : %f -> %f"), OldValue, NewValue);
 
-		if (GetWeight() >= GetMaxWeight() / 2)
+		if (bChange && GetWeight() >= GetMaxWeight() / 2)
 			NoticeIndex = 1;
+		else if (!bChange && GetWeight() < GetMaxHealth() / 2)
+			bHalf[1] = true;
 	}
 	else if (Attribute == GetOxygenAttribute())
 	{
 		UE_LOG(LogA1Player, Log, TEXT("Oxygen : %f -> %f"), OldValue, NewValue);
 
-		if (GetOxygen() <= GetMaxOxygen() / 2)
+		if (bChange && GetOxygen() <= GetMaxOxygen() / 2)
 			NoticeIndex = 0;
+		else if (!bChange && GetOxygen() > GetMaxOxygen() / 2)
+			bHalf[0] = true;
 	}
 	else if (Attribute == GetHungerAttribute())
 	{
 		UE_LOG(LogA1Player, Log, TEXT("Hunger : %f -> %f"), OldValue, NewValue);
 
-		if (GetHunger() <= GetMaxHunger() / 2)
+		if (bChange && GetHunger() <= GetMaxHunger())
 			NoticeIndex = 3;
+		else if (!bChange && GetHunger() > GetMaxHunger() / 2)
+			bHalf[3] = true;
 	}		
 
-	if (bNotice && NoticeIndex >= 0)
+	// 50퍼 이하로 감소될 때 한번만 실행되도록
+	if (bChange && NoticeIndex >= 0 && bHalf[NoticeIndex])
+	{
 		OnNoticeWarning.Broadcast(NoticeIndex);
+		bHalf[NoticeIndex] = false;
+	}
 }
 
 void UA1CharacterAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data)
