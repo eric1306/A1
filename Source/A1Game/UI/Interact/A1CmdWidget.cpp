@@ -11,6 +11,7 @@
 #include "Components/EditableText.h"
 #include "Components/ProgressBar.h"
 #include "Data/A1CmdData.h"
+#include "Data/A1UIData.h"
 #include "EngineUtils.h"
 
 UA1CmdWidget::UA1CmdWidget(const FObjectInitializer& ObjectInitializer)
@@ -39,6 +40,7 @@ void UA1CmdWidget::ConstructUI(FGameplayTag Channel, const FASCInitializeMessage
 		return;
 
 	ASC = Message.ASC;
+    TutoMode = Message.bTutorial;
 
     ShowMenu();
     InputText->SetFocus();
@@ -59,11 +61,38 @@ void UA1CmdWidget::InputEnded(FText InText)
 
     UE_LOG(LogA1System, Log, TEXT("%s"), *InText.ToString());
 
+    SuperviseText->SetVisibility(ESlateVisibility::Hidden);
+    SuperviseText->SetText(FText::FromString(""));
+    InputText->SetText(FText::FromString(""));
+
     if (EscapeMode)
     {
         if (InText.ToString() == TEXT("Confirm"))
         {
+            if (TutoMode)    // tutorial
+            {
+                // TODO eric 1306
+                // Fade Out
+            }
+            else             // InGame
+            {
 
+                TSubclassOf<UUserWidget> EndingCutSceneClass = UA1UIData::Get().EndingCutSceneClass;
+                UUserWidget* EndingCutScene = CreateWidget<UUserWidget>(GetWorld(), EndingCutSceneClass);
+                if (EndingCutScene)
+                    EndingCutScene->AddToViewport();
+
+                // TEMP
+                DestructUI();
+                if (ASC)
+                {
+                    FGameplayEventData Payload;
+                    ASC->HandleGameplayEvent(A1GameplayTags::GameplayEvent_Cmd_Exit, &Payload);
+                }
+                
+                // // TODO eric 1306 
+                // GameOver 처리 
+            }
         }
         else if (InText.ToString() == TEXT("Deny"))
         {
@@ -167,6 +196,8 @@ void UA1CmdWidget::InputEnded(FText InText)
         // 없는 명령어 입력
         else
         {
+            SuperviseText->SetVisibility(ESlateVisibility::Visible);
+
             const FCmdTextSet* TextSet = UA1CmdData::Get().GetTextSetByLabel("Error");
             const FString* Text = TextSet->TextEntries.Find("Invalid");
 
@@ -175,7 +206,6 @@ void UA1CmdWidget::InputEnded(FText InText)
         }
     }
    
-    InputText->SetText(FText::FromString(""));
     InputText->SetFocus();
 }
 
