@@ -56,20 +56,7 @@ void UA1GameplayAbility_Interact_Repair::ActivateAbility(const FGameplayAbilityS
         return;
     }
 
-    ALyraCharacter* Character = Cast<ALyraCharacter>(GetAvatarActorFromActorInfo());
-    ALyraPlayerController* PlayerController = GetLyraPlayerControllerFromActorInfo();
-    if (Character == nullptr || PlayerController == nullptr)
-    {
-        CancelAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true);
-        return;
-    }
-    Character->DisableInput(PlayerController);
-
-    if (UAbilityTask_PlayMontageAndWait* PlayMontageTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(this, TEXT("Repair"), RepairMontage, 1.0f, NAME_None, false, 1.f, 0.f, false))
-    {
-        PlayMontageTask->OnCompleted.AddDynamic(this, &ThisClass::DoRepair);
-        PlayMontageTask->ReadyForActivation();
-    }
+    DoRepair();
 }
 
 bool UA1GameplayAbility_Interact_Repair::CheckHoldRefairKit()
@@ -99,7 +86,7 @@ void UA1GameplayAbility_Interact_Repair::DoRepair()
     // 荐府 kit 家葛
     ALyraCharacter* Character = Cast<ALyraCharacter>(GetAvatarActorFromActorInfo());
     UA1EquipmentManagerComponent* EquipmentManager = Character->FindComponentByClass<UA1EquipmentManagerComponent>();
-    if (!EquipmentManager)
+    if (Character == nullptr || EquipmentManager == nullptr)
     {
         CancelAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true);
         return;
@@ -109,9 +96,6 @@ void UA1GameplayAbility_Interact_Repair::DoRepair()
     // 荐府 按眉 力芭
     AA1RepairBase* RepairActor = Cast<AA1RepairBase>(InteractableActor);
     RepairActor->CurrentState = RepairState::Complete;
-
-    ALyraPlayerController* PlayerController = GetLyraPlayerControllerFromActorInfo();
-    Character->EnableInput(PlayerController);
 
     EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
 }

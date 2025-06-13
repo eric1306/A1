@@ -23,9 +23,4 @@ protected:
 
 	UFUNCTION()
 	void DoRepair();
-
-protected:
-	UPROPERTY(EditDefaultsOnly)
-	TObjectPtr<UAnimMontage> RepairMontage;
-
 };

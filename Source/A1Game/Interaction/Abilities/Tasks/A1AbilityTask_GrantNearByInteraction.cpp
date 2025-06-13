@@ -63,6 +63,10 @@ void UA1AbilityTask_GrantNearbyInteraction::QueryInteractables()
 		FVector CameraEnd = CameraStart + (CameraDirection * 1000.f); //Temp eric1306 hardcoding, after FP, must fix distance
 		
 
+		FA1InteractionQuery InteractionQuery;
+		InteractionQuery.RequestingAvatar = AvatarActor;
+		InteractionQuery.RequestingController = Cast<AController>(AvatarActor->GetOwner());
+
 		TArray<FHitResult> HitResults;
 		World->LineTraceMultiByChannel(OUT HitResults, CameraStart, CameraEnd, A1_TraceChannel_Interaction, Params);
 		if (HitResults.Num() > 0)
@@ -71,21 +75,24 @@ void UA1AbilityTask_GrantNearbyInteraction::QueryInteractables()
 			for (const FHitResult& HitResult : HitResults)
 			{
 				TScriptInterface<IA1Interactable> InteractableActor(HitResult.GetActor());
+				
 				if (InteractableActor)
 				{
-					Interactables.AddUnique(InteractableActor);
+					if (InteractableActor->CanInteraction(InteractionQuery))
+					{
+						Interactables.AddUnique(InteractableActor);
+					}
 				}
 
-				TScriptInterface<IA1Interactable> InteractableComponent(HitResult.GetComponent());
+				TScriptInterface<IA1Interactable> InteractableComponent(HitResult.GetComponent());		
 				if (InteractableComponent)
 				{
-					Interactables.AddUnique(InteractableComponent);
+					if (InteractableComponent->CanInteraction(InteractionQuery))
+					{
+						Interactables.AddUnique(InteractableComponent);
+					}
 				}
 			}
-
-			FA1InteractionQuery InteractionQuery;
-			InteractionQuery.RequestingAvatar = AvatarActor;
-			InteractionQuery.RequestingController = Cast<AController>(AvatarActor->GetOwner());
 
 			TArray<FA1InteractionInfo> InteractionInfos;
 			for (TScriptInterface<IA1Interactable>& Interactable : Interactables)

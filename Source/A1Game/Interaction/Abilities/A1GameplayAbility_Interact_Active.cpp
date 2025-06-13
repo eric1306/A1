@@ -14,6 +14,7 @@
 #include "Interaction/A1WorldInteractable.h"
 #include "Item/Managers/A1EquipManagerComponent.h"
 #include "Tasks/A1AbilityTask_WaitForInvalidInteraction.h"
+#include "Player/LyraPlayerController.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(A1GameplayAbility_Interact_Active)
 
@@ -80,6 +81,14 @@ void UA1GameplayAbility_Interact_Active::ActivateAbility(const FGameplayAbilityS
 		{
 			EquipManager->ChangeShouldHiddenEquipments(true);
 		}
+
+		ALyraPlayerController* PlayerController = GetLyraPlayerControllerFromActorInfo();
+		if (PlayerController == nullptr)
+		{
+			CancelAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true);
+			return;
+		}
+		LyraCharacter->DisableInput(PlayerController);
 	}
 
 	FGameplayCueParameters Parameters;
@@ -109,11 +118,11 @@ void UA1GameplayAbility_Interact_Active::ActivateAbility(const FGameplayAbilityS
 		InvalidInteractionTask->ReadyForActivation();
 	}
 
-	if (UAbilityTask_WaitInputRelease* InputReleaseTask = UAbilityTask_WaitInputRelease::WaitInputRelease(this, false))
-	{
-		InputReleaseTask->OnRelease.AddDynamic(this, &ThisClass::OnInputReleased);
-		InputReleaseTask->ReadyForActivation();
-	}
+	//if (UAbilityTask_WaitInputRelease* InputReleaseTask = UAbilityTask_WaitInputRelease::WaitInputRelease(this, false))
+	//{
+	//	InputReleaseTask->OnRelease.AddDynamic(this, &ThisClass::OnInputReleased);
+	//	InputReleaseTask->ReadyForActivation();
+	//}
 
 	FTimerHandle TimerHandle;
 	GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &ThisClass::OnDurationEnded, InteractionInfo.Duration, false);
@@ -123,6 +132,11 @@ void UA1GameplayAbility_Interact_Active::EndAbility(const FGameplayAbilitySpecHa
 	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
 	bool bReplicateEndAbility, bool bWasCancelled)
 {
+	// 입력 가능
+	ALyraCharacter* Character = Cast<ALyraCharacter>(GetAvatarActorFromActorInfo());
+	ALyraPlayerController* PlayerController = GetLyraPlayerControllerFromActorInfo();
+	Character->EnableInput(PlayerController);
+
 	if (ALyraCharacter* LyraCharacter = GetLyraCharacterFromActorInfo())
 	{
 		if (bWasCancelled)
