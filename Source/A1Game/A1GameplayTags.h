@@ -192,6 +192,16 @@ namespace A1GameplayTags
 
 	// HUD
 	A1GAME_API	UE_DECLARE_GAMEPLAY_TAG_EXTERN(HUD_Slot_Reticle);
+
+	// Tutorial
+	A1GAME_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Message_Tutorial_Notice)
+	A1GAME_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Tutorial_Condition_CameraComplete)
+	A1GAME_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Tutorial_Condition_VideoComplete)
+	A1GAME_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Tutorial_Condition_AllItemsCarried)
+	A1GAME_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Tutorial_Condition_EmergencyAck)
+	A1GAME_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Tutorial_Condition_AllRepairsComplete)
+	A1GAME_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Tutorial_Condition_EscapeEntered)
+	A1GAME_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Tutorial_Condition_TransitionComplete)
 	
 	A1GAME_API	extern const TMap<uint8, FGameplayTag> MovementModeTagMap;
 	A1GAME_API	extern const TMap<uint8, FGameplayTag> CustomMovementModeTagMap;

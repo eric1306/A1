@@ -95,7 +95,7 @@ void UA1GameplayAbility_Interact_Repair::DoRepair()
 
     // 수리 객체 제거
     AA1RepairBase* RepairActor = Cast<AA1RepairBase>(InteractableActor);
-    RepairActor->CurrentState = RepairState::Complete;
+    RepairActor->SetCurrentState(RepairState::Complete);
 
     EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
 }

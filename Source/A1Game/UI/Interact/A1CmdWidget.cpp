@@ -13,6 +13,9 @@
 #include "Data/A1CmdData.h"
 #include "Data/A1UIData.h"
 #include "EngineUtils.h"
+#include "Actors/A1TutorialManager.h"
+#include "GameModes/LyraGameMode.h"
+#include "Kismet/GameplayStatics.h"
 
 UA1CmdWidget::UA1CmdWidget(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
@@ -26,6 +29,7 @@ void UA1CmdWidget::NativeConstruct()
 
 	UGameplayMessageSubsystem& MessageSubsystem = UGameplayMessageSubsystem::Get(this);
 	MessageListenerHandle = MessageSubsystem.RegisterListener(MessageChannelTag, this, &UA1CmdWidget::ConstructUI);
+    
 }
 
 void UA1CmdWidget::NativeDestruct()
@@ -44,6 +48,12 @@ void UA1CmdWidget::ConstructUI(FGameplayTag Channel, const FASCInitializeMessage
 
     ShowMenu();
     InputText->SetFocus();
+
+    if (AActor* Manager = UGameplayStatics::GetActorOfClass(GetWorld(), AA1TutorialManager::StaticClass()))
+    {
+        if (AA1TutorialManager* TutorialMaanger = Cast<AA1TutorialManager>(Manager)) TutoMode = true;
+        else TutoMode = false;
+    }
 }
 
 void UA1CmdWidget::DestructUI()
@@ -71,8 +81,15 @@ void UA1CmdWidget::InputEnded(FText InText)
         {
             if (TutoMode)    // tutorial
             {
-                // TODO eric 1306
-                // Fade Out
+                // TODO eric1306
+                // Fade Out / Temp
+                DestructUI();
+                UE_LOG(LogA1, Log, TEXT("Fade Out!"));
+                if (ALyraGameMode* GameMode = Cast<ALyraGameMode>(GetWorld()->GetAuthGameMode()))
+                {
+                    GameMode->TriggerFadeOnAllPlayer(0.f, 1.f, 1.f, FLinearColor::White);
+                    LoadStory();
+                }
             }
             else             // InGame
             {
@@ -90,7 +107,7 @@ void UA1CmdWidget::InputEnded(FText InText)
                     ASC->HandleGameplayEvent(A1GameplayTags::GameplayEvent_Cmd_Exit, &Payload);
                 }
                 
-                // // TODO eric 1306 
+                // // TODO eric1306 
                 // GameOver Ã³¸® 
             }
         }

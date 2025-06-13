@@ -41,7 +41,9 @@ class A1GAME_API UA1CmdWidget : public UA1ActivatableWidget
 
 public:
 	UA1CmdWidget(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
-
+	//Temp eric1306
+	UFUNCTION(BlueprintImplementableEvent)
+	void LoadStory();
 protected:
 	virtual void NativeConstruct() override;
 	virtual void NativeDestruct() override;

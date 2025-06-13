@@ -41,3 +41,12 @@ void AA1RepairBase::GetMeshComponents(TArray<UMeshComponent*>& OutMeshComponents
 		OutMeshComponents.Add(MeshComponent);
 	}
 }
+
+void AA1RepairBase::SetCurrentState(RepairState InState)
+{
+	CurrentState = InState;
+	if (CurrentState == RepairState::Complete)
+	{
+		OnRepairStateChanged.Broadcast();
+	}
+}

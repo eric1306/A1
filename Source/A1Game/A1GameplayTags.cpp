@@ -195,7 +195,18 @@ namespace A1GameplayTags
 
 	// HUD
 	UE_DEFINE_GAMEPLAY_TAG(HUD_Slot_Reticle,								"HUD.Slot.Reticle");
-	
+
+	// Tutorial
+	UE_DEFINE_GAMEPLAY_TAG(Message_Tutorial_Notice,							"Message.Tutorial.Notice");
+	UE_DEFINE_GAMEPLAY_TAG(Tutorial_Condition_CameraComplete,				"Tutorial.Condition.CameraComplete");
+	UE_DEFINE_GAMEPLAY_TAG(Tutorial_Condition_VideoComplete,				"Tutorial.Condition.VideoComplete");
+	UE_DEFINE_GAMEPLAY_TAG(Tutorial_Condition_AllItemsCarried,				"Tutorial.Condition.AllItemsCarried");
+	UE_DEFINE_GAMEPLAY_TAG(Tutorial_Condition_EmergencyAck,					"Tutorial.Condition.EmergencyAck");
+	UE_DEFINE_GAMEPLAY_TAG(Tutorial_Condition_AllRepairsComplete,			"Tutorial.Condition.AllRepairsComplete");
+	UE_DEFINE_GAMEPLAY_TAG(Tutorial_Condition_EscapeEntered,				"Tutorial.Condition.EscapeEntered");
+	UE_DEFINE_GAMEPLAY_TAG(Tutorial_Condition_TransitionComplete,			"Tutorial.Condition.TransitionComplete");
+
+
 	const TMap<uint8, FGameplayTag> MovementModeTagMap =
 	{
 		{ MOVE_Walking, Movement_Mode_Walking },

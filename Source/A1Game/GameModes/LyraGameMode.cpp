@@ -288,13 +288,13 @@ void ALyraGameMode::OnUserInitializedForDedicatedServer(const UCommonUserInfo* U
 	}
 }
 
-void ALyraGameMode::TriggerFadeOnAllPlayer(float From, float To)
+void ALyraGameMode::TriggerFadeOnAllPlayer(float From, float To, float Duration, FLinearColor Color)
 {
 	for (FConstPlayerControllerIterator Iterator = GetWorld()->GetPlayerControllerIterator(); Iterator; ++Iterator)
 	{
 		if (ALyraPlayerController* PC = Cast<ALyraPlayerController>(Iterator->Get()))
 		{
-			PC->Client_FadeCamera(From, To, 1.0f, FLinearColor::Black, true);
+			PC->Client_FadeCamera(From, To, Duration, Color, true);
 		}
 	}
 }

@@ -123,7 +123,7 @@ void AA1ShipOutputBase::DeactivateExternalMap()
         auto GameMode = Cast<ALyraGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
         if (GameMode)
         {
-            GameMode->TriggerFadeOnAllPlayer(0.0f, 1.f);
+            GameMode->TriggerFadeOnAllPlayer(0.0f, 1.f, 1.f, FLinearColor::Black);
         }
 
         OwningSpaceship->DeactivateExternalMap();
@@ -138,7 +138,7 @@ void AA1ShipOutputBase::DeactivateExternalMap()
                 //AudioComp->Stop();
                 if (auto GameMode = Cast<ALyraGameMode>(UGameplayStatics::GetGameMode(GetWorld())))
                 {
-                    GameMode->TriggerFadeOnAllPlayer(1.f, 0.f);
+                    GameMode->TriggerFadeOnAllPlayer(1.f, 0.f, 1.f, FLinearColor::Black);
                 }
             }, 5.0f, false);
     }

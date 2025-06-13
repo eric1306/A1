@@ -111,7 +111,7 @@ protected:
 public:
 
 	UFUNCTION(BlueprintCallable)
-	void TriggerFadeOnAllPlayer(float From, float To);
+	void TriggerFadeOnAllPlayer(float From, float To, float Duration, FLinearColor Color);
 
 	UFUNCTION(BlueprintCallable)
 	void TriggerFadeOnSpecificPlayer(ALyraPlayerController* TargetPC, float From, float To);
