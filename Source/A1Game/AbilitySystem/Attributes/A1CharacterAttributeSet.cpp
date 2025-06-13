@@ -87,7 +87,7 @@ void UA1CharacterAttributeSet::PostAttributeChange(const FGameplayAttribute& Att
 	{
 		UE_LOG(LogA1Player, Log, TEXT("Hunger : %f -> %f"), OldValue, NewValue);
 
-		if (bChange && GetHunger() <= GetMaxHunger())
+		if (bChange && GetHunger() <= GetMaxHunger() / 2)
 			NoticeIndex = 3;
 		else if (!bChange && GetHunger() > GetMaxHunger() / 2)
 			bHalf[3] = true;

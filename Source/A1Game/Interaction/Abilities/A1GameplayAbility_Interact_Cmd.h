@@ -43,6 +43,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly)
 	TObjectPtr<UMaterialInterface> MinimapMaterial;
 
+	UPROPERTY(BlueprintReadOnly)
+	bool bTutorialMode = false;
+
 private:
 	UPROPERTY()
 	TObjectPtr<UAbilityTask_WaitGameplayEvent> OpenMapTask;

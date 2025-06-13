@@ -20,6 +20,9 @@ struct FASCInitializeMessage
 public:
 	UPROPERTY(BlueprintReadWrite)
 	TObjectPtr<UAbilitySystemComponent> ASC;
+
+	UPROPERTY(BlueprintReadWrite)
+	bool bTutorial;
 };
 
 struct FTypingState
@@ -106,4 +109,5 @@ private:
 	float TypingDelta = 0.1f;
 
 	bool EscapeMode;
+	bool TutoMode;
 };
