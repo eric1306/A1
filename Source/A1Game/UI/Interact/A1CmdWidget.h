@@ -52,7 +52,7 @@ protected:
 	void InputEnded(FText InText);
 
 	UFUNCTION(Blueprintimplementableevent)
-	void ShowRefairPercent(float Percent);
+	void ShowRepairPercent(float Percent);
 
 	void ShowMenu();
 	void HiddenMenu();

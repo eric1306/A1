@@ -107,25 +107,33 @@ void UA1CmdWidget::InputEnded(FText InText)
         //}
         else if (InText.ToString() == TEXT("Escape"))
         {
+            EscapeMode = true;
             EscapeScreen->SetVisibility(ESlateVisibility::Visible);
 
             UWorld* World = GetWorld();
 
+            int Total = 0;
             int32 Count = 0;
             for (TActorIterator<AA1RepairBase> It(World); It; ++It)
-            {
-                ++Count;
+            {     
+                if (It->CurrentState == RepairState::NotBroken)
+                    continue;
+                
+                Total++;
+
+                if(It->CurrentState == RepairState::Complete)
+                    ++Count;
             }
-            if(Count == 0)
-                EscapeMode = true;
-            ShowRefairPercent(Count);
+               
+            float percent = (Total == 0) ? 0 : ((float)Count / Total);
+            ShowRepairPercent(percent);
 
             EscapeGuideTxt->SetVisibility(ESlateVisibility::Visible);
             EscapeKeyTxt->SetVisibility(ESlateVisibility::Visible);
 
             FName EntryLable = "";
             FString KeyText = "";
-            if (Count > 0)
+            if (Total != Count)
             {
                 EntryLable = "Cannot";
                 KeyText = ">  Menu";
