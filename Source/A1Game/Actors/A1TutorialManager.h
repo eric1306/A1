@@ -1,4 +1,4 @@
-// Copyright (c) 2025 THIS-ACCENT. All Rights Reserved.
+ï»¿// Copyright (c) 2025 THIS-ACCENT. All Rights Reserved.
 
 #pragma once
 
@@ -26,49 +26,62 @@ public:
     FText Content;
 };
 
-// Æ©Åä¸®¾ó ¾×¼Ç Å¸ÀÔ - ¸ğµç °¡´ÉÇÑ µ¿ÀÛÀ» Á¤ÀÇ
+// íŠœí† ë¦¬ì–¼ ì•¡ì…˜ íƒ€ì… - ëª¨ë“  ê°€ëŠ¥í•œ ë™ì‘ì„ ì •ì˜
 UENUM(BlueprintType)
 enum class ETutorialActionType : uint8
 {
     None,
-    FixCamera,          // Ä«¸Ş¶ó °íÁ¤
-    PlayVideo,          // ¿µ»ó Àç»ı
-    ShowMessage,        // ¸Ş½ÃÁö Ç¥½Ã
-    HighlightActors,    // ¾×ÅÍµé ÇÏÀÌ¶óÀÌÆ®
-    SpawnEffects,       // ÀÌÆåÆ® ½ºÆù
-    PlaySound,          // »ç¿îµå Àç»ı
-    WaitForCondition,   // Á¶°Ç ´ë±â
-    ChangeLevel,        // ·¹º§ º¯°æ
-    FadeScreen,         // È­¸é ÆäÀÌµå
-    Custom              // Ä¿½ºÅÒ ¾×¼Ç (Blueprint ±¸Çö)
+    FixCamera,          // ì¹´ë©”ë¼ ê³ ì •
+    PlayVideo,          // ì˜ìƒ ì¬ìƒ
+    ShowMessage,        // ë©”ì‹œì§€ í‘œì‹œ
+    HighlightActors,    // ì•¡í„°ë“¤ í•˜ì´ë¼ì´íŠ¸
+    SpawnEffects,       // ì´í™íŠ¸ ìŠ¤í°
+    PlaySound,          // ì‚¬ìš´ë“œ ì¬ìƒ
+    WaitForCondition,   // ì¡°ê±´ ëŒ€ê¸°
+    ChangeLevel,        // ë ˆë²¨ ë³€ê²½
+    FadeScreen,         // í™”ë©´ í˜ì´ë“œ
+    Custom              // ì»¤ìŠ¤í…€ ì•¡ì…˜ (Blueprint êµ¬í˜„)
 };
 
-// Æ©Åä¸®¾ó ½ºÅÜ µ¥ÀÌÅÍ - ¸ğµç ½ºÅÜ Á¤º¸¸¦ ´ã´Â ´ÜÀÏ ±¸Á¶Ã¼
+UENUM(BlueprintType)
+enum class ETutorialStep : uint8
+{
+    None,           
+	VideoPlayBack,      //ë¹„ë””ì˜¤ ì¬ìƒ
+    CarryItems,         //ì•„ì´í…œ ì˜®ê¸°ê¸°
+    Emergency,          //ë¹„ìƒ ì‚¬íƒœ
+    Repair,             //ìˆ˜ë¦¬
+    Escape,             //íƒˆì¶œ
+    Collapse,           //ë¶•ê´´
+    End                 //íŠœí† ë¦¬ì–¼ ì¢…ë£Œ
+};
+
+// íŠœí† ë¦¬ì–¼ ìŠ¤í… ë°ì´í„° - ëª¨ë“  ìŠ¤í… ì •ë³´ë¥¼ ë‹´ëŠ” ë‹¨ì¼ êµ¬ì¡°ì²´
 USTRUCT(BlueprintType)
 struct FA1TutorialStepData : public FTableRowBase
 {
     GENERATED_BODY()
 
-    // ±âº» Á¤º¸
+    // ê¸°ë³¸ ì •ë³´
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
     FText StepName;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
     FText Description;
 
-    // ½ÇÇàÇÒ ¾×¼Çµé (¼øÂ÷ ½ÇÇà)
+    // ì‹¤í–‰í•  ì•¡ì…˜ë“¤ (ìˆœì°¨ ì‹¤í–‰)
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
     TArray<ETutorialActionType> Actions;
 
-    // ¾×¼Çº° ÆÄ¶ó¹ÌÅÍ (JSON ¹®ÀÚ¿­·Î ÀúÀå)
+    // ì•¡ì…˜ë³„ íŒŒë¼ë¯¸í„° (JSON ë¬¸ìì—´ë¡œ ì €ì¥)
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
     TMap<ETutorialActionType, FString> ActionParams;
 
-    // ¿Ï·á Á¶°Ç
+    // ì™„ë£Œ ì¡°ê±´
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
     FGameplayTag CompletionCondition;
 
-    // ÀÚµ¿ ÁøÇà ½Ã°£ (0ÀÌ¸é Á¶°Ç ´ë±â)
+    // ìë™ ì§„í–‰ ì‹œê°„ (0ì´ë©´ ì¡°ê±´ ëŒ€ê¸°)
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
     float AutoProgressTime = 0.0f;
 
@@ -93,7 +106,7 @@ protected:
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
 public:	
-    // ÇÙ½É ±â´É
+    // í•µì‹¬ ê¸°ëŠ¥
     UFUNCTION(BlueprintCallable, Category = "Tutorial")
     void StartTutorial();
 
@@ -109,7 +122,7 @@ public:
     UFUNCTION(BlueprintCallable, Category = "Tutorial")
     void EndTutorial();
 
-    // ÇöÀç »óÅÂ Á¶È¸
+    // í˜„ì¬ ìƒíƒœ ì¡°íšŒ
     UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Tutorial")
     int32 GetCurrentStep() const { return CurrentStepIndex; }
 
@@ -126,8 +139,10 @@ public:
     FORCEINLINE ALyraPlayerController* GetPlayerController() { return PlayerController; }
 
 protected:
-    // ¾×¼Ç ½ÇÇà ÇÔ¼öµé - °¢ ¾×¼Ç Å¸ÀÔº° Ã³¸®
+    // ì•¡ì…˜ ì‹¤í–‰ í•¨ìˆ˜ë“¤ - ê° ì•¡ì…˜ íƒ€ì…ë³„ ì²˜ë¦¬
     void ExecuteAction(ETutorialActionType ActionType, const FString& Params);
+    void ChangeTutorialStep(ETutorialStep CurrentStep);
+    FORCEINLINE void SetTutorialStep(ETutorialStep InStep) { TutorialStep = InStep; }
 
     void DoPlayVideo(const FString& Params);
     void DoShowMessage(const FString& Params);
@@ -142,13 +157,16 @@ protected:
     UFUNCTION()
     void OnItemPickedUp();
 
+    UFUNCTION()
+    void OnRepaired();
 
-    // À¯Æ¿¸®Æ¼ ÇÔ¼öµé
+
+    // ìœ í‹¸ë¦¬í‹° í•¨ìˆ˜ë“¤
     FVector ParseVector(const FString& VectorString);
     FRotator ParseRotator(const FString& RotatorString);
     TArray<FString> ParseStringArray(const FString& ArrayString);
 
-    // Blueprint È®Àå Æ÷ÀÎÆ®
+    // Blueprint í™•ì¥ í¬ì¸íŠ¸
     UFUNCTION(BlueprintImplementableEvent, Category = "Tutorial")
     void OnStepStarted(const FA1TutorialStepData& StepData);
 
@@ -162,21 +180,24 @@ protected:
     void ExecuteCustomAction(const FString& Params);
 
 protected:
-    // ¼³Á¤ µ¥ÀÌÅÍ
+    // ì„¤ì • ë°ì´í„°
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tutorial")
     TObjectPtr<UDataTable> TutorialStepsTable;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tutorial")
     TSubclassOf<UUserWidget> UIWidgetClass;
 
-    // ·±Å¸ÀÓ »óÅÂ
+    // ëŸ°íƒ€ì„ ìƒíƒœ
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Tutorial")
     int32 CurrentStepIndex = -1;
 
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Tutorial")
     bool bIsActive = false;
 
-    // Ä³½ÃµÈ ÂüÁ¶µé
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Tutorial")
+    ETutorialStep TutorialStep;
+
+    // ìºì‹œëœ ì°¸ì¡°ë“¤
     UPROPERTY()
     TObjectPtr<ALyraPlayerController> PlayerController;
 
@@ -184,17 +205,18 @@ protected:
     TObjectPtr<UUserWidget> UIWidget;
 
     uint32 ItemCount = 0;
+    uint32 RepairCount = 0;
 
-    // ·±Å¸ÀÓ µ¥ÀÌÅÍ
+    // ëŸ°íƒ€ì„ ë°ì´í„°
     TArray<FA1TutorialStepData*> StepDataArray;
     FGameplayTag CurrentWaitingCondition;
 
-    // Å¸ÀÌ¸Ó
+    // íƒ€ì´ë¨¸
     FTimerHandle AutoProgressTimer;
     FTimerHandle ActionDelayTimer;
 };
 
-// Æ©Åä¸®¾ó »óÈ£ÀÛ¿ë ÄÄÆ÷³ÍÆ® - ±âÁ¸ ¾×ÅÍ¿¡ Ãß°¡¸¸ ÇÏ¸é µÇ´Â ÄÄÆ÷³ÍÆ®
+// íŠœí† ë¦¬ì–¼ ìƒí˜¸ì‘ìš© ì»´í¬ë„ŒíŠ¸ - ê¸°ì¡´ ì•¡í„°ì— ì¶”ê°€ë§Œ í•˜ë©´ ë˜ëŠ” ì»´í¬ë„ŒíŠ¸
 UCLASS(BlueprintType, Blueprintable, ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class A1GAME_API UA1TutorialInteractionComponent : public UActorComponent
 {
@@ -207,23 +229,23 @@ protected:
     virtual void BeginPlay() override;
 
 public:
-    // »óÈ£ÀÛ¿ë Ã³¸®
+    // ìƒí˜¸ì‘ìš© ì²˜ë¦¬
     UFUNCTION(BlueprintCallable, Category = "Tutorial Interaction")
     void OnInteracted();
 
     UFUNCTION(BlueprintCallable, Category = "Tutorial Interaction")
     void TriggerCondition();
 
-    // ÇÏÀÌ¶óÀÌÆ® Á¦¾î
+    // í•˜ì´ë¼ì´íŠ¸ ì œì–´
     UFUNCTION(BlueprintCallable, Category = "Tutorial Interaction")
     void SetHighlight(bool bEnabled);
 
-    // »óÅÂ ¼³Á¤
+    // ìƒíƒœ ì„¤ì •
     UFUNCTION(BlueprintCallable, Category = "Tutorial Interaction")
     void SetInteractionEnabled(bool bEnabled) { bIsEnabled = bEnabled; }
 
 protected:
-    // ¼³Á¤
+    // ì„¤ì •
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tutorial Interaction")
     FGameplayTag TriggerConditionTag;
 
@@ -240,14 +262,14 @@ private:
     void FindTutorialManager();
 };
 
-// °£´ÜÇÑ Æ©Åä¸®¾ó ¼³Á¤¿ë Blueprint ÇÔ¼ö ¶óÀÌºê·¯¸®
+// ê°„ë‹¨í•œ íŠœí† ë¦¬ì–¼ ì„¤ì •ìš© Blueprint í•¨ìˆ˜ ë¼ì´ë¸ŒëŸ¬ë¦¬
 UCLASS()
 class A1GAME_API UA1TutorialBlueprintLibrary : public UBlueprintFunctionLibrary
 {
     GENERATED_BODY()
 
 public:
-    // ºü¸¥ ¼³Á¤ ÇÔ¼öµé
+    // ë¹ ë¥¸ ì„¤ì • í•¨ìˆ˜ë“¤
     UFUNCTION(BlueprintCallable, Category = "Tutorial Setup", CallInEditor)
     static UDataTable* CreateBasicTutorialData();
 
@@ -263,7 +285,7 @@ public:
     UFUNCTION(BlueprintCallable, Category = "Tutorial Setup")
     static FString MakeFloatParam(float Value);
 
-    // Á¶°Ç Ã¼Å© ÇïÆÛ
+    // ì¡°ê±´ ì²´í¬ í—¬í¼
     UFUNCTION(BlueprintCallable, Category = "Tutorial")
     static void TriggerTutorialCondition(UObject* WorldContext, FGameplayTag ConditionTag);
 };

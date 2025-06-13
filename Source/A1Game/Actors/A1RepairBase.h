@@ -5,6 +5,8 @@
 #include "Interaction/A1WorldInteractable.h"
 #include "A1RepairBase.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnRepairStateChanged);
+
 class UArrowComponent;
 
 UENUM()
@@ -31,6 +33,11 @@ public:
 	virtual FA1InteractionInfo GetPreInteractionInfo(const FA1InteractionQuery& InteractionQuery) const override;
 	virtual void GetMeshComponents(TArray<UMeshComponent*>& OutMeshComponents) const override;
 
+	FORCEINLINE RepairState GetCurrentState() const { return CurrentState; }
+	void SetCurrentState(RepairState InState);
+
+public:
+	FOnRepairStateChanged OnRepairStateChanged;
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Info")
 	FA1InteractionInfo InteractionInfo;

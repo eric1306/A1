@@ -1,4 +1,4 @@
-// Copyright (c) 2025 THIS-ACCENT. All Rights Reserved.
+ï»¿// Copyright (c) 2025 THIS-ACCENT. All Rights Reserved.
 
 
 #include "Actors/A1TutorialManager.h"
@@ -7,6 +7,7 @@
 #include "A1EquipmentBase.h"
 #include "A1GameplayTags.h"
 #include "A1LogChannels.h"
+#include "A1RepairBase.h"
 #include "MediaPlayer.h"
 #include "GameFramework/GameplayMessageSubsystem.h"
 #include "GameModes/LyraGameMode.h"
@@ -16,11 +17,15 @@
 #include "MediaSource.h"
 #include "Blueprint/UserWidget.h"
 #include "Character/LyraCharacter.h"
+#include "Data/A1ItemData.h"
+#include "Item/A1ItemTemplate.h"
+#include "Item/Fragments/A1ItemFragment_Equipable_Utility.h"
+#include "Item/Fragments/A1ItemFragment_Equipable_Weapon.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(A1TutorialManager)
 
 //==============================================================================
-// AA1TutorialManager - ÅëÇÕ Æ©Åä¸®¾ó ½Ã½ºÅÛ
+// AA1TutorialManager - í†µí•© íŠœí† ë¦¬ì–¼ ì‹œìŠ¤í…œ
 //==============================================================================
 
 AA1TutorialManager::AA1TutorialManager()
@@ -32,10 +37,10 @@ AA1TutorialManager::AA1TutorialManager()
 void AA1TutorialManager::BeginPlay()
 {
 	Super::BeginPlay();
-    // ÇÃ·¹ÀÌ¾î ÄÁÆ®·Ñ·¯ Ã£±â
+    // í”Œë ˆì´ì–´ ì»¨íŠ¸ë¡¤ëŸ¬ ì°¾ê¸°
     PlayerController = Cast<ALyraPlayerController>(UGameplayStatics::GetPlayerController(this, 0));
 
-    // ½ºÅÜ µ¥ÀÌÅÍ ·Îµå
+    // ìŠ¤í… ë°ì´í„° ë¡œë“œ
     if (TutorialStepsTable)
     {
         TutorialStepsTable->GetAllRows<FA1TutorialStepData>(TEXT("TutorialSteps"), StepDataArray);
@@ -45,7 +50,7 @@ void AA1TutorialManager::BeginPlay()
 
 void AA1TutorialManager::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
-    // Å¸ÀÌ¸Ó Á¤¸®
+    // íƒ€ì´ë¨¸ ì •ë¦¬
     GetWorld()->GetTimerManager().ClearTimer(AutoProgressTimer);
     GetWorld()->GetTimerManager().ClearTimer(ActionDelayTimer);
     FText EmptyTitle = FText::FromString(TEXT(""));
@@ -65,6 +70,7 @@ void AA1TutorialManager::StartTutorial()
 
     bIsActive = true;
     CurrentStepIndex = -1;
+    TutorialStep = ETutorialStep::None;
 
     UE_LOG(LogA1System, Log, TEXT("Starting compact tutorial with %d steps"), StepDataArray.Num());
 
@@ -95,17 +101,20 @@ void AA1TutorialManager::NextStep()
 
     UE_LOG(LogA1System, Log, TEXT("Starting step %d: %s"), CurrentStepIndex, *StepData->StepName.ToString());
 
-    // Blueprint ÀÌº¥Æ® È£Ãâ
+    // Blueprint ì´ë²¤íŠ¸ í˜¸ì¶œ
     OnStepStarted(*StepData);
 
-    // ¾×¼Çµé ¼øÂ÷ ½ÇÇà
+    //Change Current Tutorial Step
+    ChangeTutorialStep(TutorialStep);
+
+    // ì•¡ì…˜ë“¤ ìˆœì°¨ ì‹¤í–‰
     for (int32 i = 0; i < StepData->Actions.Num(); i++)
     {
         ETutorialActionType ActionType = StepData->Actions[i];
         FString Params = StepData->ActionParams.FindRef(ActionType);
 
-        // ¾×¼Ç °£ Áö¿¬À» À§ÇÑ Å¸ÀÌ¸Ó »ç¿ë
-        float Delay = (i+1) * 0.1f; // °¢ ¾×¼Ç¸¶´ÙExecuteAction( 0.1ÃÊ °£°İ)
+        // ì•¡ì…˜ ê°„ ì§€ì—°ì„ ìœ„í•œ íƒ€ì´ë¨¸ ì‚¬ìš©
+        float Delay = (i+1) * 0.1f; // ê° ì•¡ì…˜ë§ˆë‹¤ExecuteAction( 0.1ì´ˆ ê°„ê²©)
         UE_LOG(LogA1System, Log, TEXT("Action Type: %hhd"), ActionType);
         FTimerHandle TimerHandle;
         GetWorld()->GetTimerManager().SetTimer(
@@ -116,13 +125,12 @@ void AA1TutorialManager::NextStep()
         );
     }
 
-    // ¿Ï·á Á¶°Ç ¼³Á¤
+    // ì™„ë£Œ ì¡°ê±´ ì„¤ì •
     CurrentWaitingCondition = StepData->CompletionCondition;
 
-    // ÀÚµ¿ ÁøÇà ¼³Á¤
+    // ìë™ ì§„í–‰ ì„¤ì •
     if (StepData->AutoProgressTime > 0.0f)
     {
-        
         GetWorld()->GetTimerManager().SetTimer(
             AutoProgressTimer,
             this,
@@ -140,7 +148,7 @@ void AA1TutorialManager::GoToStep(int32 StepIndex)
         return;
     }
 
-    CurrentStepIndex = StepIndex - 1; // NextStep¿¡¼­ +1 µÇ¹Ç·Î
+    CurrentStepIndex = StepIndex - 1; // NextStepì—ì„œ +1 ë˜ë¯€ë¡œ
     NextStep();
 }
 
@@ -153,13 +161,13 @@ void AA1TutorialManager::OnConditionMet(FGameplayTag ConditionTag)
 
     UE_LOG(LogA1System, Log, TEXT("Condition met: %s"), *ConditionTag.ToString());
 
-    // ÀÚµ¿ ÁøÇà Å¸ÀÌ¸Ó Á¤¸®
+    // ìë™ ì§„í–‰ íƒ€ì´ë¨¸ ì •ë¦¬
     GetWorld()->GetTimerManager().ClearTimer(AutoProgressTimer);
 
-    // Blueprint ÀÌº¥Æ® È£Ãâ
+    // Blueprint ì´ë²¤íŠ¸ í˜¸ì¶œ
     OnStepCompleted(CurrentStepIndex);
 
-    // ´ÙÀ½ ½ºÅÜÀ¸·Î ÁøÇà
+    // ë‹¤ìŒ ìŠ¤í…ìœ¼ë¡œ ì§„í–‰
     NextStep();
 }
 
@@ -175,11 +183,11 @@ void AA1TutorialManager::EndTutorial()
     bIsActive = false;
     CurrentStepIndex = -1;
 
-    // Å¸ÀÌ¸Ó Á¤¸®
+    // íƒ€ì´ë¨¸ ì •ë¦¬
     GetWorld()->GetTimerManager().ClearTimer(AutoProgressTimer);
     GetWorld()->GetTimerManager().ClearTimer(ActionDelayTimer);
 
-    // Blueprint ÀÌº¥Æ® È£Ãâ
+    // Blueprint ì´ë²¤íŠ¸ í˜¸ì¶œ
     OnTutorialCompleted();
 }
 
@@ -214,9 +222,24 @@ void AA1TutorialManager::ExecuteAction(ETutorialActionType ActionType, const FSt
     }
 }
 
+void AA1TutorialManager::ChangeTutorialStep(ETutorialStep CurrentStep)
+{
+    switch (CurrentStep)
+    {
+    case ETutorialStep::None: SetTutorialStep(ETutorialStep::VideoPlayBack); break;
+    case ETutorialStep::VideoPlayBack: SetTutorialStep(ETutorialStep::CarryItems); break;
+    case ETutorialStep::CarryItems: SetTutorialStep(ETutorialStep::Emergency); break;
+    case ETutorialStep::Emergency: SetTutorialStep(ETutorialStep::Repair); break;
+    case ETutorialStep::Repair: SetTutorialStep(ETutorialStep::Collapse); break;
+    case ETutorialStep::Collapse: SetTutorialStep(ETutorialStep::End); break;
+    }
+
+    UE_LOG(LogA1, Log, TEXT("Current Step: %hhd"), TutorialStep);
+}
+
 void AA1TutorialManager::DoPlayVideo(const FString& Params)
 {
-    // Blueprint¿¡¼­ ±¸ÇöµÈ ºñµğ¿À Àç»ı ÇÔ¼ö È£Ãâ
+    // Blueprintì—ì„œ êµ¬í˜„ëœ ë¹„ë””ì˜¤ ì¬ìƒ í•¨ìˆ˜ í˜¸ì¶œ
     // Param : "VideoPath=/Game/Videos/Briefing.mp4;AutoProgress=true"
     UE_LOG(LogA1System, Log, TEXT("Playing video with params: %s"), *Params);
 
@@ -245,7 +268,7 @@ void AA1TutorialManager::DoShowMessage(const FString& Params)
     FText Title;
     FText Content;
     float Duration = 2.0f;
-    // UI À§Á¬¿¡ ¸Ş½ÃÁö Ç¥½Ã (Blueprint ÀÌº¥Æ®·Î Ã³¸®)
+    // UI ìœ„ì ¯ì— ë©”ì‹œì§€ í‘œì‹œ (Blueprint ì´ë²¤íŠ¸ë¡œ ì²˜ë¦¬)
     TArray<FString> ParamPairs;
     Params.ParseIntoArray(ParamPairs, TEXT(";"));
 
@@ -274,24 +297,37 @@ void AA1TutorialManager::DoShowMessage(const FString& Params)
 void AA1TutorialManager::DoHighlightActors(const FString& Params)
 {
     // Param: "Actors=Actor1,Actor2,Actor3;Enable=true"
-    //¹æ½Ä º¯°æ -> ¾×ÅÍ ÀÌ¸§À¸·Î ÇÏÁö ¸»°í 
+    //ë°©ì‹ ë³€ê²½ -> ì•¡í„° ì´ë¦„ìœ¼ë¡œ í•˜ì§€ ë§ê³  
     TArray<FString> ActorNames = ParseStringArray(Params);
 
-    for (const FString& ActorName : ActorNames)
+    
+    TArray<AActor*> OutActor; //Item ì •ë¦¬ step ì¸ ê²½ìš°
+    if (TutorialStep == ETutorialStep::CarryItems)
     {
-        TArray<AActor*> OutActor;
         UGameplayStatics::GetAllActorsOfClass(GetWorld(), AA1EquipmentBase::StaticClass(), OutActor);
         if (OutActor.Num() > 0)
         {
+            //ì£¼ì›Œì•¼ í•  ì•¡í„° í•˜ì´ë¼ì´íŒ…
             for (AActor* EquipActor : OutActor)
             {
                 if (AA1EquipmentBase* Equip = Cast<AA1EquipmentBase>(EquipActor))
                 {
                     if (Equip->GetPickup()) continue;
 
-                    Equip->OnItemPickupChanged.AddUniqueDynamic(this, &AA1TutorialManager::OnItemPickedUp);
+                    const UA1ItemTemplate& Template = UA1ItemData::Get().FindItemTemplateByID(Equip->GetTemplateID());
+                    if (const UA1ItemFragment_Equipable_Utility* ItemFragment = Cast<UA1ItemFragment_Equipable_Utility>(Template.FindFragmentByClass(UA1ItemFragment_Equipable_Utility::StaticClass())))
+                    {
+                        if (ItemFragment->UtilityType != EUtilityType::Repairkit)
+                        {
+                            Equip->OnItemPickupChanged.AddUniqueDynamic(this, &AA1TutorialManager::OnItemPickedUp);
+                        }
+                    }
+                    else if (const UA1ItemFragment_Equipable_Weapon* WeaponFragment = Cast<UA1ItemFragment_Equipable_Weapon>(Template.FindFragmentByClass(UA1ItemFragment_Equipable_Weapon::StaticClass())))
+                    {
+                        Equip->OnItemPickupChanged.AddUniqueDynamic(this, &AA1TutorialManager::OnItemPickedUp);
+                    }
                 }
-                // ¾×ÅÍ ÇÏÀÌ¶óÀÌÆ® Àû¿ë
+                // ì•¡í„° í•˜ì´ë¼ì´íŠ¸ ì ìš©
                 TArray<UPrimitiveComponent*> PrimitiveComponents;
                 EquipActor->GetComponents<UPrimitiveComponent>(PrimitiveComponents);
 
@@ -302,30 +338,77 @@ void AA1TutorialManager::DoHighlightActors(const FString& Params)
                 }
             }
         }
+        OutActor.Empty();
+    } //Repair stepì¸ ê²½ìš°
+    else if (TutorialStep == ETutorialStep::Repair)
+    {
+        UGameplayStatics::GetAllActorsOfClass(GetWorld(), AA1RepairBase::StaticClass(), OutActor);
+        if (OutActor.Num() > 0)
+        {
+            for (AActor* RepairActor : OutActor)
+            {
+	            if (AA1RepairBase* Repair = Cast<AA1RepairBase>(RepairActor))
+	            {
+		            if (Repair->GetCurrentState() == RepairState::Break)
+		            {
+                        //ë¸ë¦¬ê²Œì´íŠ¸ ì—°ê²°
+                        Repair->OnRepairStateChanged.AddUniqueDynamic(this, &AA1TutorialManager::OnRepaired);
+                        // ì•¡í„° í•˜ì´ë¼ì´íŠ¸ ì ìš©
+                        TArray<UPrimitiveComponent*> PrimitiveComponents;
+                        Repair->GetComponents<UPrimitiveComponent>(PrimitiveComponents);
+
+                        for (UPrimitiveComponent* Component : PrimitiveComponents)
+                        {
+                            Component->SetRenderCustomDepth(true);
+                            Component->SetCustomDepthStencilValue(250);
+                        }
+		            }
+	            }
+            }
+        }
+    }
+    else if (TutorialStep == ETutorialStep::Collapse)
+    {
+        //Highlight CMD
+        AActor* CachedActor = UGameplayStatics::GetActorOfClass(GetWorld(), AA1CMDBase::StaticClass());
+        if (CachedActor!=nullptr)
+        {
+	        if (AA1CMDBase* Cmd = Cast<AA1CMDBase>(CachedActor))
+	        {
+                TArray<UPrimitiveComponent*> PrimitiveComponents;
+                Cmd->GetComponents<UPrimitiveComponent>(PrimitiveComponents);
+
+                for (UPrimitiveComponent* Component : PrimitiveComponents)
+                {
+                    Component->SetRenderCustomDepth(true);
+                    Component->SetCustomDepthStencilValue(250);
+                }
+	        }
+        }
     }
 }
 
 void AA1TutorialManager::DoSpawnEffects(const FString& Params)
 {
-    // ÆÄ¶ó¹ÌÅÍ: "Effect=/Game/Effects/Explosion;Location=100,200,300"
+    // íŒŒë¼ë¯¸í„°: "Effect=/Game/Effects/Explosion;Location=100,200,300"
     UE_LOG(LogA1System, Log, TEXT("Spawning effects: %s"), *Params);
 }
 
 void AA1TutorialManager::DoPlaySound(const FString& Params)
 {
-    // ÆÄ¶ó¹ÌÅÍ: "Sound=/Game/Audio/Alarm;Volume=1.0;Loop=true"
+    // íŒŒë¼ë¯¸í„°: "Sound=/Game/Audio/Alarm;Volume=1.0;Loop=true"
     UE_LOG(LogA1System, Log, TEXT("Playing sound: %s"), *Params);
 }
 
 void AA1TutorialManager::DoWaitForCondition(const FString& Params)
 {
-    // ÆÄ¶ó¹ÌÅÍ¿¡¼­ Á¶°Ç ÅÂ±× ¼³Á¤
+    // íŒŒë¼ë¯¸í„°ì—ì„œ ì¡°ê±´ íƒœê·¸ ì„¤ì •
     CurrentWaitingCondition = FGameplayTag::RequestGameplayTag(*Params);
 }
 
 void AA1TutorialManager::DoChangeLevel(const FString& Params)
 {
-    // ÆÄ¶ó¹ÌÅÍ: "Level=MainGame;FadeTime=2.0"
+    // íŒŒë¼ë¯¸í„°: "Level=MainGame;FadeTime=2.0"
     UGameplayStatics::OpenLevel(GetWorld(), *Params);
 }
 
@@ -366,9 +449,46 @@ void AA1TutorialManager::OnItemPickedUp()
     }
 }
 
+void AA1TutorialManager::OnRepaired()
+{
+    RepairCount++;
+    UE_LOG(LogA1, Log, TEXT("RepairCount: %d"), RepairCount);
+    ETutorialActionType ActionType = StepDataArray[CurrentStepIndex]->Actions[1];
+    FString Params = StepDataArray[CurrentStepIndex]->ActionParams.FindRef(ActionType);
+
+    FText Title;
+    FText Content;
+    TArray<FString> ParamPairs;
+    Params.ParseIntoArray(ParamPairs, TEXT(";"));
+
+    for (const FString& Pair : ParamPairs)
+    {
+        FString Key, Value;
+        if (Pair.Split(TEXT("="), &Key, &Value))
+        {
+            if (Key == TEXT("Title"))
+            {
+                Title = FText::FromString(Value);
+            }
+            else if (Key == TEXT("Content"))
+            {
+                Content = FText::FromString(FString::Printf(TEXT("%s %d/3"), *Value, RepairCount));
+            }
+        }
+    }
+
+    SendUIMessage(Title, Content);
+
+    if (RepairCount == 3)
+    {
+        NextStep();
+    }
+
+}
+
 FVector AA1TutorialManager::ParseVector(const FString& VectorString)
 {
-    // "X,Y,Z" ÇüÅÂ ÆÄ½Ì
+    // "X,Y,Z" í˜•íƒœ íŒŒì‹±
     TArray<FString> Components;
     VectorString.ParseIntoArray(Components, TEXT(","));
 
@@ -386,7 +506,7 @@ FVector AA1TutorialManager::ParseVector(const FString& VectorString)
 
 FRotator AA1TutorialManager::ParseRotator(const FString& RotatorString)
 {
-    // "Pitch,Yaw,Roll" ÇüÅÂ ÆÄ½Ì
+    // "Pitch,Yaw,Roll" í˜•íƒœ íŒŒì‹±
     TArray<FString> Components;
     RotatorString.ParseIntoArray(Components, TEXT(","));
 
@@ -435,7 +555,7 @@ void UA1TutorialInteractionComponent::OnInteracted()
 
     if (InteractionDelay > 0.0f)
     {
-        // Áö¿¬ ÈÄ Æ®¸®°Å
+        // ì§€ì—° í›„ íŠ¸ë¦¬ê±°
         GetWorld()->GetTimerManager().SetTimerForNextTick([this]() { TriggerCondition(); });
     }
     else
@@ -490,8 +610,8 @@ void UA1TutorialInteractionComponent::FindTutorialManager()
 
 UDataTable* UA1TutorialBlueprintLibrary::CreateBasicTutorialData()
 {
-    // ¿¡µğÅÍ¿¡¼­ ±âº» Æ©Åä¸®¾ó µ¥ÀÌÅÍ Å×ÀÌºí »ı¼º
-    // ½ÇÁ¦ ±¸ÇöÀº ¿¡µğÅÍ Àü¿ë ÄÚµå¿¡¼­ Ã³¸®
+    // ì—ë””í„°ì—ì„œ ê¸°ë³¸ íŠœí† ë¦¬ì–¼ ë°ì´í„° í…Œì´ë¸” ìƒì„±
+    // ì‹¤ì œ êµ¬í˜„ì€ ì—ë””í„° ì „ìš© ì½”ë“œì—ì„œ ì²˜ë¦¬
     return nullptr;
 }
 
