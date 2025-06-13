@@ -25,14 +25,11 @@
 UA1InventorySlotsWidget::UA1InventorySlotsWidget(const FObjectInitializer& ObjectInitializer)
 	:Super(ObjectInitializer)
 {
-	TitleText = FText::FromString(TEXT("Title"));
 }
 
 void UA1InventorySlotsWidget::NativePreConstruct()
 {
 	Super::NativePreConstruct();
-
-	Text_Title->SetText(TitleText);
 }
 
 void UA1InventorySlotsWidget::NativeConstruct()

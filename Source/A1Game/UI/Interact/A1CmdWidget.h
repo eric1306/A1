@@ -9,6 +9,7 @@
 class UTextBlock;
 class UEditableText;
 class UVerticalBox;
+class UProgressBar;
 class UAbilitySystemComponent;
 
 USTRUCT(BlueprintType)
@@ -19,6 +20,18 @@ struct FASCInitializeMessage
 public:
 	UPROPERTY(BlueprintReadWrite)
 	TObjectPtr<UAbilitySystemComponent> ASC;
+
+	UPROPERTY(BlueprintReadWrite)
+	bool bTutorial;
+};
+
+struct FTypingState
+{
+	FString FullText;
+	FString CurrentText;
+	int32 CurrentIndex = 0;
+	UTextBlock* TargetTextBlock;
+	FTimerHandle TimerHandle;
 };
 
 UCLASS()
@@ -33,12 +46,20 @@ protected:
 	virtual void NativeConstruct() override;
 	virtual void NativeDestruct() override;
 
-	UFUNCTION(BlueprintCallable)
-	void InputEnded(FText InText);
-
 private:
 	void ConstructUI(FGameplayTag Channel, const FASCInitializeMessage& Message);
 	void DestructUI();
+
+protected:
+	UFUNCTION(BlueprintCallable)
+	void InputEnded(FText InText);
+
+	UFUNCTION(Blueprintimplementableevent)
+	void ShowRepairPercent(float Percent);
+
+	void ShowMenu();
+	void HiddenMenu();
+	void AffectTypingEffect(UTextBlock* TargetTextBlock, FString InText, float delta ,float startdelay);
 
 public:
 	UPROPERTY(EditAnywhere, meta = (Categories = "Message"))
@@ -54,8 +75,39 @@ private:
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UVerticalBox> MenuBox;
 
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UTextBlock> MenuText1;
+
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UTextBlock> MenuText2;
+
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UTextBlock> MenuText3;
+
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UTextBlock> MenuText4;
+
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UTextBlock> MenuText5;
+
+
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UVerticalBox> EscapeScreen;
+
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UTextBlock> EscapeGuideTxt;
+
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UTextBlock> EscapeKeyTxt;
+
+private:
 	UPROPERTY()
 	TObjectPtr<UAbilitySystemComponent> ASC;
 
 	FGameplayMessageListenerHandle MessageListenerHandle;
+
+	float TypingDelta = 0.1f;
+
+	bool EscapeMode;
+	bool TutoMode;
 };

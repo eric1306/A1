@@ -286,7 +286,6 @@ void ULyraHeroComponent::InitializePlayerInput(UInputComponent* PlayerInputCompo
 					LyraIC->BindNativeAction(InputConfig, A1GameplayTags::InputTag_Move, ETriggerEvent::Triggered, this, &ThisClass::Input_Move, /*bLogIfNotFound=*/ false);
 					LyraIC->BindNativeAction(InputConfig, A1GameplayTags::InputTag_Look_Mouse, ETriggerEvent::Triggered, this, &ThisClass::Input_LookMouse, /*bLogIfNotFound=*/ false);
 					LyraIC->BindNativeAction(InputConfig, A1GameplayTags::InputTag_Look_Stick, ETriggerEvent::Triggered, this, &ThisClass::Input_LookStick, /*bLogIfNotFound=*/ false);
-					LyraIC->BindNativeAction(InputConfig, A1GameplayTags::InputTag_Crouch, ETriggerEvent::Triggered, this, &ThisClass::Input_Crouch, /*bLogIfNotFound=*/ false);
 					LyraIC->BindNativeAction(InputConfig, A1GameplayTags::InputTag_Sprint, ETriggerEvent::Started, this, &ThisClass::Input_SprintPressed, false);
 					LyraIC->BindNativeAction(InputConfig, A1GameplayTags::InputTag_Sprint, ETriggerEvent::Completed, this, &ThisClass::Input_SprintReleased, false);
 				}
@@ -455,14 +454,6 @@ void ULyraHeroComponent::Input_LookStick(const FInputActionValue& InputActionVal
 	if (Value.Y != 0.0f)
 	{
 		Pawn->AddControllerPitchInput(Value.Y * LyraHero::LookPitchRate * World->GetDeltaSeconds());
-	}
-}
-
-void ULyraHeroComponent::Input_Crouch(const FInputActionValue& InputActionValue)
-{
-	if (ALyraCharacter* Character = GetPawn<ALyraCharacter>())
-	{
-		Character->ToggleCrouch();
 	}
 }
 

@@ -116,7 +116,7 @@ enum class EUtilityType : uint8
 	Light,
 	Spray,
 	Documents,
-	MachineParts,
+	Repairkit,
 	
 	Count	UMETA(Hidden)
 };

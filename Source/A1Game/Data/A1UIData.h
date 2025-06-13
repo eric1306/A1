@@ -84,6 +84,9 @@ public:
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<UA1InventoryValidWidget> InventoryValidWidgetClass;
 
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<UUserWidget> EndingCutSceneClass;
+
 private:
 	UPROPERTY(EditDefaultsOnly, meta = (ArraySizeEnum = "EItemRarity"))
 	FA1ItemRarityInfoEntry RarityInfoEntries[(int32)EItemRarity::Count];

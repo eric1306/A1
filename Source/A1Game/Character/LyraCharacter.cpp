@@ -440,7 +440,6 @@ void ALyraCharacter::HandleOutOfHealth(AActor* InActor, float OldValue, float Ne
 
 void ALyraCharacter::HandleNoticeWarning(int index)
 {
-
 	const FNoticeTextSet& TextSet = UA1NoticeData::Get().GetTextSetByLabel("System");
 	FText WaringText = TextSet.TextEntries[index];
 

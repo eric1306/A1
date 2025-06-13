@@ -70,6 +70,7 @@ namespace A1GameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Interact_Active,							"Ability.Interact.Active");
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Interact_Object,							"Ability.Interact.Object");
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Interact_FlashLight,						"Ability.Interact.FlashLight");
+	UE_DEFINE_GAMEPLAY_TAG(Ability_Interact_Repair,						"Ability.Interact.Repair");
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Widget_Inventory,						"Ability.Widget.Inventory");
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Widget_WorldMap,							"Ability.Widget.WorldMap");
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Widget_ClassSelection,					"Ability.Widget.SkinSelection");
@@ -98,6 +99,7 @@ namespace A1GameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(Status_Sprint,									"Status.Sprint");
 	UE_DEFINE_GAMEPLAY_TAG(Status_Succeeded,								"Status.Succeeded");
 	UE_DEFINE_GAMEPLAY_TAG(Status_Failed,									"Status.Failed");
+	UE_DEFINE_GAMEPLAY_TAG(Status_Repair,									"Status.Repair");
 	UE_DEFINE_GAMEPLAY_TAG(Status_Interact,									"Status.Interact");
 	UE_DEFINE_GAMEPLAY_TAG(Status_TryInteract,								"Status.TryInteract");
 	UE_DEFINE_GAMEPLAY_TAG(Status_HitReact,									"Status.HitReact");
