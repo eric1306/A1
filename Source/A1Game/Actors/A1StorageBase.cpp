@@ -43,7 +43,7 @@ void AA1StorageBase::BeginPlay()
     for (int32 row = 0; row < StorageHeightNum ; row++) for (int32 col=0; col < StorageWidthNum ; col++)
     {
         FVector FinalSpawnLocation = SpawnStartLocation + FVector(-60.f + 50.f * col, -30.f, 50.f + 60.f * row);
-        FRotator SpawnRotation = FRotator(0.f ,- 90.f, 0.f);
+        FRotator SpawnRotation = GetActorRotation();
         AA1StorageEntryBase* Entry = GetWorld()->SpawnActor<AA1StorageEntryBase>(EntryClass, FinalSpawnLocation, SpawnRotation, Params);
         StorageEntries.Add(Entry);
     }
