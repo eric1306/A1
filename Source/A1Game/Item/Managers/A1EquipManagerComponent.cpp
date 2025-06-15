@@ -10,6 +10,7 @@
 #include "AbilitySystem/Attributes/A1CombatSet.h"
 #include "Actors/A1EquipmentBase.h"
 #include "Character/LyraCharacter.h"
+#include "Data/A1CharacterData.h"
 #include "Engine/ActorChannel.h"
 #include "Item/A1ItemInstance.h"
 #include "Item/Fragments/A1ItemFragment_Equipable.h"
@@ -218,6 +219,19 @@ void FA1EquipEntry::Equip()
 
 void FA1EquipEntry::Unequip()
 {
+	if (EquipmentSlotType == EEquipmentSlotType::TwoHand)
+	{
+		ALyraCharacter* Character = EquipManager->GetCharacter();
+		if (Character == nullptr)
+			return;
+
+		if (USkeletalMeshComponent* MeshComponent = Character->GetMesh())
+		{
+			TSubclassOf<UAnimInstance> BaseAnim = UA1CharacterData::Get().BaseAnimLayers;
+			if (BaseAnim != nullptr)
+				MeshComponent->LinkAnimClassLayers(BaseAnim);
+		}
+	}
 	if (EquipManager->GetOwner()->HasAuthority())
 	{
 		if (ULyraAbilitySystemComponent* ASC = Cast<ULyraAbilitySystemComponent>(EquipManager->GetAbilitySystemComponent()))
