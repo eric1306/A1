@@ -417,7 +417,10 @@ void ALyraCharacter::HandleChangeOfWeight(const FOnAttributeChangeData& ChangeDa
 	// 이동 최대 속도 변경
 	ULyraCharacterMovementComponent* LyraMoveComp = CastChecked<ULyraCharacterMovementComponent>(GetCharacterMovement());
 	
-	LyraMoveComp->MaxWalkSpeed = MaxSpeed * (10 / (1 + ChangeData.NewValue));
+	if (ChangeData.NewValue > 9.0f)
+		LyraMoveComp->MaxWalkSpeed = MaxSpeed * (10 / (1 + ChangeData.NewValue));
+	else
+		LyraMoveComp->MaxWalkSpeed = MaxSpeed;
 	
 	if (ChangeData.NewValue >= 100.f)			// 새 값이 100이상이면 HP감소 적용
 		ApplyStatEffect(2);
