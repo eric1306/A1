@@ -114,7 +114,7 @@ enum class EUtilityType : uint8
 	Food,
 	Drink,
 	Light,
-	Spray,
+	FoamGun,
 	Documents,
 	Repairkit,
 	
