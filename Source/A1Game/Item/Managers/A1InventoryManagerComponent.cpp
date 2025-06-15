@@ -581,6 +581,9 @@ void UA1InventoryManagerComponent::AddItem_Unsafe(const FIntPoint& ItemSlotPos, 
 
 		MarkSlotChecks(true, ItemSlotPos, ItemTemplate.SlotCount);
 		InventoryList.MarkItemDirty(Entry);
+
+		//TEMP
+		InventoryList.BroadcastChangedMessage(ItemSlotPos, ItemInstance, ItemCount);
 	}
 }
 
@@ -606,6 +609,9 @@ UA1ItemInstance* UA1InventoryManagerComponent::RemoveItem_Unsafe(const FIntPoint
 	}
 	
 	InventoryList.MarkItemDirty(Entry);
+
+	//TEMP
+	InventoryList.BroadcastChangedMessage(ItemSlotPos, nullptr, Entry.GetItemCount());
 	return ItemInstance;
 }
 

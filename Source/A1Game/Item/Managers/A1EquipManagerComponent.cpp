@@ -10,6 +10,7 @@
 #include "AbilitySystem/Attributes/A1CombatSet.h"
 #include "Actors/A1EquipmentBase.h"
 #include "Character/LyraCharacter.h"
+#include "Data/A1CharacterData.h"
 #include "Engine/ActorChannel.h"
 #include "Item/A1ItemInstance.h"
 #include "Item/Fragments/A1ItemFragment_Equipable.h"
@@ -218,6 +219,19 @@ void FA1EquipEntry::Equip()
 
 void FA1EquipEntry::Unequip()
 {
+	if (EquipmentSlotType == EEquipmentSlotType::TwoHand)
+	{
+		ALyraCharacter* Character = EquipManager->GetCharacter();
+		if (Character == nullptr)
+			return;
+
+		if (USkeletalMeshComponent* MeshComponent = Character->GetMesh())
+		{
+			TSubclassOf<UAnimInstance> BaseAnim = UA1CharacterData::Get().BaseAnimLayers;
+			if (BaseAnim != nullptr)
+				MeshComponent->LinkAnimClassLayers(BaseAnim);
+		}
+	}
 	if (EquipManager->GetOwner()->HasAuthority())
 	{
 		if (ULyraAbilitySystemComponent* ASC = Cast<ULyraAbilitySystemComponent>(EquipManager->GetAbilitySystemComponent()))
@@ -684,9 +698,12 @@ void UA1EquipManagerComponent::ChangeShouldHiddenEquipments(bool bNewShouldHidde
 	//GetAllEquippedActors(OutEquippedActors);
 
 	const TArray<FA1EquipEntry>& Entries = EquipList.Entries;
-	AA1EquipmentBase* ItemActor = Entries[(int32)ConvertToEquipmentSlotType(CurrentEquipState)].GetEquipmentActor();
-	if (IsValid(ItemActor))
+	if (CurrentEquipState != EEquipState::Unarmed)
 	{
-		ItemActor->SetActorHiddenInGame(bShouldHiddenEquipments);
+		AA1EquipmentBase* ItemActor = Entries[(int32)ConvertToEquipmentSlotType(CurrentEquipState)].GetEquipmentActor();
+		if (IsValid(ItemActor))
+		{
+			ItemActor->SetActorHiddenInGame(bShouldHiddenEquipments);
+		}
 	}
 }
