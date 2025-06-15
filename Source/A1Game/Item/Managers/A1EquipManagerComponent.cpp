@@ -684,9 +684,12 @@ void UA1EquipManagerComponent::ChangeShouldHiddenEquipments(bool bNewShouldHidde
 	//GetAllEquippedActors(OutEquippedActors);
 
 	const TArray<FA1EquipEntry>& Entries = EquipList.Entries;
-	AA1EquipmentBase* ItemActor = Entries[(int32)ConvertToEquipmentSlotType(CurrentEquipState)].GetEquipmentActor();
-	if (IsValid(ItemActor))
+	if (CurrentEquipState != EEquipState::Unarmed)
 	{
-		ItemActor->SetActorHiddenInGame(bShouldHiddenEquipments);
+		AA1EquipmentBase* ItemActor = Entries[(int32)ConvertToEquipmentSlotType(CurrentEquipState)].GetEquipmentActor();
+		if (IsValid(ItemActor))
+		{
+			ItemActor->SetActorHiddenInGame(bShouldHiddenEquipments);
+		}
 	}
 }
