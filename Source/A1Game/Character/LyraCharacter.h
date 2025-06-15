@@ -251,7 +251,8 @@ protected:
 	void DeleteStatEffect(int index);
 	void HandleChangeOfWeight(const FOnAttributeChangeData& ChangeData);
 	void HandleOutOfHealth(AActor* InActor, float OldValue, float NewValue);
-	void HandleNoticeWarning(int index);
+public:
+	void HandleNoticeWarning(FName Label, int index);
 	
 	UPROPERTY()
 	TObjectPtr<const UA1CharacterAttributeSet> Vital;

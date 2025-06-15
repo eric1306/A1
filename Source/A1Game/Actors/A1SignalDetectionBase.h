@@ -79,4 +79,8 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, Transient)
 	TWeakObjectPtr<AA1SpaceshipBase> OwningSpaceship;
+
+public:
+	UPROPERTY(BlueprintReadWrite)
+	float DelayTime = 0.0f;
 };
