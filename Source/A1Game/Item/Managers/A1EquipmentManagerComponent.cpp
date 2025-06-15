@@ -29,7 +29,7 @@ void FA1EquipmentEntry::Init(UA1ItemInstance* InItemInstance, int32 InItemCount)
 	
 	if (ItemInstance)
 	{
-		EquipManager->Unequip(EquipmentSlotType);
+		EquipManager->Unequip(EquipmentSlotType);		
 	}
 	
 	ItemInstance = InItemInstance;
