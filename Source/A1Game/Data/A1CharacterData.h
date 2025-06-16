@@ -5,6 +5,7 @@
 #include "A1CharacterData.generated.h"
 
 class UA1ItemTemplate;
+
 USTRUCT(BlueprintType)
 struct FA1DefaultItemEntry
 {
@@ -65,4 +66,7 @@ private:
 public:
 	UPROPERTY(EditDefaultsOnly)
 	TArray<FA1DefaultItemEntry> DefaultItemEntries;
+
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<UAnimInstance> BaseAnimLayers;
 };

@@ -84,8 +84,7 @@ void UA1CmdWidget::InputEnded(FText InText)
             if (TutoMode)    // tutorial
             {
                 // TODO eric1306
-                // Fade Out / Temp
-                DestructUI();
+                // Fade Out / Temp               
                 UE_LOG(LogA1, Log, TEXT("Fade Out!"));
                 if (ALyraGameMode* GameMode = Cast<ALyraGameMode>(GetWorld()->GetAuthGameMode()))
                 {
@@ -101,7 +100,6 @@ void UA1CmdWidget::InputEnded(FText InText)
                     EndingCutScene->AddToViewport();
 
                 // TEMP
-                DestructUI();
                 if (ASC)
                 {
                     FGameplayEventData Payload;
@@ -113,10 +111,14 @@ void UA1CmdWidget::InputEnded(FText InText)
                 UA1ScoreManager::Get()->SetRepairedBeforeEscape(true);
                 UA1ScoreBlueprintFunctionLibrary::EndGame(EGameEndReason::Escape);
             }
+            DestructUI();
+            return;
         }
         else if (InText.ToString() == TEXT("Deny"))
         {
             ShowMenu();
+            ShowRepairPercent(0.0f);
+            return;
         }
         EscapeMode = false;
     }
@@ -155,8 +157,7 @@ void UA1CmdWidget::InputEnded(FText InText)
         //
         //}
         else if (InText.ToString() == TEXT("Escape"))
-        {
-            EscapeMode = true;
+        {            
             EscapeScreen->SetVisibility(ESlateVisibility::Visible);
 
             UWorld* World = GetWorld();
@@ -189,8 +190,9 @@ void UA1CmdWidget::InputEnded(FText InText)
             }
             else
             {
+                EscapeMode = true;
                 EntryLable = "Can";
-                KeyText = ">  Confirm / Deny";
+                KeyText = ">  Confirm / Deny";              
             }
 
             const FCmdTextSet* TextSet = UA1CmdData::Get().GetTextSetByLabel("Escape");
@@ -221,6 +223,10 @@ void UA1CmdWidget::InputEnded(FText InText)
             const FCmdTextSet* TextSet = UA1CmdData::Get().GetTextSetByLabel("Error");
             const FString* Text = TextSet->TextEntries.Find("Invalid");
 
+            EscapeScreen->SetVisibility(ESlateVisibility::Hidden);
+            EscapeGuideTxt->SetText(FText::FromString(""));
+            EscapeKeyTxt->SetText(FText::FromString(""));
+
             if (Text != nullptr)
                 AffectTypingEffect(SuperviseText, *const_cast<FString*>(Text), TypingDelta, 0.0f);
         }
@@ -231,6 +237,10 @@ void UA1CmdWidget::InputEnded(FText InText)
 
 void UA1CmdWidget::ShowMenu()
 {
+    EscapeGuideTxt->SetText(FText::FromString(""));
+    EscapeKeyTxt->SetText(FText::FromString(""));
+    SuperviseText->SetText(FText::FromString(""));
+
     MenuBox->SetVisibility(ESlateVisibility::Visible);
     EscapeScreen->SetVisibility(ESlateVisibility::Hidden);
     SuperviseText->SetVisibility(ESlateVisibility::Hidden);
@@ -240,10 +250,6 @@ void UA1CmdWidget::ShowMenu()
     //AffectTypingEffect(MenuText3, ">  Documents", TypingDelta/12, 0.5f);
     AffectTypingEffect(MenuText3, ">  Escape", TypingDelta/9, 0.5f);
     AffectTypingEffect(MenuText4, ">  Exit", TypingDelta/7, 0.5f);
-
-    EscapeGuideTxt->SetText(FText::FromString(""));
-    EscapeKeyTxt->SetText(FText::FromString(""));
-    SuperviseText->SetText(FText::FromString(""));
 }
 
 void UA1CmdWidget::HiddenMenu()

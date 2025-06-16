@@ -81,7 +81,9 @@ void UA1GameplayAbility_Utility_Spray::TrySprayFoam()
 
 		if (FoamClass == HitResult.GetActor()->GetClass())
 		{
-			HitResult.GetActor()->SetActorScale3D(HitResult.GetActor()->GetActorScale3D() * 1.05f);
+			float rate = HitResult.GetActor()->GetActorScale3D().X;
+			if(rate <=0.5)
+				HitResult.GetActor()->SetActorScale3D(HitResult.GetActor()->GetActorScale3D() * 1.1f);
 		}
 		else
 		{

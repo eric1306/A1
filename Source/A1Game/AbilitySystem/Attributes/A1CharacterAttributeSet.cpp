@@ -96,7 +96,7 @@ void UA1CharacterAttributeSet::PostAttributeChange(const FGameplayAttribute& Att
 	// 50퍼 이하로 감소될 때 한번만 실행되도록
 	if (bChange && NoticeIndex >= 0 && bHalf[NoticeIndex])
 	{
-		OnNoticeWarning.Broadcast(NoticeIndex);
+		OnNoticeWarning.Broadcast("System", NoticeIndex);
 		bHalf[NoticeIndex] = false;
 	}
 }
