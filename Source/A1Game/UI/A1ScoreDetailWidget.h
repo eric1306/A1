@@ -35,9 +35,6 @@ protected:
     UTextBlock* SurvivalScoreText;
 
     UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
-    UTextBlock* SurvivalDetailText;
-
-    UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
     UTextBlock* ItemScoreText;
 
     UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
@@ -81,5 +78,4 @@ private:
 
     // 유틸리티 함수
     FString FormatScore(int32 Score) const;
-    FString GetSurvivalBreakdown(int32 Days) const;
 };
