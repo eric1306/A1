@@ -3,6 +3,7 @@
 #pragma once
 
 #include "GameFramework/Actor.h"
+#include "Score/A1ScoreData.h"
 #include "A1SpaceshipBase.generated.h"
 
 class AA1SignalDetectionBase;
@@ -137,6 +138,9 @@ public:
     
     UFUNCTION(BlueprintCallable, Category = "Spaceship|GameState")
     bool HasEnoughFuelToSurvive() const;
+
+    UFUNCTION()
+    void OnStopFuelConsume(const FA1ScoreData& FinalScore);
 
     UFUNCTION()
     void OnRep_CurrentFuel();
