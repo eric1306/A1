@@ -1,15 +1,15 @@
 // Copyright (c) 2025 THIS-ACCENT. All Rights Reserved.
 
 #include "A1RaiderBase.h"
-
 #include "A1LogChannels.h"
-#include "Controller/Raider/A1RaiderController.h"
 #include "AbilitySystem/Attributes/A1CharacterAttributeSet.h"
-#include "BehaviorTree/BlackboardComponent.h"
-#include "GameplayEffect.h"
-#include "Abilities/GameplayAbility.h"
 #include "Actors/A1EquipmentBase.h"
 #include "Actors/A1PickupableItemBase.h"
+#include "BehaviorTree/BlackboardComponent.h"
+#include "Character/Raider/A1RaiderBase.h"
+#include "Controller/Raider/A1RaiderController.h"
+#include "Data/A1RaiderData.h"
+#include "GameplayEffect.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "System/LyraAssetManager.h"
 
@@ -30,6 +30,12 @@ AA1RaiderBase::AA1RaiderBase()
 	// Register to listen for attribute changes.
 	HealthSet->OnHealthChanged.AddUObject(this, &AA1RaiderBase::BeAttacked);
 	HealthSet->OnOutOfHealth.AddUObject(this, &AA1RaiderBase::HandleOutOfHealth);
+
+	USkeletalMeshComponent* MeshComp = GetMesh();
+	check(MeshComp);
+
+	MeshComp->SetRelativeRotation(FRotator(0.0f, -90.0f, 0.0f));
+	MeshComp->SetRelativeLocation(FVector(0.0f, 0.0f, -88.0f));
 }
 
 // Called when the game starts or when spawned
@@ -38,6 +44,17 @@ void AA1RaiderBase::BeginPlay()
 	Super::BeginPlay();
 
 	UE_LOG(LogA1Raider, Log, TEXT("RaiderBase: Beginplay Call"));
+
+	const UA1RaiderData& RaiderData = ULyraAssetManager::Get().GetRaiderData();
+	const FA1RaiderBaseSet& RaiderBase = RaiderData.GetRaiderDataSet(RaiderType);
+
+	if (RaiderBase.DefaultMesh != nullptr)
+	{
+		USkeletalMeshComponent* MeshComp = GetMesh();
+		check(MeshComp);
+
+		MeshComp->SetSkeletalMesh(RaiderBase.DefaultMesh.LoadSynchronous());
+	}
 
 	int i = 0;
 	for (auto Ability : Abilities)

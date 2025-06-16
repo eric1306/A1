@@ -49,6 +49,9 @@ public:
 	UPROPERTY(EditDefaultsOnly)
 	TSoftObjectPtr<UAnimMontage> RightHitMontage;
 
+	UPROPERTY(EditAnywhere)
+	ERaiderType RaiderType = ERaiderType::Count;
+
 protected:
 	UPROPERTY()
 	TObjectPtr<UA1CharacterAttributeSet> HealthSet;

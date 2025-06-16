@@ -6,6 +6,7 @@
 #include "BehaviorTree/BehaviorTree.h"
 #include "BehaviorTree/BlackboardData.h"
 #include "BehaviorTree/BlackboardComponent.h"
+#include "Character/Raider/A1RaiderBase.h"
 #include "Data/A1RaiderData.h"
 #include "System/LyraAssetManager.h"
 
@@ -29,13 +30,17 @@ void AA1RaiderController::OnPossess(APawn* InPawn)
 {
 	Super::OnPossess(InPawn);
 
-	// TODO
-	// RaiderData를 만들어서 자동 연결되도록 변경
 	const UA1RaiderData& RaiderData = ULyraAssetManager::Get().GetRaiderData();
-	const FA1RaiderBaseSet& RaiderBase = RaiderData.GetRaiderDataSet(ERaiderType::Despoiler);
-
-	BBAsset = RaiderBase.BBAsset;
-	BTAsset = RaiderBase.BTAsset;
+	if (AA1RaiderBase* PossesedPawn = Cast<AA1RaiderBase>(InPawn))
+	{
+		const FA1RaiderBaseSet& RaiderBase = RaiderData.GetRaiderDataSet(PossesedPawn->RaiderType);
+		
+		if (RaiderBase.BBAsset != nullptr && RaiderBase.BTAsset != nullptr)
+		{
+			BBAsset = RaiderBase.BBAsset;
+			BTAsset = RaiderBase.BTAsset;
+		}
+	}
 
 	UBlackboardComponent* BlackboardComp = Blackboard;
 	if (UseBlackboard(BBAsset, BlackboardComp))
