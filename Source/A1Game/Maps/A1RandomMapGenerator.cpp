@@ -6,6 +6,7 @@
 #include "A1RoomBridge.h"
 #include "A1MasterRoom.h"
 #include "A1RaiderRoom.h"
+#include "Actors/A1DayNightManager.h"
 #include "Components/AudioComponent.h"
 #include "Components/BoxComponent.h"
 #include "Kismet/GameplayStatics.h"
@@ -32,8 +33,8 @@ AA1RandomMapGenerator::AA1RandomMapGenerator()
     bVerificationComplete = false;
     Seed = -1;                       // -1: 랜덤 시드, 0 이상: 고정 시드
     MaxDungeonTime = 10.f;
-    MaxRoomAmount = 30;
-    RoomAmount = MaxRoomAmount;
+    MaxRoomAmount = 30;             //default value
+    RoomAmount = MaxRoomAmount;     //default Value
     SelectedExitPoint = nullptr;
     bIsServerTraveling = false;
 
@@ -172,6 +173,11 @@ void AA1RandomMapGenerator::Server_SetSeed_Implementation()
         Stream.Initialize(Seed);
     }
 
+    //Set Room Number by Day
+    int32 CurrentDay = AA1DayNightManager::Get(GetWorld())->GetCurrentDay();
+    MaxRoomAmount =  10 + 20 * FMath::Min(CurrentDay / 40, 1);
+    RoomAmount = MaxRoomAmount;
+
     MAP_LOG(LogMap, Log, TEXT("Set Seed!: %d"), Stream.GetInitialSeed());
     Server_SpawnStartRoom();
 }
@@ -269,11 +275,11 @@ void AA1RandomMapGenerator::Server_SpawnNextRoom_Implementation()
 
     if (MaxRoomAmount == RoomAmount + 1)
     {
-        OutIndex = 0;
+        OutIndex = 0; //Rounge
     }
-    else if (MaxRoomAmount == RoomAmount + 10)
+    else if (MaxRoomAmount == RoomAmount + 9)
     {
-        OutIndex = RoomList.Num() - 1;
+        OutIndex = RoomList.Num() - 1; //Second Floor
     }
     else
     {
