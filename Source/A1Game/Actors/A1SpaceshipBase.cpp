@@ -7,6 +7,7 @@
 #include "A1DoorBase.h"
 #include "A1FuelBase.h"
 #include "A1DockingSignalHandlerBase.h"
+#include "A1RepairBase.h"
 #include "A1ShipOutputBase.h"
 #include "A1SignalDetectionBase.h"
 #include "A1StorageBase.h"
@@ -49,6 +50,8 @@ void AA1SpaceshipBase::BeginPlay()
 
 	GetWorldTimerManager().SetTimer(FuelConsumeTimer, FuelConsumeDelegate, 1.f, true);
 	UA1ScoreManager::Get()->OnGameEnded.AddDynamic(this, &AA1SpaceshipBase::OnStopFuelConsume);
+
+	FindAllRepairBases();
 }
 
 void AA1SpaceshipBase::Tick(float DeltaTime)
@@ -336,6 +339,20 @@ void AA1SpaceshipBase::OnRep_GameEndState()
 {
 	// 클라이언트에서 게임 종료 이벤트 발생
 	OnGameEndEvent.Broadcast(GameEndState);
+}
+
+void AA1SpaceshipBase::FindAllRepairBases()
+{
+	TArray<AActor*> Results;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AA1RepairBase::StaticClass(), OUT Results);
+	for (auto Result : Results)
+	{
+		if (AA1RepairBase* Repair = Cast<AA1RepairBase>(Result))
+		{
+			CachedRepairs.Add(Repair);
+		}
+	}
+	UE_LOG(LogA1, Log, TEXT("Find %d Repair Objects"), CachedRepairs.Num());
 }
 
 void AA1SpaceshipBase::AddFuel(float AmountToAdd)
