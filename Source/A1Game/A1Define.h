@@ -12,6 +12,7 @@ UENUM(BlueprintType)
 enum class ERaiderType : uint8
 {
 	Despoiler,
+	Plunderer,
 	Barbarian,
 	Explorer,
 	Farmer,
