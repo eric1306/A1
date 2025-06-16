@@ -1,15 +1,16 @@
 // Copyright (c) 2025 THIS-ACCENT. All Rights Reserved.
 
 #include "A1RaiderBase.h"
-
 #include "A1LogChannels.h"
-#include "Controller/Raider/A1RaiderController.h"
 #include "AbilitySystem/Attributes/A1CharacterAttributeSet.h"
-#include "BehaviorTree/BlackboardComponent.h"
-#include "GameplayEffect.h"
-#include "Abilities/GameplayAbility.h"
+#include "Actors/A1EquipmentBase.h"
 #include "Actors/A1EquipmentBase.h"
 #include "Actors/A1PickupableItemBase.h"
+#include "BehaviorTree/BlackboardComponent.h"
+#include "Character/Raider/A1RaiderBase.h"
+#include "Controller/Raider/A1RaiderController.h"
+#include "Data/A1RaiderData.h"
+#include "GameplayEffect.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "System/LyraAssetManager.h"
 
@@ -30,6 +31,12 @@ AA1RaiderBase::AA1RaiderBase()
 	// Register to listen for attribute changes.
 	HealthSet->OnHealthChanged.AddUObject(this, &AA1RaiderBase::BeAttacked);
 	HealthSet->OnOutOfHealth.AddUObject(this, &AA1RaiderBase::HandleOutOfHealth);
+
+	USkeletalMeshComponent* MeshComp = GetMesh();
+	check(MeshComp);
+
+	MeshComp->SetRelativeRotation(FRotator(0.0f, -90.0f, 0.0f));
+	MeshComp->SetRelativeLocation(FVector(0.0f, 0.0f, -88.0f));
 }
 
 // Called when the game starts or when spawned
@@ -38,6 +45,17 @@ void AA1RaiderBase::BeginPlay()
 	Super::BeginPlay();
 
 	UE_LOG(LogA1Raider, Log, TEXT("RaiderBase: Beginplay Call"));
+
+	const UA1RaiderData& RaiderData = ULyraAssetManager::Get().GetRaiderData();
+	const FA1RaiderBaseSet& RaiderBase = RaiderData.GetRaiderDataSet(RaiderType);
+
+	if (RaiderBase.DefaultMesh != nullptr)
+	{
+		USkeletalMeshComponent* MeshComp = GetMesh();
+		check(MeshComp);
+
+		MeshComp->SetSkeletalMesh(RaiderBase.DefaultMesh.LoadSynchronous());
+	}
 
 	int i = 0;
 	for (auto Ability : Abilities)
@@ -91,16 +109,28 @@ UAnimMontage* AA1RaiderBase::GetHitMontage(AActor* InstigatorActor, const FVecto
 	return SelectedMontage;
 }
 
+void AA1RaiderBase::AddDropItems(TWeakObjectPtr<AA1EquipmentBase> Item)
+{
+	if (Item.IsValid())
+	{
+		TSubclassOf<AA1EquipmentBase> EquipmentClass = TSubclassOf<AA1EquipmentBase>(Item->GetClass());
+		dropItems.Add(EquipmentClass);
+	}
+}
+
 void AA1RaiderBase::BeAttacked(AActor* InInstigator, float OldValue, float NewValue)
 {
-	AAIController* AIController = Cast<AAIController>(GetController());
-	if (AIController && AIController->GetBlackboardComponent())
+	if (warlike)
 	{
-		UBlackboardComponent* BlackBoard = AIController->GetBlackboardComponent();
-		if (BlackBoard->GetValueAsBool(AA1RaiderController::CanAttackKey) == false)
+		AAIController* AIController = Cast<AAIController>(GetController());
+		if (AIController && AIController->GetBlackboardComponent())
 		{
-			BlackBoard->SetValueAsBool(AA1RaiderController::CanAttackKey, true);
-			BlackBoard->SetValueAsObject(AA1RaiderController::AggroTargetKey, InInstigator);
+			UBlackboardComponent* BlackBoard = AIController->GetBlackboardComponent();
+			if (BlackBoard->GetValueAsBool(AA1RaiderController::CanAttackKey) == false)
+			{
+				BlackBoard->SetValueAsBool(AA1RaiderController::CanAttackKey, true);
+				BlackBoard->SetValueAsObject(AA1RaiderController::AggroTargetKey, InInstigator);
+			}
 		}
 	}
 }
@@ -122,17 +152,19 @@ void AA1RaiderBase::SpawnDropItem()
 {
 	// 아이템 스폰
 	int ItemNum = dropItems.Num();
+	if (ItemNum > 0)
+	{
+		FVector ItemSpawnLocation = GetActorLocation();
+		ItemSpawnLocation.Z = 0;
 
-	FVector ItemSpawnLocation = GetActorLocation();
-	ItemSpawnLocation.Z = 0;
-
-	//확률에 따라 아이템 설정(일단 무조건 스폰)
-	//확률 정해진게 없어 하드코딩
-	int32 index = FMath::RandRange(0, 100);
-	if (index >= 50)
-		GetWorld()->SpawnActor<AA1EquipmentBase>(dropItems[ItemNum-1], ItemSpawnLocation, GetActorRotation());
-	else
-		GetWorld()->SpawnActor<AA1EquipmentBase>(dropItems[0], ItemSpawnLocation, GetActorRotation());
+		//확률에 따라 아이템 설정(일단 무조건 스폰)
+		//확률 정해진게 없어 하드코딩
+		int32 index = FMath::RandRange(0, 100);
+		if (index >= 50)
+			GetWorld()->SpawnActor<AA1EquipmentBase>(dropItems[ItemNum - 1], ItemSpawnLocation, GetActorRotation());
+		else
+			GetWorld()->SpawnActor<AA1EquipmentBase>(dropItems[0], ItemSpawnLocation, GetActorRotation());
+	}
 
 	DeatState = EA1DeathState::DeathFinished;
 }

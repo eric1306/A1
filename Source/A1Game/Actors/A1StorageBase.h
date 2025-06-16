@@ -11,6 +11,8 @@ class AA1EquipmentBase;
 class UBoxComponent;
 class UA1StorageComponent;
 class UArrowComponent;
+class AA1RaiderBase;
+
 /**
  * Storage Interactable Object
  * - Can Store Item Instance
@@ -31,6 +33,10 @@ public:
 	//IA1SpaceshipComponent
 	virtual void RegisterWithSpaceship(AA1SpaceshipBase* Spaceship) override;
 	virtual ESpaceshipComponentType GetComponentType() const override { return ESpaceshipComponentType::Storage; }
+
+public:
+	bool RemoveItem(AA1RaiderBase* InstigatorActor);
+	bool EntryIsEmpty();
 
 protected:
 	void SetupTags();
@@ -59,6 +65,5 @@ protected:
 	
 	int32 StorageWidthNum;
 	int32 StorageHeightNum;
-	FVector SpawnStartLocation;
-	
+	FVector SpawnStartLocation;	
 };

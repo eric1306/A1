@@ -6,6 +6,7 @@
 #include "A1EquipmentBase.h"
 #include "A1StorageEntryBase.h"
 #include "Character/LyraCharacter.h"
+#include "Character/Raider/A1RaiderBase.h"
 #include "Components/ArrowComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Engine/OverlapResult.h"
@@ -63,6 +64,51 @@ void AA1StorageBase::RegisterWithSpaceship(AA1SpaceshipBase* Spaceship)
         OwningSpaceship = Spaceship;
         Spaceship->RegisterStorage(this);
     }
+}
+
+bool AA1StorageBase::RemoveItem(AA1RaiderBase* InstigatorActor)
+{
+    if (EntryIsEmpty())
+        return true;
+    else
+    {
+        int num = StorageWidthNum * StorageHeightNum;
+        for (int i = 0; i < num; i++)
+        {
+            AA1StorageEntryBase* ItemEntry = StorageEntries[i];
+            if (ItemEntry->GetItemEntryState() == EItemEntryState::None)
+                continue;
+            else
+            {
+                TWeakObjectPtr<AA1EquipmentBase> Item = ItemEntry->GetItem();
+                ItemEntry->SetItemOutput();
+                InstigatorActor->AddDropItems(Item);
+
+                if (Item.IsValid())
+                {
+                    Item->Destroy();
+                }
+                break;
+            }
+        }
+
+        if (EntryIsEmpty())
+            return true;
+    }
+
+    return false;
+}
+
+bool AA1StorageBase::EntryIsEmpty()
+{
+    for (AA1StorageEntryBase* Item : StorageEntries)
+    {
+        if (Item->GetItemEntryState() == EItemEntryState::Exist)
+        {
+            return false;
+        }
+    }
+    return true;
 }
 
 void AA1StorageBase::SetupTags()

@@ -44,6 +44,7 @@ public:
 
 	FORCEINLINE EItemEntryState GetItemEntryState() const { return ItemState; }
 	FORCEINLINE void SetItemEntryState(EItemEntryState InItemState) { ItemState = InItemState; }
+	FORCEINLINE AA1EquipmentBase* GetItem() { return CachedItem; }
 
 protected:
 	//필요한 기능
