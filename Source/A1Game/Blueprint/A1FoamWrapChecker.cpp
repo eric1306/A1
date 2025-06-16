@@ -22,7 +22,7 @@ float UA1FoamWrapChecker::GetActorFoamCoverage(AActor* TargetActor)
         return 0.0f;
 
     FVector Center = TargetActor->GetActorLocation();
-    FVector Extent = FVector(25.f, 25.f, 25.f); // 적절한 크기로 조정
+    FVector Extent = FVector(10.f, 10.f, 10.f); // 적절한 크기로 조정
 
     TArray<FOverlapResult> OverlapResults;
     FCollisionShape CollisionShape = FCollisionShape::MakeBox(Extent);

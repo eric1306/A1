@@ -50,11 +50,6 @@ void UA1ScoreDetailWidget::SetScoreData(const FA1ScoreData& ScoreData)
         SurvivalScoreText->SetText(FText::FromString(FString::Printf(TEXT("Survival Score: %s"), *FormatScore(SurvivalScore))));
     }
 
-    if (SurvivalDetailText)
-    {
-        SurvivalDetailText->SetText(FText::FromString(GetSurvivalBreakdown(ScoreData.DaysSurvived)));
-    }
-
     // 아이템 점수 계산 및 표시
     int32 StoredItemScore = FMath::Min((ScoreData.InventoryItems + ScoreData.StorageItems) * 100, 5200);
     int32 ConsumedItemScore = ScoreData.ConsumedItems * 120;
@@ -68,7 +63,7 @@ void UA1ScoreDetailWidget::SetScoreData(const FA1ScoreData& ScoreData)
     if (ItemDetailText)
     {
         FString ItemDetail = FString::Printf(
-            TEXT("Saved Item: %s (%d)\nUsed Item: %s (%d)"),
+            TEXT("- Saved Item: %s (%d)\n- Used Item: %s (%d)"),
             *FormatScore(StoredItemScore), ScoreData.InventoryItems + ScoreData.StorageItems,
             *FormatScore(ConsumedItemScore), ScoreData.ConsumedItems
         );
@@ -76,7 +71,6 @@ void UA1ScoreDetailWidget::SetScoreData(const FA1ScoreData& ScoreData)
     }
 
     // 탈출/사망 보너스
-    int32 EscapeBonus = (ScoreData.GameEndReason == EGameEndReason::Escape) ? 5000 : 0;
     if (EscapeScoreText)
     {
         FString EscapeText;
@@ -92,7 +86,7 @@ void UA1ScoreDetailWidget::SetScoreData(const FA1ScoreData& ScoreData)
     }
 
     // 수리 점수 계산 및 표시
-    int32 BaseRepairScore = (ScoreData.RepairRate / 4.0f) * 40;
+    int32 BaseRepairScore = ScoreData.RepairRate * 10;
     int32 RepairBonus = (ScoreData.bRepairedBeforeEscape && ScoreData.GameEndReason == EGameEndReason::Escape) ? 1000 : 0;
     int32 TotalRepairScore = BaseRepairScore + RepairBonus;
 
@@ -103,11 +97,11 @@ void UA1ScoreDetailWidget::SetScoreData(const FA1ScoreData& ScoreData)
 
     if (RepairDetailText)
     {
-        FString RepairDetail = FString::Printf(TEXT("Base Repair: %s (%.1f%%)"), *FormatScore(BaseRepairScore), ScoreData.RepairRate);
+        FString RepairDetail = FString::Printf(TEXT("- Base Repair: %s (%.1f%%)"), *FormatScore(BaseRepairScore), ScoreData.RepairRate);
 
         if (RepairBonus > 0)
         {
-            RepairDetail += FString::Printf(TEXT("\nEscape After Repair: +%s"), *FormatScore(RepairBonus));
+            RepairDetail += FString::Printf(TEXT("\n- Escape After Repair: +%s"), *FormatScore(RepairBonus));
         }
         RepairDetailText->SetText(FText::FromString(RepairDetail));
     }
@@ -121,7 +115,7 @@ void UA1ScoreDetailWidget::SetScoreData(const FA1ScoreData& ScoreData)
 
     if (FuelDetailText)
     {
-        FuelDetailText->SetText(FText::FromString(FString::Printf(TEXT("Less Fuel Score: %d (%d×100)"), ScoreData.RemainingFuel, ScoreData.RemainingFuel / 1000)));
+        FuelDetailText->SetText(FText::FromString(FString::Printf(TEXT("- Remaining Fuel Score: %d (%d×100)"), ScoreData.RemainingFuel, ScoreData.RemainingFuel / 1000)));
     }
 
     // 날짜 정보
@@ -155,55 +149,4 @@ FString UA1ScoreDetailWidget::FormatScore(int32 Score) const
     }
 
     return FormattedScore;
-}
-
-FString UA1ScoreDetailWidget::GetSurvivalBreakdown(int32 Days) const
-{
-    if (Days <= 0)
-    {
-        return TEXT("Survival Day :  0");
-    }
-
-    FString Breakdown;
-
-    // Day 1~10: 일 당 50점
-    if (Days >= 1)
-    {
-        int32 Phase1Days = FMath::Min(Days, 10);
-        int32 Phase1Score = Phase1Days * 50;
-        Breakdown += FString::Printf(TEXT("Day 1~10: %d×50 = %d\n"), Phase1Days, Phase1Score);
-    }
-
-    // Day 11~20: 일 당 100점
-    if (Days >= 11)
-    {
-        int32 Phase2Days = FMath::Min(Days - 10, 10);
-        int32 Phase2Score = Phase2Days * 100;
-        Breakdown += FString::Printf(TEXT("Day 11~20: %d×100 = %d\n"), Phase2Days, Phase2Score);
-    }
-
-    // Day 21~30: 일 당 150점
-    if (Days >= 21)
-    {
-        int32 Phase3Days = FMath::Min(Days - 20, 10);
-        int32 Phase3Score = Phase3Days * 150;
-        Breakdown += FString::Printf(TEXT("Day 21~30: %d×150 = %d\n"), Phase3Days, Phase3Score);
-    }
-
-    // Day 31~40: 일 당 300점
-    if (Days >= 31)
-    {
-        int32 Phase4Days = FMath::Min(Days - 30, 10);
-        int32 Phase4Score = Phase4Days * 300;
-        Breakdown += FString::Printf(TEXT("Day 31~40: %d×300 = %d\n"), Phase4Days, Phase4Score);
-    }
-
-    // Day 41~: 존버 방지
-    if (Days >= 41)
-    {
-        int32 ExtraDays = Days - 40;
-        Breakdown += FString::Printf(TEXT("Day 41~: %d×0 = 0"), ExtraDays);
-    }
-
-    return Breakdown;
 }

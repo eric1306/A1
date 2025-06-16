@@ -6,6 +6,7 @@
 #include "Score/A1ScoreData.h"
 #include "A1SpaceshipBase.generated.h"
 
+class AA1RepairBase;
 class AA1SignalDetectionBase;
 class AA1FuelDisplayUI;
 class AA1StorageBase;
@@ -148,6 +149,8 @@ public:
     UFUNCTION()
     void OnRep_GameEndState();
 
+    void FindAllRepairBases();
+
     FORCEINLINE bool GetIsExternalMapActive() const { return bIsExternalMapActive; }
     FORCEINLINE void SetIsExternamMapActive(bool InExternalMapActive) { bIsExternalMapActive = InExternalMapActive; }
     FORCEINLINE AA1DoorBase* GetCachedDoor() const { return CacheDoor; }
@@ -242,6 +245,9 @@ protected:
 
     UPROPERTY(Replicated)
     bool bCanUseDockingSignalHandler = false;
+
+    UPROPERTY(VisibleAnywhere, Category = "Spaceship|RepairBase")
+    TArray<AA1RepairBase*> CachedRepairs;
 
 private:
     FTimerHandle FuelConsumeTimer;
