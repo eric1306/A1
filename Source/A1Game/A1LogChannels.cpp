@@ -8,6 +8,7 @@ DEFINE_LOG_CATEGORY(LogA1Raider);
 DEFINE_LOG_CATEGORY(LogA1Experience);
 DEFINE_LOG_CATEGORY(LogA1AbilitySystem);
 DEFINE_LOG_CATEGORY(LogA1Teams);
+DEFINE_LOG_CATEGORY(LogA1ScoreSystem);
 
 FString GetClientServerContextString(UObject* ContextObject)
 {
