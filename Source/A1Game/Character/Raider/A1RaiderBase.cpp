@@ -139,17 +139,19 @@ void AA1RaiderBase::SpawnDropItem()
 {
 	// 아이템 스폰
 	int ItemNum = dropItems.Num();
+	if (ItemNum > 0)
+	{
+		FVector ItemSpawnLocation = GetActorLocation();
+		ItemSpawnLocation.Z = 0;
 
-	FVector ItemSpawnLocation = GetActorLocation();
-	ItemSpawnLocation.Z = 0;
-
-	//확률에 따라 아이템 설정(일단 무조건 스폰)
-	//확률 정해진게 없어 하드코딩
-	int32 index = FMath::RandRange(0, 100);
-	if (index >= 50)
-		GetWorld()->SpawnActor<AA1EquipmentBase>(dropItems[ItemNum-1], ItemSpawnLocation, GetActorRotation());
-	else
-		GetWorld()->SpawnActor<AA1EquipmentBase>(dropItems[0], ItemSpawnLocation, GetActorRotation());
+		//확률에 따라 아이템 설정(일단 무조건 스폰)
+		//확률 정해진게 없어 하드코딩
+		int32 index = FMath::RandRange(0, 100);
+		if (index >= 50)
+			GetWorld()->SpawnActor<AA1EquipmentBase>(dropItems[ItemNum - 1], ItemSpawnLocation, GetActorRotation());
+		else
+			GetWorld()->SpawnActor<AA1EquipmentBase>(dropItems[0], ItemSpawnLocation, GetActorRotation());
+	}
 
 	DeatState = EA1DeathState::DeathFinished;
 }
