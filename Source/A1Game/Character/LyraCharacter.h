@@ -252,6 +252,7 @@ protected:
 	void HandleChangeOfWeight(const FOnAttributeChangeData& ChangeData);
 	void HandleOutOfHealth(AActor* InActor, float OldValue, float NewValue);
 public:
+	UFUNCTION(BlueprintCallable)
 	void HandleNoticeWarning(FName Label, int index);
 	
 	UPROPERTY()
