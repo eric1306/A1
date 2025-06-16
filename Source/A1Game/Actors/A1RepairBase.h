@@ -30,12 +30,17 @@ protected:
 	virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const override;
 
 public:
+	UFUNCTION(BlueprintImplementableEvent)
+	void ActivateCheckOverlap();
+
 	virtual FA1InteractionInfo GetPreInteractionInfo(const FA1InteractionQuery& InteractionQuery) const override;
 	virtual void GetMeshComponents(TArray<UMeshComponent*>& OutMeshComponents) const override;
 
 	FORCEINLINE RepairState GetCurrentState() const { return CurrentState; }
 	void SetCurrentState(RepairState InState);
 
+	UFUNCTION(BlueprintCallable)
+	void OnRepairChanged();
 public:
 	FOnRepairStateChanged OnRepairStateChanged;
 protected:
@@ -50,5 +55,6 @@ protected:
 	TObjectPtr<UStaticMeshComponent> MeshComponent;
 
 public:
+	UPROPERTY(VisibleAnywhere)
 	RepairState CurrentState = RepairState::Break;
 };

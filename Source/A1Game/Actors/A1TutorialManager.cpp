@@ -349,20 +349,24 @@ void AA1TutorialManager::DoHighlightActors(const FString& Params)
             {
 	            if (AA1RepairBase* Repair = Cast<AA1RepairBase>(RepairActor))
 	            {
-		            if (Repair->GetCurrentState() == RepairState::Break)
-		            {
-                        //델리게이트 연결
-                        Repair->OnRepairStateChanged.AddUniqueDynamic(this, &AA1TutorialManager::OnRepaired);
-                        // 액터 하이라이트 적용
-                        TArray<UPrimitiveComponent*> PrimitiveComponents;
-                        Repair->GetComponents<UPrimitiveComponent>(PrimitiveComponents);
+                    //델리게이트 연결
+                    Repair->OnRepairStateChanged.AddUniqueDynamic(this, &AA1TutorialManager::OnRepaired);
+                    
+                    //오버랩 검사 활성화
+                    Repair->ActivateCheckOverlap();
 
-                        for (UPrimitiveComponent* Component : PrimitiveComponents)
-                        {
-                            Component->SetRenderCustomDepth(true);
-                            Component->SetCustomDepthStencilValue(250);
-                        }
-		            }
+                    Repair->SetCurrentState(RepairState::Complete);
+                    UE_LOG(LogA1, Log, TEXT("Set Repair State Complete"));
+                    
+                    // 액터 하이라이트 적용
+                    TArray<UPrimitiveComponent*> PrimitiveComponents;
+                    Repair->GetComponents<UPrimitiveComponent>(PrimitiveComponents);
+                    
+                    for (UPrimitiveComponent* Component : PrimitiveComponents)
+                    {
+                        Component->SetRenderCustomDepth(true);
+                        Component->SetCustomDepthStencilValue(250);
+                    }
 	            }
             }
         }
@@ -472,14 +476,14 @@ void AA1TutorialManager::OnRepaired()
             }
             else if (Key == TEXT("Content"))
             {
-                Content = FText::FromString(FString::Printf(TEXT("%s %d/3"), *Value, RepairCount));
+                Content = FText::FromString(FString::Printf(TEXT("%s %d/10"), *Value, RepairCount));
             }
         }
     }
 
     SendUIMessage(Title, Content);
 
-    if (RepairCount == 3)
+    if (RepairCount == 10)
     {
         NextStep();
     }

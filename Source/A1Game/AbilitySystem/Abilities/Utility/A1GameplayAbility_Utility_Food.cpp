@@ -14,6 +14,7 @@
 #include "AbilitySystemComponent.h"
 #include "Item/Managers/A1EquipmentManagerComponent.h"
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
+#include "Score/A1ScoreBlueprintFunctionLibrary.h"
 
 UA1GameplayAbility_Utility_Food::UA1GameplayAbility_Utility_Food(const FObjectInitializer& ObjectInitializer)
 {
@@ -64,6 +65,8 @@ void UA1GameplayAbility_Utility_Food::OnMontageFinished()
 
 	// 장착 장비 제거
 	EquipmentManager->RemoveEquipment_Unsafe(EquipedItem->GetEquipmentSlotType(), 1);
+
+	UA1ScoreBlueprintFunctionLibrary::AddConsumedItems();
 	
 	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
 	

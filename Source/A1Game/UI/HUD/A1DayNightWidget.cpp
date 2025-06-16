@@ -16,9 +16,20 @@ void UA1DayNightWidget::NativeConstruct()
 
 	if (DayNightManager)
 	{
-		DayNightManager->OnDayPhaseChanged.AddDynamic(this, &UA1DayNightWidget::OnDayPhaseChanged);
-		DayNightManager->OnDayChanged.AddDynamic(this, &UA1DayNightWidget::OnDayChanged);
-		DayNightManager->OnTimeChanged.AddDynamic(this, &UA1DayNightWidget::OnTimeChanged);
+		if (!DayNightManager->OnDayPhaseChanged.IsBound())
+        {
+            DayNightManager->OnDayPhaseChanged.AddDynamic(this, &UA1DayNightWidget::OnDayPhaseChanged);
+        }
+        
+        if (!DayNightManager->OnDayChanged.IsBound())
+        {
+            DayNightManager->OnDayChanged.AddDynamic(this, &UA1DayNightWidget::OnDayChanged);
+        }
+        
+        if (!DayNightManager->OnTimeChanged.IsBound())
+        {
+            DayNightManager->OnTimeChanged.AddDynamic(this, &UA1DayNightWidget::OnTimeChanged);
+        }
 
 		//초기 UI 설정
 		UpdateUI();
@@ -32,9 +43,9 @@ void UA1DayNightWidget::NativeDestruct()
 	// 이벤트 구독 해제
 	if (DayNightManager)
 	{
-		DayNightManager->OnDayPhaseChanged.RemoveDynamic(this, &UA1DayNightWidget::OnDayPhaseChanged);
-		DayNightManager->OnDayChanged.RemoveDynamic(this, &UA1DayNightWidget::OnDayChanged);
-		DayNightManager->OnTimeChanged.RemoveDynamic(this, &UA1DayNightWidget::OnTimeChanged);
+		DayNightManager->OnDayPhaseChanged.Clear();
+		DayNightManager->OnDayChanged.Clear();
+		DayNightManager->OnTimeChanged.Clear();
 	}
 
 	Super::NativeDestruct();

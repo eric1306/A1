@@ -16,6 +16,8 @@
 #include "Actors/A1TutorialManager.h"
 #include "GameModes/LyraGameMode.h"
 #include "Kismet/GameplayStatics.h"
+#include "Score/A1ScoreBlueprintFunctionLibrary.h"
+#include "Score/A1ScoreManager.h"
 
 UA1CmdWidget::UA1CmdWidget(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
@@ -92,7 +94,6 @@ void UA1CmdWidget::InputEnded(FText InText)
             }
             else             // InGame
             {
-
                 TSubclassOf<UUserWidget> EndingCutSceneClass = UA1UIData::Get().EndingCutSceneClass;
                 UUserWidget* EndingCutScene = CreateWidget<UUserWidget>(GetWorld(), EndingCutSceneClass);
                 if (EndingCutScene)
@@ -106,7 +107,9 @@ void UA1CmdWidget::InputEnded(FText InText)
                 }
                 
                 // // TODO eric1306 
-                // GameOver 贸府 
+                // GameOver 贸府
+                UA1ScoreManager::Get()->SetRepairedBeforeEscape(true);
+                UA1ScoreBlueprintFunctionLibrary::EndGame(EGameEndReason::Escape);
             }
             DestructUI();
             return;

@@ -13,6 +13,7 @@
 #include "Item/Managers/A1EquipmentManagerComponent.h"
 #include "Item/Fragments/A1ItemFragment_Equipable_Utility.h"
 #include "Player/LyraPlayerController.h"
+#include "Score/A1ScoreBlueprintFunctionLibrary.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(A1GameplayAbility_Interact_Repair)
 
@@ -92,10 +93,12 @@ void UA1GameplayAbility_Interact_Repair::DoRepair()
         return;
     }
     EquipmentManager->RemoveEquipment_Unsafe(EEquipmentSlotType::LeftHand, 1);
+    UA1ScoreBlueprintFunctionLibrary::AddConsumedItems();
 
     // 수리 객체 제거
     AA1RepairBase* RepairActor = Cast<AA1RepairBase>(InteractableActor);
     RepairActor->SetCurrentState(RepairState::Complete);
+    UA1ScoreBlueprintFunctionLibrary::SetRepairRate(UA1ScoreBlueprintFunctionLibrary::GetRepairRate() + 4.f);
 
     EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
 }

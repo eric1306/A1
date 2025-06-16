@@ -11,6 +11,7 @@
 #include "Item/Fragments/A1ItemFragment_Equipable_Attachment.h"
 #include "Net/UnrealNetwork.h"
 #include "Physics/LyraCollisionChannels.h"
+#include "Score/A1ScoreBlueprintFunctionLibrary.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(A1StorageEntryBase)
 
@@ -85,6 +86,7 @@ void AA1StorageEntryBase::SetItemInput()
 {
 	UE_LOG(LogTemp, Log, TEXT("[AA1StorageEntryBase] Item Detected!"));
 	ItemState = EItemEntryState::Exist;
+	UA1ScoreBlueprintFunctionLibrary::SetStorageItems(UA1ScoreBlueprintFunctionLibrary::GetStorageItems() + 1);
 }
 
 void AA1StorageEntryBase::SetItemOutput()
@@ -92,4 +94,5 @@ void AA1StorageEntryBase::SetItemOutput()
 	UE_LOG(LogTemp, Log, TEXT("[AA1StorageEntryBase] Remove Item"));
 	CachedItem = nullptr;
 	ItemState = EItemEntryState::None;
+	UA1ScoreBlueprintFunctionLibrary::SetStorageItems(UA1ScoreBlueprintFunctionLibrary::GetStorageItems() - 1);
 }

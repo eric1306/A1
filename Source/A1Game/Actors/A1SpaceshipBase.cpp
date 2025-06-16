@@ -14,6 +14,8 @@
 #include "Kismet/GameplayStatics.h"
 #include "Maps/A1RandomMapGenerator.h"
 #include "Net/UnrealNetwork.h"
+#include "Score/A1ScoreBlueprintFunctionLibrary.h"
+#include "Score/A1ScoreManager.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(A1SpaceshipBase)
 
@@ -27,6 +29,8 @@ void AA1SpaceshipBase::BeginPlay()
 {
 	Super::BeginPlay();
 
+	UA1ScoreBlueprintFunctionLibrary::StartNewGame();
+
 	if (HasAuthority())
 	{
 		FindComponentsByTags();
@@ -37,12 +41,14 @@ void AA1SpaceshipBase::BeginPlay()
 		}
 	}
 
+	
 	FTimerDelegate FuelConsumeDelegate = FTimerDelegate::CreateUObject(
 		this,
 		&ThisClass::ConsumeFuel,
 		1.f);
 
 	GetWorldTimerManager().SetTimer(FuelConsumeTimer, FuelConsumeDelegate, 1.f, true);
+	UA1ScoreManager::Get()->OnGameEnded.AddDynamic(this, &AA1SpaceshipBase::OnStopFuelConsume);
 }
 
 void AA1SpaceshipBase::Tick(float DeltaTime)
@@ -341,6 +347,7 @@ void AA1SpaceshipBase::AddFuel(float AmountToAdd)
 
 	const float PreviousFuel = CurrentFuelAmount;
 	CurrentFuelAmount = FMath::Min(CurrentFuelAmount + AmountToAdd, MaxFuelAmount);
+	UA1ScoreBlueprintFunctionLibrary::SetRemainingFuel(CurrentFuelAmount);
 
 	if (PreviousFuel != CurrentFuelAmount)
 	{
@@ -357,8 +364,15 @@ void AA1SpaceshipBase::ConsumeFuel(float AmountToConsume)
 	if (AmountToConsume <= 0.f)
 		return;
 
+	if (FuelSystem == nullptr)
+	{
+		GetWorldTimerManager().ClearTimer(FuelConsumeTimer);
+		return;
+	}
+
 	const float PreviousFuel = CurrentFuelAmount;
 	CurrentFuelAmount = FMath::Max(CurrentFuelAmount - AmountToConsume, 0.0f);
+	UA1ScoreBlueprintFunctionLibrary::SetRemainingFuel(CurrentFuelAmount);
 
 	if (PreviousFuel != CurrentFuelAmount)
 	{
@@ -406,5 +420,10 @@ bool AA1SpaceshipBase::HasEnoughFuelToSurvive() const
 {
 	constexpr float MinimumFuelToSurvive = 100.0f;
 	return CurrentFuelAmount >= MinimumFuelToSurvive;
+}
+
+void AA1SpaceshipBase::OnStopFuelConsume(const FA1ScoreData& FinalScore)
+{
+	GetWorldTimerManager().ClearTimer(FuelConsumeTimer);
 }
 

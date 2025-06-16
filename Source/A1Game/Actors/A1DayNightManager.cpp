@@ -7,6 +7,8 @@
 #include "GameFramework/GameStateBase.h"
 #include "Kismet/GameplayStatics.h"
 #include "Net/UnrealNetwork.h"
+#include "Score/A1ScoreBlueprintFunctionLibrary.h"
+#include "Score/A1ScoreManager.h"
 
 AA1DayNightManager* AA1DayNightManager::DayNightInstance = nullptr;
 
@@ -20,8 +22,8 @@ AA1DayNightManager::AA1DayNightManager()
 	 * - 20 minutes = 1 day
 	 * - 10 minue day/night
 	 */
-	DayDurationMinutes = 1.f;
-	DayPhaseDurationMinutes = 0.5f;
+	DayDurationMinutes = 0.1f;
+	DayPhaseDurationMinutes = 0.05f;
 
 	CurrentPhase = EDayPhase::Day;
 	CurrentDay = 1;
@@ -57,8 +59,7 @@ void AA1DayNightManager::BeginPlay()
 		}
 		UE_LOG(LogTemp, Log, TEXT("Find %d Beds!"), OccupiedBeds.Num());
 	}
-
-
+	UA1ScoreManager::Get()->OnGameEnded.AddDynamic(this, &AA1DayNightManager::OnStopUpdateTime);
 }
 
 void AA1DayNightManager::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const
@@ -76,7 +77,10 @@ void AA1DayNightManager::Tick(float DeltaTime)
 
 	if (!HasAuthority())
 		return;
-	
+
+	if (!bIsActive)
+		return;
+
 	UpdateTime(DeltaTime);
 
 	if (!SkipNightflag && AreAllPlayersSleeping()) 
@@ -124,6 +128,7 @@ void AA1DayNightManager::TrySkipNight()
 			ElapsedTime = 0.0f;
 			DayProgress = 0.0f;
 			CurrentDay++;
+			UA1ScoreBlueprintFunctionLibrary::AddDaySurvived();
 			CurrentPhase = EDayPhase::Day;
 		}
 
@@ -192,6 +197,11 @@ void AA1DayNightManager::WakeAllPlayers()
 	SkipNightflag = false;
 }
 
+void AA1DayNightManager::OnStopUpdateTime(const FA1ScoreData& FinalScore)
+{
+	bIsActive = false;
+}
+
 void AA1DayNightManager::UpdateTime(float DeltaTime)
 {
 	//Add Time
@@ -203,6 +213,7 @@ void AA1DayNightManager::UpdateTime(float DeltaTime)
 		ElapsedTime = 0.f;
 		DayProgress = 0.f;
 		CurrentDay++;
+		UA1ScoreBlueprintFunctionLibrary::AddDaySurvived();
 		OnDayChanged.Broadcast(CurrentDay);
 	}
 

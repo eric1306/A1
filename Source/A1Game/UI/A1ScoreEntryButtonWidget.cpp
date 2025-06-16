@@ -1,0 +1,63 @@
+﻿// Copyright (c) 2025 THIS-ACCENT. All Rights Reserved.
+
+
+#include "UI/A1ScoreEntryButtonWidget.h"
+
+#include "Components/Button.h"
+#include "Components/TextBlock.h"
+#include "Score/A1ScoreBlueprintFunctionLibrary.h"
+
+void UA1ScoreEntryButtonWidget::NativeConstruct()
+{
+	Super::NativeConstruct();
+
+    // 버튼 클릭 이벤트 바인딩
+    if (EntryButton)
+    {
+        EntryButton->OnClicked.AddDynamic(this, &UA1ScoreEntryButtonWidget::OnButtonClicked);
+    }
+}
+
+void UA1ScoreEntryButtonWidget::NativeDestruct()
+{
+	Super::NativeDestruct();
+
+    if (EntryButton)
+    {
+        EntryButton->OnClicked.Clear();
+    }
+}
+
+void UA1ScoreEntryButtonWidget::SetupScoreEntry(const FA1ScoreData& ScoreData, int32 Rank, int32 Index)
+{
+    StoredIndex = Index;
+
+    if (ScoreInfoText)
+    {
+        // 순위 아이콘
+        FString RankIcon;
+        RankIcon = FString::Printf(TEXT("%d."), Rank);
+
+        // 결과 아이콘
+        FString ResultIcon = (ScoreData.GameEndReason == EGameEndReason::Escape) ? TEXT("Escape") : TEXT("Dead");
+
+        // 텍스트 구성
+        FString ScoreInfo = FString::Printf(
+            TEXT("%s [%s] Score: %d | Survie %d Days| %s | %s"),
+            *RankIcon,
+            *ScoreData.GetGameName(),
+            ScoreData.TotalScore,
+            ScoreData.DaysSurvived,
+            *ResultIcon,
+            *ScoreData.Timestamp.ToString(TEXT("%m-%d"))
+        );
+        UE_LOG(LogTemp, Log, TEXT("%s"), *ScoreInfo);
+
+        ScoreInfoText->SetText(FText::FromString(ScoreInfo));
+    }
+}
+
+void UA1ScoreEntryButtonWidget::OnButtonClicked()
+{
+    OnScoreEntryClicked.Broadcast(StoredIndex);
+}
