@@ -31,7 +31,7 @@ EBTNodeResult::Type UBTTask_FindPatrolPos::ExecuteTask(UBehaviorTreeComponent& O
 	OwnerComp.GetBlackboardComponent()->SetValueAsVector(AA1RaiderController::HomePosKey, Origin);
 
 	FNavLocation NextPatrol;
-	if (NavSystem->GetRandomPointInNavigableRadius(Origin, 500.f, NextPatrol))
+	if (NavSystem->GetRandomPointInNavigableRadius(Origin, PatrolRange, NextPatrol))
 	{
 		OwnerComp.GetBlackboardComponent()->SetValueAsVector(AA1RaiderController::PatrolPosKey, NextPatrol.Location);
 		UE_LOG(LogTemp, Warning, TEXT("FindPos: %s"), *NextPatrol.Location.ToString());

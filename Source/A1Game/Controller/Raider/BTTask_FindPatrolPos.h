@@ -17,4 +17,8 @@ public:
 	UBTTask_FindPatrolPos();
 
 	virtual EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
+
+public:
+	UPROPERTY(EditAnywhere)
+	float PatrolRange = 500.f;
 };
