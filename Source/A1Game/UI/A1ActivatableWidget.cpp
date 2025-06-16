@@ -13,6 +13,19 @@ void UA1ActivatableWidget::Deactivate()
     DeactivateWidget();
 }
 
+FReply UA1ActivatableWidget::NativeOnKeyDown(const FGeometry& InGeometry, const FKeyEvent& InKeyEvent)
+{
+    FReply Reply = Super::NativeOnKeyDown(InGeometry, InKeyEvent);
+    UE_LOG(LogTemp, Log, TEXT("Activate Key: %s"), *DeactivateKey.ToString())
+	if (DeactivateKey.IsValid() && InKeyEvent.GetKey() == DeactivateKey && InKeyEvent.IsRepeat() == false)
+	{
+		Deactivate();
+        return FReply::Handled();
+	}
+
+    return Reply;
+}
+
 void UA1ActivatableWidget::NativeOnActivated()
 {
  
