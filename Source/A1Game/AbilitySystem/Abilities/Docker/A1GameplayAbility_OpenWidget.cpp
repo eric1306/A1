@@ -30,10 +30,6 @@ void UA1GameplayAbility_OpenWidget::ActivateAbility(const FGameplayAbilitySpecHa
 		{
 			ActiveWidget();
 		}
-		else
-		{
-			DeactiveWidget();
-		}
 	}
 
 	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
@@ -56,6 +52,7 @@ void UA1GameplayAbility_OpenWidget::EndAbility(const FGameplayAbilitySpecHandle 
 			else
 			{
 				UAbilitySystemBlueprintLibrary::RemoveLooseGameplayTags(GetAvatarActorFromActorInfo(), WidgetTag, true);
+				DeactiveWidget();
 			}
 		}
 	}
