@@ -160,6 +160,9 @@ protected:
     UFUNCTION()
     void OnRepaired();
 
+    UFUNCTION(BlueprintImplementableEvent)
+    void OpenWidget();
+
 
     // 유틸리티 함수들
     FVector ParseVector(const FString& VectorString);
