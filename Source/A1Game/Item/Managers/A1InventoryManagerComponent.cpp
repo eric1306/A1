@@ -6,6 +6,7 @@
 #include "Item/A1ItemInstance.h"
 #include "Item/A1ItemTemplate.h"
 #include "Net/UnrealNetwork.h"
+#include "Score/A1ScoreBlueprintFunctionLibrary.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(A1InventoryManagerComponent)
 
@@ -582,6 +583,7 @@ void UA1InventoryManagerComponent::AddItem_Unsafe(const FIntPoint& ItemSlotPos, 
 		MarkSlotChecks(true, ItemSlotPos, ItemTemplate.SlotCount);
 		InventoryList.MarkItemDirty(Entry);
 	}
+	UA1ScoreBlueprintFunctionLibrary::AddInventoryItems();
 }
 
 UA1ItemInstance* UA1InventoryManagerComponent::RemoveItem_Unsafe(const FIntPoint& ItemSlotPos, int32 ItemCount)
@@ -604,7 +606,9 @@ UA1ItemInstance* UA1InventoryManagerComponent::RemoveItem_Unsafe(const FIntPoint
 			RemoveReplicatedSubObject(RemovedItemInstance);
 		}
 	}
-	
+
+	UA1ScoreBlueprintFunctionLibrary::AddInventoryItems(-1);
+
 	InventoryList.MarkItemDirty(Entry);
 	return ItemInstance;
 }

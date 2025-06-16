@@ -29,6 +29,8 @@
 #include "TimerManager.h"
 #include "GameMapsSettings.h"
 #include "AbilitySystem/Attributes/A1CharacterAttributeSet.h"
+#include "Score/A1ScoreBlueprintFunctionLibrary.h"
+#include "Score/A1ScoreManager.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(LyraGameMode)
 
@@ -514,12 +516,13 @@ void ALyraGameMode::HandleGameEnd(AActor* GameEndInstigator, bool bIsRescued)
 	{
 		OnShowGameOverUI();
 	}
-
 	FTimerHandle RestartTimerHandle;
 	GetWorldTimerManager().SetTimer(RestartTimerHandle, [this]()
 		{
 			//TODO eric1306 : fix hard coding
-			UGameplayStatics::OpenLevel(GetWorld(), FName(*GetWorld()->GetName()), true);
+			UA1ScoreBlueprintFunctionLibrary::EndGame(EGameEndReason::Death);
+			
+			//UGameplayStatics::OpenLevel(GetWorld(), FName(*GetWorld()->GetName()), true);
 		}, GameRestartDelay, false);
 }
 
