@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "Score/A1ScoreData.h"
 #include "A1DayNightManager.generated.h"
 
 class AA1BedBase;
@@ -61,6 +62,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "DayNight")
 	void WakeAllPlayers();
+
+	UFUNCTION()
+	void OnStopUpdateTime(const FA1ScoreData& FinalScore);
 
 protected:
 	void UpdateTime(float DeltaTime);
@@ -123,4 +127,6 @@ protected:
 	int32 LastUpdatedMinute;
 
 	bool SkipNightflag = false;
+
+	bool bIsActive = true;
 };

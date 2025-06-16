@@ -13,6 +13,7 @@
 #include "Item/A1ItemInstance.h"
 #include "Item/A1ItemTemplate.h"
 #include "Item/Fragments/A1ItemFragment_Equipable_Utility.h"
+#include "Score/A1ScoreBlueprintFunctionLibrary.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(A1FuelBase)
 
@@ -167,6 +168,7 @@ void AA1FuelBase::DetectAndAbsorbFuelItems()
 					AddFuel(FuelAmount);
 
 					Result.GetActor()->Destroy();
+					UA1ScoreBlueprintFunctionLibrary::AddConsumedItems();
 				}
 			}
 		}
