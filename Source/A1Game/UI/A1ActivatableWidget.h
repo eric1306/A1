@@ -18,11 +18,6 @@ public:
 	void Deactivate();
 
 protected:
-	virtual FReply NativeOnKeyDown(const FGeometry& InGeometry, const FKeyEvent& InKeyEvent) override;
 	virtual void NativeOnActivated() override;
 	virtual void NativeOnDeactivated() override;
-
-protected:
-	UPROPERTY(EditDefaultsOnly)
-	FKey DeactivateKey;
 };

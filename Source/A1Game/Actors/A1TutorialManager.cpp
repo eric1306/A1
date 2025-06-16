@@ -18,6 +18,7 @@
 #include "Blueprint/UserWidget.h"
 #include "Character/LyraCharacter.h"
 #include "Data/A1ItemData.h"
+#include "UI/A1ActivatableWidget.h"
 #include "Item/A1ItemTemplate.h"
 #include "Item/Fragments/A1ItemFragment_Equipable_Utility.h"
 #include "Item/Fragments/A1ItemFragment_Equipable_Weapon.h"
@@ -243,13 +244,14 @@ void AA1TutorialManager::DoPlayVideo(const FString& Params)
     // Param : "VideoPath=/Game/Videos/Briefing.mp4;AutoProgress=true"
     UE_LOG(LogA1System, Log, TEXT("Playing video with params: %s"), *Params);
 
-    UIWidget = CreateWidget<UUserWidget>(PlayerController, UIWidgetClass);
+    UIWidget = CreateWidget<UA1ActivatableWidget>(PlayerController, UIWidgetClass);
 
     if (UIWidget)
     {
-        UIWidget->AddToViewport();
-        FInputModeUIOnly UIMode;
-        PlayerController->SetInputMode(UIMode);
+        OpenWidget();
+        //UIWidget->AddToViewport();
+        //FInputModeUIOnly UIMode;
+        //PlayerController->SetInputMode(UIMode);
     }
 
     FTimerHandle TimerHandle;
