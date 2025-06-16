@@ -4,6 +4,7 @@
 #include "A1LogChannels.h"
 #include "AbilitySystem/Attributes/A1CharacterAttributeSet.h"
 #include "Actors/A1EquipmentBase.h"
+#include "Actors/A1EquipmentBase.h"
 #include "Actors/A1PickupableItemBase.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Character/Raider/A1RaiderBase.h"
@@ -108,16 +109,28 @@ UAnimMontage* AA1RaiderBase::GetHitMontage(AActor* InstigatorActor, const FVecto
 	return SelectedMontage;
 }
 
+void AA1RaiderBase::AddDropItems(TWeakObjectPtr<AA1EquipmentBase> Item)
+{
+	if (Item.IsValid())
+	{
+		TSubclassOf<AA1EquipmentBase> EquipmentClass = TSubclassOf<AA1EquipmentBase>(Item->GetClass());
+		dropItems.Add(EquipmentClass);
+	}
+}
+
 void AA1RaiderBase::BeAttacked(AActor* InInstigator, float OldValue, float NewValue)
 {
-	AAIController* AIController = Cast<AAIController>(GetController());
-	if (AIController && AIController->GetBlackboardComponent())
+	if (warlike)
 	{
-		UBlackboardComponent* BlackBoard = AIController->GetBlackboardComponent();
-		if (BlackBoard->GetValueAsBool(AA1RaiderController::CanAttackKey) == false)
+		AAIController* AIController = Cast<AAIController>(GetController());
+		if (AIController && AIController->GetBlackboardComponent())
 		{
-			BlackBoard->SetValueAsBool(AA1RaiderController::CanAttackKey, true);
-			BlackBoard->SetValueAsObject(AA1RaiderController::AggroTargetKey, InInstigator);
+			UBlackboardComponent* BlackBoard = AIController->GetBlackboardComponent();
+			if (BlackBoard->GetValueAsBool(AA1RaiderController::CanAttackKey) == false)
+			{
+				BlackBoard->SetValueAsBool(AA1RaiderController::CanAttackKey, true);
+				BlackBoard->SetValueAsObject(AA1RaiderController::AggroTargetKey, InInstigator);
+			}
 		}
 	}
 }

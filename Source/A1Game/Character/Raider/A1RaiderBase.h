@@ -29,12 +29,14 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	UAnimMontage* GetHitMontage(AActor* InstigatorActor, const FVector& HitLocation, bool IsBlocked);
 
+	void AddDropItems(TWeakObjectPtr<AA1EquipmentBase> Item);
+
 protected:
 	void BeAttacked(AActor* Instigator, float OldValue, float NewValue);
 	void HandleOutOfHealth(AActor* InActor, float OldValue, float NewValue);
 	
 	UFUNCTION()
-	void SpawnDropItem();
+	virtual void SpawnDropItem();
 
 public:
 	UPROPERTY(EditDefaultsOnly)
@@ -56,11 +58,14 @@ protected:
 	UPROPERTY()
 	TObjectPtr<UA1CharacterAttributeSet> HealthSet;
 
+	UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess = "true"))
+	TArray<TSubclassOf<AA1EquipmentBase>> dropItems;
+
+	bool warlike = true;
+
 private:
 	FTimerHandle TimerHandle;
 
-	UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess = "true"))
-	TArray<TSubclassOf<AA1EquipmentBase>> dropItems;
 
 	UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess = "true"))
 	TArray<TSubclassOf<class UGameplayAbility>> Abilities;
