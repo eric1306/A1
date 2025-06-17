@@ -105,6 +105,7 @@ namespace A1GameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(Status_HitReact,									"Status.HitReact");
 	UE_DEFINE_GAMEPLAY_TAG(Status_RejectHitReact,							"Status.RejectHitReact");
 	UE_DEFINE_GAMEPLAY_TAG(Status_StaminaRecoveryBlock,						"Status.StaminaRecoveryBlock");
+	UE_DEFINE_GAMEPLAY_TAG(Status_FlashLight_ChargingZone,					"Status.FlashLight.ChargingZone")
 	
 	// Gameplay Event
 	UE_DEFINE_GAMEPLAY_TAG(GameplayEvent_Death,								"GameplayEvent.Death");

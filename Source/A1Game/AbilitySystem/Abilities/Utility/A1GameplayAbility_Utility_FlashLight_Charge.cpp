@@ -14,6 +14,7 @@ UA1GameplayAbility_Utility_FlashLight_Charge::UA1GameplayAbility_Utility_FlashLi
 	: Super(ObjectInitializer)
 {
 	ActivationRequiredTags.AddTag(A1GameplayTags::Status_MainHand_Left);
+	ActivationRequiredTags.AddTag(A1GameplayTags::Status_FlashLight_ChargingZone);
 	//ActivationBlockedTags.AddTag(A1GameplayTags::Status_MainHand_Right);
 }
 
