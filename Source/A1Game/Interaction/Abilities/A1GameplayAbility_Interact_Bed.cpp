@@ -71,6 +71,12 @@ void UA1GameplayAbility_Interact_Bed::ActivateAbility(const FGameplayAbilitySpec
         }
     }
 
+    AActor* Actor = UGameplayStatics::GetActorOfClass(GetWorld(), AA1DayNightManager::StaticClass());
+    if (Actor == nullptr)
+    {
+        CancelAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true);
+        return;
+    }
 
     switch (BedActor->GetBedState())
     {
@@ -95,7 +101,7 @@ void UA1GameplayAbility_Interact_Bed::ActivateAbility(const FGameplayAbilitySpec
         BedActor->SetOccupyingCharacter(LyraCharacter);
 
         // 추가: DayNightManager에 침대 등록
-        if (AA1DayNightManager* DayNightManager = AA1DayNightManager::Get(GetWorld()))
+        if (AA1DayNightManager* DayNightManager = Cast<AA1DayNightManager>(Actor))
         {
             DayNightManager->SetPlayerSleeping(LyraCharacter, true);
         }
@@ -118,7 +124,7 @@ void UA1GameplayAbility_Interact_Bed::ActivateAbility(const FGameplayAbilitySpec
         BedActor->SetOccupyingCharacter(nullptr);
 
         // 추가: DayNightManager에서 침대 등록 해제
-        if (AA1DayNightManager* DayNightManager = AA1DayNightManager::Get(GetWorld()))
+        if (AA1DayNightManager* DayNightManager = Cast<AA1DayNightManager>(Actor))
         {
             DayNightManager->SetPlayerSleeping(LyraCharacter, false);
         }

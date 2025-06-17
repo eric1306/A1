@@ -49,6 +49,15 @@ void AA1RandomMapGenerator::BeginPlay()
 
     SetReplicateMovement(true);
 
+    AActor* Actor = UGameplayStatics::GetActorOfClass(GetWorld(), AA1DayNightManager::StaticClass());
+    if (Actor)
+    {
+	    if (AA1DayNightManager* DayNight = Cast<AA1DayNightManager>(Actor))
+	    {
+            DayNightManager = DayNight;
+	    }
+    }
+
     // Start Generate map Only in Server
     /*if (HasAuthority())
     {
@@ -239,7 +248,7 @@ void AA1RandomMapGenerator::Server_SetSeed_Implementation()
     }
 
     //Set Room Number by Day
-    int32 CurrentDay = AA1DayNightManager::Get(GetWorld())->GetCurrentDay();
+    int32 CurrentDay = DayNightManager->GetCurrentDay();
     MaxRoomAmount =  15 + 15 * FMath::Min(CurrentDay / 40, 1);
     RoomAmount = MaxRoomAmount;
 

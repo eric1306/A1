@@ -10,8 +10,6 @@
 #include "Score/A1ScoreBlueprintFunctionLibrary.h"
 #include "Score/A1ScoreManager.h"
 
-AA1DayNightManager* AA1DayNightManager::DayNightInstance = nullptr;
-
 AA1DayNightManager::AA1DayNightManager()
 {
 	PrimaryActorTick.bCanEverTick = true;
@@ -45,8 +43,6 @@ void AA1DayNightManager::BeginPlay()
 	// Init Singleton only server
 	if (HasAuthority())
 	{
-		DayNightInstance = this;
-
 		//enroll all bed in server
 		TArray<AActor*> FoundActors;
 		UGameplayStatics::GetAllActorsOfClass(GetWorld(), AA1BedBase::StaticClass(), OUT FoundActors);
@@ -92,22 +88,6 @@ void AA1DayNightManager::Tick(float DeltaTime)
 			}, 10.f, false); //TODO eric1306 Original Value : 10.f(10 second)
 		SkipNightflag = true;
 	}
-	
-
-}
-
-AA1DayNightManager* AA1DayNightManager::Get(UWorld* World)
-{
-	if (DayNightInstance == nullptr) {
-		TArray<AActor*> FoundActors;
-		UGameplayStatics::GetAllActorsOfClass(World, AA1DayNightManager::StaticClass(), FoundActors);
-
-		if (FoundActors.Num() > 0) {
-			DayNightInstance = Cast<AA1DayNightManager>(FoundActors[0]);
-		}
-	}
-
-	return DayNightInstance;
 }
 
 void AA1DayNightManager::TrySkipNight()

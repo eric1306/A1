@@ -36,9 +36,6 @@ protected:
 public:
 	virtual void Tick(float DeltaTime) override;
 
-	//Get Singleton Instance
-	static AA1DayNightManager* Get(UWorld* World);
-
 	UFUNCTION(BlueprintCallable, Category = "DayNight")
 	FORCEINLINE EDayPhase GetCurrentPhase() const { return CurrentPhase; }
 
@@ -114,8 +111,6 @@ protected:
 
 	float ElapsedTime;
 	float PhaseChangeDuration;
-
-	static AA1DayNightManager* DayNightInstance;
 
 	UPROPERTY()
 	TMap<AActor*, bool> SleepingPlayers;

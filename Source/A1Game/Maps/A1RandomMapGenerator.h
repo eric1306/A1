@@ -7,6 +7,8 @@
 #include "GameFramework/Actor.h"
 #include "A1RandomMapGenerator.generated.h"
 
+class AA1DayNightManager;
+
 USTRUCT()
 struct FSpawnQueue
 {
@@ -224,6 +226,9 @@ protected:
 
     UPROPERTY(EditDefaultsOnly, Category = "Generator")
     TSubclassOf<AA1EndWall> EndWallClass;
+
+    UPROPERTY(VisibleAnywhere)
+    TObjectPtr<AA1DayNightManager> DayNightManager;
 
 private:
     FTimerHandle GenerateTimer;
