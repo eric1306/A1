@@ -391,12 +391,6 @@ bool UA1ItemManagerComponent::TryPickItem(AA1EquipmentBase* PickupableItemActor)
 	if (Character == nullptr)
 		return false;
 
-	if (AA1GunBase* GunActor = Cast<AA1GunBase>(PickupableItemActor))
-	{
-		Character->bullets = GunActor->GetBulletCount();
-		Character->OnGunEquipped.Broadcast(Character->bullets);
-	}
-
 	UA1InventoryManagerComponent* MyInventoryManager = GetMyInventoryManager();
 	UA1EquipmentManagerComponent* MyEquipmentManager = GetMyEquipmentManager();
 	if (MyInventoryManager == nullptr || MyEquipmentManager == nullptr)
@@ -428,6 +422,13 @@ bool UA1ItemManagerComponent::TryPickItem(AA1EquipmentBase* PickupableItemActor)
 		PickupableItemActor->Destroy();
 
 		MyEquipmentManager->GetEquipManager()->CanInteract();
+
+		if (AA1GunBase* GunActor = Cast<AA1GunBase>(PickupableItemActor))
+		{
+			Character->bullets = GunActor->GetBulletCount();
+			Character->OnGunEquipped.Broadcast(Character->bullets);
+		}
+
 		return true;
 	}
 
