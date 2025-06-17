@@ -384,7 +384,8 @@ void AA1SpaceshipBase::FindAllRepairBases()
 	}
 
 	AActor* Actor = UGameplayStatics::GetActorOfClass(GetWorld(), AA1DayNightManager::StaticClass());
-	if (Actor)
+	AActor* Actor2 = UGameplayStatics::GetActorOfClass(GetWorld(), AA1TutorialManager::StaticClass());
+	if (Actor && Actor2 == nullptr)
 	{
 		if (AA1DayNightManager* DayNight = Cast<AA1DayNightManager>(Actor))
 		{
