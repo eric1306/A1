@@ -20,8 +20,8 @@ AA1DayNightManager::AA1DayNightManager()
 	 * - 20 minutes = 1 day
 	 * - 10 minue day/night
 	 */
-	DayDurationMinutes = 0.1f;
-	DayPhaseDurationMinutes = 0.05f;
+	DayDurationMinutes = 20.f;
+	DayPhaseDurationMinutes = 10.f;
 
 	CurrentPhase = EDayPhase::Day;
 	CurrentDay = 1;

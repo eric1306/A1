@@ -84,7 +84,7 @@ void AA1ChestBase::SpawnItems()
 		FTimerDelegate ItemDelegate;
 		ItemDelegate.BindUFunction(this, FName("SpawnItem"), i);
 
-		GetWorldTimerManager().SetTimer(ItemSpawnHandle, ItemDelegate, 0.2f, false);
+		GetWorldTimerManager().SetTimer(ItemSpawnHandle, ItemDelegate, 0.1f, false);
 	}
 }
 
