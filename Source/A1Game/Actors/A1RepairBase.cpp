@@ -85,6 +85,7 @@ void AA1RepairBase::SetCurrentState(RepairState InState)
 
 void AA1RepairBase::OnRepairChanged()
 {
+	SetCurrentState(RepairState::Complete);
 	OnRepairStateChanged.Broadcast();
 }
 

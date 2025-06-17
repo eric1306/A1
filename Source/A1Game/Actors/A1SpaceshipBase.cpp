@@ -12,6 +12,7 @@
 #include "A1ShipOutputBase.h"
 #include "A1SignalDetectionBase.h"
 #include "A1StorageBase.h"
+#include "A1TutorialManager.h"
 #include "GameModes/LyraGameMode.h"
 #include "Kismet/GameplayStatics.h"
 #include "Maps/A1RandomMapGenerator.h"
@@ -298,7 +299,8 @@ void AA1SpaceshipBase::FindSpaceshipComponents()
 		}
 	}
 
-	if (UA1ScoreManager::Get()->GetDoTutorial())
+	AActor* Actor = UGameplayStatics::GetActorOfClass(GetWorld(), AA1TutorialManager::StaticClass());
+	if (UA1ScoreManager::Get()->GetDoTutorial() && Actor == nullptr)
 	{
 		Storages[0].Get()->SpawnDefaultItems();
 	}
@@ -382,7 +384,8 @@ void AA1SpaceshipBase::FindAllRepairBases()
 	}
 
 	AActor* Actor = UGameplayStatics::GetActorOfClass(GetWorld(), AA1DayNightManager::StaticClass());
-	if (Actor)
+	AActor* Actor2 = UGameplayStatics::GetActorOfClass(GetWorld(), AA1TutorialManager::StaticClass());
+	if (Actor && Actor2 == nullptr)
 	{
 		if (AA1DayNightManager* DayNight = Cast<AA1DayNightManager>(Actor))
 		{

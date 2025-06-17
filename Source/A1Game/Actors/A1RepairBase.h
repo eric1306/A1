@@ -38,6 +38,7 @@ public:
 	virtual void GetMeshComponents(TArray<UMeshComponent*>& OutMeshComponents) const override;
 
 	FORCEINLINE RepairState GetCurrentState() const { return CurrentState; }
+	UFUNCTION(BlueprintCallable)
 	void SetCurrentState(RepairState InState);
 
 	UFUNCTION(BlueprintCallable)
