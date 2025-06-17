@@ -90,7 +90,7 @@ void AA1ChestBase::SpawnItems()
 
 void AA1ChestBase::SpawnItem(int32 idx)
 {
-	int32 ItemtoSpawn = FMath::RandRange(2, CachedItemTemplates.Num() - 1);
+	int32 ItemtoSpawn = FMath::RandRange(2, CachedItemTemplates.Num() - 5);
 	TSubclassOf<UA1ItemTemplate> ItemTemplateClass = CachedItemTemplates[ItemtoSpawn];
 	int32 ItemTemplateId = UA1ItemData::Get().FindItemTemplateIDByClass(ItemTemplateClass);
 	UA1ItemInstance* AddedItemInstance = NewObject<UA1ItemInstance>();
