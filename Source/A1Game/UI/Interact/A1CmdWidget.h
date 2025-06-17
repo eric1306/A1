@@ -108,6 +108,9 @@ private:
 
 	FGameplayMessageListenerHandle MessageListenerHandle;
 
+	UPROPERTY(EditAnywhere)
+	USoundBase* CmdSound;
+
 	float TypingDelta = 0.1f;
 
 	bool EscapeMode;

@@ -66,7 +66,6 @@ protected:
 private:
 	FTimerHandle TimerHandle;
 
-
 	UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess = "true"))
 	TArray<TSubclassOf<class UGameplayAbility>> Abilities;
 };

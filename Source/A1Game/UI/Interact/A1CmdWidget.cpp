@@ -264,6 +264,9 @@ void UA1CmdWidget::HiddenMenu()
 
 void UA1CmdWidget::AffectTypingEffect(UTextBlock* TargetTextBlock, FString InText, float delta, float startdelay)
 {
+    if(CmdSound)
+        PlaySound(CmdSound);
+
     FString FormattedText = InText.Replace(TEXT("\\n"), TEXT("\n")); // 혹은 그냥 "\n"
 
     FTimerHandle TypingHandle;

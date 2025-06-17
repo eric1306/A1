@@ -47,4 +47,7 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = "GAS")
 	TSubclassOf<class UGameplayEffect> AttackDamageEffect;
+
+	UPROPERTY(EditAnywhere)
+	USoundBase* GunSound;
 };

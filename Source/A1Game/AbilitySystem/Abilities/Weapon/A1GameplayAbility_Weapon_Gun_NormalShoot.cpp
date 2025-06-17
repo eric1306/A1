@@ -9,6 +9,7 @@
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
 #include "Character/Raider/A1RaiderBase.h"
 #include "Kismet/KismetSystemLibrary.h"
+#include "Kismet/GameplayStatics.h"
 #include "Physics/LyraCollisionChannels.h"
 #include "Actors/A1EquipmentBase.h"
 #include "Player/LyraPlayerController.h"
@@ -98,6 +99,9 @@ bool UA1GameplayAbility_Weapon_Gun_NormalShoot::Shoot()
 			return false;
 		}
 		LyraCharacter->OnGunEquipped.Broadcast(--LyraCharacter->bullets);
+
+		if(GunSound)
+			UGameplayStatics::SpawnSoundAttached(GunSound, EquippedActor->GetRootComponent());
 
 		FTransform SocketTransform = LyraCharacter->GetMesh()->GetSocketTransform(SpawnSocketName, RTS_World);
 		FVector SocketLocation = SocketTransform.GetLocation();

@@ -25,6 +25,9 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Stat, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UAnimMontage> DeadMontage;
 
+	UPROPERTY(EditAnywhere)
+	USoundBase* DeathSound;
+
 	EA1DeathState DeatState = EA1DeathState::NotDead;
 
 // Dead Section
