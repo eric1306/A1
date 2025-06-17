@@ -4,7 +4,9 @@
 #include "A1EquipmentManagerComponent.h"
 #include "A1InventoryManagerComponent.h"
 #include "Actors/A1EquipmentBase.h"
+#include "Actors/A1GunBase.h"
 #include "Components/CapsuleComponent.h"
+#include "Character/LyraCharacter.h"
 #include "Data/A1ItemData.h"
 #include "Item/A1ItemInstance.h"
 #include "Item/Fragments/A1ItemFragment_Equipable.h"
@@ -384,6 +386,17 @@ bool UA1ItemManagerComponent::TryPickItem(AA1EquipmentBase* PickupableItemActor)
 	if (IsValid(PickupableItemActor) == false)
 		return false;
 
+	AController* Controller = Cast<AController>(GetOwner());
+	ALyraCharacter* Character = Controller ? Cast<ALyraCharacter>(Controller->GetPawn()) : Cast<ALyraCharacter>(GetOwner());
+	if (Character == nullptr)
+		return false;
+
+	if (AA1GunBase* GunActor = Cast<AA1GunBase>(PickupableItemActor))
+	{
+		Character->bullets = GunActor->GetBulletCount();
+		Character->OnGunEquipped.Broadcast(Character->bullets);
+	}
+
 	UA1InventoryManagerComponent* MyInventoryManager = GetMyInventoryManager();
 	UA1EquipmentManagerComponent* MyEquipmentManager = GetMyEquipmentManager();
 	if (MyInventoryManager == nullptr || MyEquipmentManager == nullptr)
@@ -430,11 +443,10 @@ bool UA1ItemManagerComponent::TryDropItem(UA1ItemInstance* FromItemInstance, int
 		return false;
 
 	AController* Controller = Cast<AController>(GetOwner());
-	ACharacter* Character = Controller ? Cast<ACharacter>(Controller->GetPawn()) : Cast<ACharacter>(GetOwner());
+	ALyraCharacter* Character = Controller ? Cast<ALyraCharacter>(Controller->GetPawn()) : Cast<ALyraCharacter>(GetOwner());
 	if (Character == nullptr)
 		return false;
 
-	
 	FActorSpawnParameters SpawnParameters;
 	SpawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
 
@@ -451,6 +463,13 @@ bool UA1ItemManagerComponent::TryDropItem(UA1ItemInstance* FromItemInstance, int
 		return false;
 
 	PickupableItemActor->Init(FromItemInstance->GetItemTemplateID(), EquippableFragment->ItemHandType, FromItemInstance->GetItemRarity());
+
+	if (AA1GunBase* GunActor = Cast<AA1GunBase>(PickupableItemActor))
+	{
+		GunActor->SetBulletCount(Character->bullets);
+		Character->bullets = 0;
+		Character->OnGunEquipped.Broadcast(Character->bullets);
+	}
 	
 	return true;
 }

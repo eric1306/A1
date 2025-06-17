@@ -2,7 +2,7 @@
 
 #include "A1GameplayTags.h"
 #include "A1LogChannels.h"
-#include "Actors/A1EquipmentBase.h"
+#include "Actors/A1GunBase.h"
 #include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystemComponent.h"
 #include "AbilitySystem/LyraAbilitySystemComponent.h"
@@ -22,7 +22,7 @@ UA1GameplayAbility_Weapon_Gun_NormalShoot::UA1GameplayAbility_Weapon_Gun_NormalS
 {
     AbilityTags.AddTag(A1GameplayTags::Ability_Attack_Gun);
 	ActivationOwnedTags.AddTag(A1GameplayTags::Status_Attack);
-	ActivationBlockedTags.AddTag(A1GameplayTags::Status_MainHand_Left);
+	//ActivationBlockedTags.AddTag(A1GameplayTags::Status_MainHand_Left);
 	ActivationRequiredTags.AddTag(A1GameplayTags::Status_ADS_Ready);
 }
 
@@ -44,53 +44,61 @@ void UA1GameplayAbility_Weapon_Gun_NormalShoot::ActivateAbility(const FGameplayA
 
 	if (HasAuthority(&CurrentActivationInfo))
 	{
-		Shoot();
+		if (Shoot())
+		{
+			if (UAbilityTask_PlayMontageAndWait* ShootMontageTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(this, TEXT("ShootMontage"), ShootMontage, GetSnapshottedAttackRate(), NAME_None, true, 1.f, 0.f, false))
+			{
+				ShootMontageTask->OnCompleted.AddDynamic(this, &ThisClass::OnMontageFinished);
+				ShootMontageTask->OnBlendOut.AddDynamic(this, &ThisClass::OnMontageFinished);
+				ShootMontageTask->OnInterrupted.AddDynamic(this, &ThisClass::OnMontageFinished);
+				ShootMontageTask->OnCancelled.AddDynamic(this, &ThisClass::OnMontageFinished);
+				ShootMontageTask->ReadyForActivation();
+			}
+		}
 	}
 
-	FGameplayTagContainer TagContainer;
-	TagContainer.AddTag(A1GameplayTags::Status_ADS_Ready);
-	UAbilitySystemBlueprintLibrary::RemoveLooseGameplayTags(GetAvatarActorFromActorInfo(), TagContainer, true);
+	//FGameplayTagContainer TagContainer;
+	//TagContainer.AddTag(A1GameplayTags::Status_ADS_Ready);
+	//UAbilitySystemBlueprintLibrary::RemoveLooseGameplayTags(GetAvatarActorFromActorInfo(), TagContainer, true);
 
 	//UAnimMontage* SelectedMontage = K2_CheckAbilityCost() ? ReleaseReloadMontage : ShootMontage;
-	if (UAbilityTask_PlayMontageAndWait* ShootMontageTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(this, TEXT("ShootMontage"), ShootMontage, GetSnapshottedAttackRate(), NAME_None, true, 1.f, 0.f, false))
-	{
-		ShootMontageTask->OnCompleted.AddDynamic(this, &ThisClass::OnMontageFinished);
-		ShootMontageTask->OnBlendOut.AddDynamic(this, &ThisClass::OnMontageFinished);
-		ShootMontageTask->OnInterrupted.AddDynamic(this, &ThisClass::OnMontageFinished);
-		ShootMontageTask->OnCancelled.AddDynamic(this, &ThisClass::OnMontageFinished);
-		ShootMontageTask->ReadyForActivation();
-	}
 }
 
 void UA1GameplayAbility_Weapon_Gun_NormalShoot::OnMontageFinished()
 {
-	if (UAbilitySystemComponent* ASC = GetAbilitySystemComponentFromActorInfo())
-	{
-		FGameplayEventData Payload;
-		ASC->HandleGameplayEvent(A1GameplayTags::GameplayEvent_Gun_ADS, &Payload);
-	}
+	//if (UAbilitySystemComponent* ASC = GetAbilitySystemComponentFromActorInfo())
+	//{
+	//	FGameplayEventData Payload;
+	//	ASC->HandleGameplayEvent(A1GameplayTags::GameplayEvent_Gun_ADS, &Payload);
+	//}
 	
 	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
 }
 
-void UA1GameplayAbility_Weapon_Gun_NormalShoot::Shoot()
+bool UA1GameplayAbility_Weapon_Gun_NormalShoot::Shoot()
 {
 	if (HasAuthority(&CurrentActivationInfo) == false)
-		return;
-
-	AA1EquipmentBase* WeaponActor = GetFirstEquipmentActor();
-	if (WeaponActor == nullptr)
-		return;
-
-	ULyraAbilitySystemComponent* SourceASC = GetLyraAbilitySystemComponentFromActorInfo();
-	if (SourceASC == nullptr)
-		return;
+		return false;
 
 	ALyraCharacter* LyraCharacter = GetLyraCharacterFromActorInfo();
 	ALyraPlayerController* LyraPlayerController = GetLyraPlayerControllerFromActorInfo();
 
+	AA1EquipmentBase* EquippedActor = Cast<AA1EquipmentBase>(GetFirstEquipmentActor());
+	if (EquippedActor == nullptr)
+		return false;
+
+	ULyraAbilitySystemComponent* SourceASC = GetLyraAbilitySystemComponentFromActorInfo();
+	if (SourceASC == nullptr)
+		return false;
+
 	if (LyraCharacter && LyraPlayerController)
 	{
+		if (LyraCharacter->bullets <= 0)
+		{
+			return false;
+		}
+		LyraCharacter->OnGunEquipped.Broadcast(--LyraCharacter->bullets);
+
 		FTransform SocketTransform = LyraCharacter->GetMesh()->GetSocketTransform(SpawnSocketName, RTS_World);
 		FVector SocketLocation = SocketTransform.GetLocation();
 		FRotator SocketRotation = SocketTransform.GetRotation().Rotator();
@@ -104,7 +112,7 @@ void UA1GameplayAbility_Weapon_Gun_NormalShoot::Shoot()
 		FVector EndLocation = StartLocation + (CameraRotation.Vector() * AimAssistMaxDistance);
 
 		FHitResult HitResult;
-		TArray<AActor*> ActorsToIgnore = { LyraCharacter, WeaponActor };
+		TArray<AActor*> ActorsToIgnore = { LyraCharacter, EquippedActor };
 
 		bool bHit = UKismetSystemLibrary::LineTraceSingle(GetWorld(), StartLocation, EndLocation, UEngineTypes::ConvertToTraceType(A1_TraceChannel_AimAssist), false, ActorsToIgnore, EDrawDebugTrace::ForDuration, HitResult, true);
 		
@@ -112,7 +120,7 @@ void UA1GameplayAbility_Weapon_Gun_NormalShoot::Shoot()
 		FGameplayEffectContextHandle EffectContextHandle = SourceASC->MakeEffectContext();
 		HitResult.bBlockingHit = true;
 		EffectContextHandle.AddHitResult(HitResult);
-		EffectContextHandle.AddInstigator(SourceASC->AbilityActorInfo->AvatarActor.Get(), WeaponActor);
+		EffectContextHandle.AddInstigator(SourceASC->AbilityActorInfo->AvatarActor.Get(), EquippedActor);
 
 		// 맞았으면 데미지 적용
 		if (bHit)
@@ -120,7 +128,7 @@ void UA1GameplayAbility_Weapon_Gun_NormalShoot::Shoot()
 			AA1RaiderBase* Target = Cast<AA1RaiderBase>(HitResult.GetActor());
 			if (Target)
 			{
-				float Damage = GetEquipmentStatValue(A1GameplayTags::SetByCaller_BaseDamage, WeaponActor);
+				float Damage = GetEquipmentStatValue(A1GameplayTags::SetByCaller_BaseDamage, EquippedActor);
 				FGameplayAbilityTargetDataHandle TargetDataHandle = UAbilitySystemBlueprintLibrary::AbilityTargetDataFromActor(Target);
 
 				const TSubclassOf<UGameplayEffect> DamageGE = ULyraAssetManager::GetSubclassByPath(ULyraGameData::Get().DamageGameplayEffect_SetByCaller);
@@ -141,7 +149,7 @@ void UA1GameplayAbility_Weapon_Gun_NormalShoot::Shoot()
 		if (LyraCharacter->IsOutSide())
 		{
 			// 산소 소모
-			float Oxygen = GetEquipmentStatValue(A1GameplayTags::SetByCaller_BaseOxygen, WeaponActor);
+			float Oxygen = GetEquipmentStatValue(A1GameplayTags::SetByCaller_BaseOxygen, EquippedActor);
 			FGameplayAbilityTargetDataHandle TargetDataHandle = UAbilitySystemBlueprintLibrary::AbilityTargetDataFromActor(LyraCharacter);
 			//SourceASC->AbilityActorInfo->AvatarActor.Get()
 			const TSubclassOf<UGameplayEffect> OxygenGE = ULyraAssetManager::GetSubclassByPath(ULyraGameData::Get().ConsumeOxygenByWeapon_SetByCaller);
@@ -157,4 +165,6 @@ void UA1GameplayAbility_Weapon_Gun_NormalShoot::Shoot()
 			}
 		}
 	}
+
+	return true;
 }

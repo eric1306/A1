@@ -32,7 +32,7 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly)
 	void ChangeBlockState(bool bShouldBlock);
 
-private:
+protected:
 	UFUNCTION()
 	void OnRep_EquipmentSlotType();
 
@@ -91,6 +91,6 @@ public:
 public:
 	bool bOnlyUseForLocal = false;
 	
-private:
+protected:
 	FLyraAbilitySet_GrantedHandles SkillAbilitySetHandles;
 };
