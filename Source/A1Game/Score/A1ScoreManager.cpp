@@ -97,17 +97,30 @@ void UA1ScoreManager::AddConsumedItems(int32 Count)
 	UE_LOG(LogA1ScoreSystem, Log, TEXT("[ScoreManager] Consumed items: %d"), CurrentGameScore.ConsumedItems);
 }
 
-float UA1ScoreManager::GetRepairRate() const
+float UA1ScoreManager::GetTotalRepair() const
 {
-	return CurrentGameScore.RepairRate;
+	return CurrentGameScore.TotalRepair;
 }
 
-void UA1ScoreManager::SetRepairRate(float Rate)
+void UA1ScoreManager::SetTotalRepair(int32 Count)
 {
-	CurrentGameScore.RepairRate = FMath::Clamp(Rate, 0.0f, 100.0f);
+	CurrentGameScore.TotalRepair = FMath::Clamp(Count, 0, 50);
 	OnScoreChanged.Broadcast(CurrentGameScore);
 
-	UE_LOG(LogA1ScoreSystem, Log, TEXT("[ScoreManager] Repair rate: %.1f%%"), CurrentGameScore.RepairRate);
+	UE_LOG(LogA1ScoreSystem, Log, TEXT("[ScoreManager] Total Repair : %d"), CurrentGameScore.TotalRepair);
+}
+
+float UA1ScoreManager::GetCompleteRepair() const
+{
+	return CurrentGameScore.CompleteRepair;
+}
+
+void UA1ScoreManager::SetCompleteRepair(int32 Count)
+{
+	CurrentGameScore.CompleteRepair = FMath::Clamp(Count, 0, 50);
+	OnScoreChanged.Broadcast(CurrentGameScore);
+
+	UE_LOG(LogA1ScoreSystem, Log, TEXT("[ScoreManager] Complete Repair : %d"), CurrentGameScore.CompleteRepair);
 }
 
 void UA1ScoreManager::SetRepairedBeforeEscape(bool bRepaired)

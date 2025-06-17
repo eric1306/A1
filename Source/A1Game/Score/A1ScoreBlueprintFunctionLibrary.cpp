@@ -45,14 +45,24 @@ void UA1ScoreBlueprintFunctionLibrary::AddConsumedItems(int32 Count)
     UA1ScoreManager::Get()->AddConsumedItems(Count);
 }
 
-float UA1ScoreBlueprintFunctionLibrary::GetRepairRate()
+float UA1ScoreBlueprintFunctionLibrary::GetTotalRepair()
 {
-    return UA1ScoreManager::Get()->GetRepairRate();
+    return UA1ScoreManager::Get()->GetTotalRepair();
 }
 
-void UA1ScoreBlueprintFunctionLibrary::SetRepairRate(float Rate)
+void UA1ScoreBlueprintFunctionLibrary::SetTotalRepair(int32 count)
 {
-    UA1ScoreManager::Get()->SetRepairRate(Rate);
+    UA1ScoreManager::Get()->SetTotalRepair(count);
+}
+
+float UA1ScoreBlueprintFunctionLibrary::GetCompleteRepair()
+{
+    return UA1ScoreManager::Get()->GetCompleteRepair();
+}
+
+void UA1ScoreBlueprintFunctionLibrary::SetCompleteRepair(int32 count)
+{
+    UA1ScoreManager::Get()->SetCompleteRepair(count);
 }
 
 void UA1ScoreBlueprintFunctionLibrary::SetRepairedBeforeEscape(bool bRepaired)

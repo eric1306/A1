@@ -25,7 +25,8 @@ public:
         InventoryItems = 0;
         StorageItems = 0;
         ConsumedItems = 0;
-        RepairRate = 0.0f;
+        TotalRepair = 0;
+        CompleteRepair = 0;
         bRepairedBeforeEscape = false;
         RemainingFuel = 0;
         TotalScore = 0;
@@ -54,7 +55,10 @@ public:
 
     // 수리 관련
     UPROPERTY(BlueprintReadWrite, Category = "Score")
-    float RepairRate;            // 수리율 (0.0 ~ 100.0)
+    int32 TotalRepair;
+
+    UPROPERTY(BlueprintReadWrite, Category = "Score")
+    int32 CompleteRepair;
 
     UPROPERTY(BlueprintReadWrite, Category = "Score")
     bool bRepairedBeforeEscape;  // 수리 후 탈출 여부
@@ -95,11 +99,7 @@ public:
         // 사망시 0점
 
         // 4. 수리 점수
-        int32 RepairScore = (RepairRate / 4.0f) * 40;
-        if (bRepairedBeforeEscape && GameEndReason == EGameEndReason::Escape)
-        {
-            RepairScore += 1000; // 수리 후 탈출 보너스
-        }
+        int32 RepairScore = CompleteRepair * 20;
 
         // 5. 연료 점수 (MAX 20000점)
         int32 FuelScore = FMath::Min((RemainingFuel / 1000) * 100, 20000);
@@ -121,7 +121,7 @@ public:
         int32 StoredItemScore = FMath::Min((InventoryItems + StorageItems) * 100, 5200);
         int32 ConsumedItemScore = ConsumedItems * 120;
         int32 EndGameBonus = (GameEndReason == EGameEndReason::Escape) ? 5000 : 0;
-        int32 RepairScore = (RepairRate / 4.0f) * 40;
+        int32 RepairScore = CompleteRepair * 20;
         if (bRepairedBeforeEscape && GameEndReason == EGameEndReason::Escape)
         {
             RepairScore += 1000;

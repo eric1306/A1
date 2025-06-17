@@ -14,6 +14,7 @@
 #include "Item/Fragments/A1ItemFragment_Equipable_Utility.h"
 #include "Player/LyraPlayerController.h"
 #include "Score/A1ScoreBlueprintFunctionLibrary.h"
+#include "Score/A1ScoreManager.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(A1GameplayAbility_Interact_Repair)
 
@@ -98,7 +99,8 @@ void UA1GameplayAbility_Interact_Repair::DoRepair()
     // 수리 객체 제거
     AA1RepairBase* RepairActor = Cast<AA1RepairBase>(InteractableActor);
     RepairActor->SetCurrentState(RepairState::Complete);
-    UA1ScoreBlueprintFunctionLibrary::SetRepairRate(UA1ScoreBlueprintFunctionLibrary::GetRepairRate() + 4.f);
+    UA1ScoreManager::Get()->SetTotalRepair(UA1ScoreManager::Get()->GetTotalRepair() + 1);
+    UA1ScoreManager::Get()->SetCompleteRepair(UA1ScoreManager::Get()->GetCompleteRepair() + 1);
 
     EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
 }

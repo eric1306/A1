@@ -85,25 +85,12 @@ void UA1ScoreDetailWidget::SetScoreData(const FA1ScoreData& ScoreData)
         EscapeScoreText->SetText(FText::FromString(EscapeText));
     }
 
-    // 수리 점수 계산 및 표시
-    int32 BaseRepairScore = ScoreData.RepairRate * 10;
-    int32 RepairBonus = (ScoreData.bRepairedBeforeEscape && ScoreData.GameEndReason == EGameEndReason::Escape) ? 1000 : 0;
-    int32 TotalRepairScore = BaseRepairScore + RepairBonus;
+    // 수리 점수 표시
+    int32 BaseRepairScore = ScoreData.CompleteRepair * 20;
 
     if (RepairScoreText)
     {
-        RepairScoreText->SetText(FText::FromString(FString::Printf(TEXT("Repair Score: %s"), *FormatScore(TotalRepairScore))));
-    }
-
-    if (RepairDetailText)
-    {
-        FString RepairDetail = FString::Printf(TEXT("- Base Repair: %s (%.1f%%)"), *FormatScore(BaseRepairScore), ScoreData.RepairRate);
-
-        if (RepairBonus > 0)
-        {
-            RepairDetail += FString::Printf(TEXT("\n- Escape After Repair: +%s"), *FormatScore(RepairBonus));
-        }
-        RepairDetailText->SetText(FText::FromString(RepairDetail));
+        RepairScoreText->SetText(FText::FromString(FString::Printf(TEXT("Repair Score: %s"), *FormatScore(BaseRepairScore))));
     }
 
     // 연료 점수 계산 및 표시

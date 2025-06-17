@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2025 THIS-ACCENT. All Rights Reserved.
+// Copyright (c) 2025 THIS-ACCENT. All Rights Reserved.
 
 
 #include "Actors/A1TutorialManager.h"
@@ -250,6 +250,7 @@ void AA1TutorialManager::DoPlayVideo(const FString& Params)
     {
         OpenWidget();
     }
+    NextStep();
 }
 
 void AA1TutorialManager::DoShowMessage(const FString& Params)

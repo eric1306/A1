@@ -43,10 +43,16 @@ public:
     static void AddConsumedItems(int32 Count = 1);
 
     UFUNCTION(BlueprintCallable, Category = "Score")
-    static float GetRepairRate();
+    static float GetTotalRepair();
 
     UFUNCTION(BlueprintCallable, Category = "Score")
-    static void SetRepairRate(float Rate);
+    static void SetTotalRepair(int32 count);
+
+    UFUNCTION(BlueprintCallable, Category = "Score")
+    static float GetCompleteRepair();
+
+    UFUNCTION(BlueprintCallable, Category = "Score")
+    static void SetCompleteRepair(int32 count);
 
     UFUNCTION(BlueprintCallable, Category = "Score")
     static void SetRepairedBeforeEscape(bool bRepaired);
