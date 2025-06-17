@@ -20,7 +20,7 @@ protected:
 	void OnMontageFinished();
 
 protected:
-	void Shoot();
+	bool Shoot();
 	
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "A1|Gun Projectile")
