@@ -3,7 +3,10 @@
 
 #include "Actors/A1RepairBase.h"
 
+#include "A1EquipmentBase.h"
+#include "Character/LyraCharacter.h"
 #include "Components/ArrowComponent.h"
+#include "Item/Managers/A1EquipManagerComponent.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(A1RepairBase)
 
@@ -31,7 +34,27 @@ void AA1RepairBase::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& 
 
 FA1InteractionInfo AA1RepairBase::GetPreInteractionInfo(const FA1InteractionQuery& InteractionQuery) const
 {
-	return InteractionInfo;
+	if (CurrentState == RepairState::NotBroken || CurrentState == RepairState::Complete)
+	{
+		return AlreadyRepairedInteractionInfo; //return null interaction info
+	}
+
+	if (CurrentState == RepairState::Break)
+	{
+		if (ALyraCharacter* Character = Cast<ALyraCharacter>(InteractionQuery.RequestingAvatar.Get()))
+		{
+			if (IsHoldingRepairKit(Character))
+			{
+				return InteractionInfo;
+			}
+			else
+			{
+				return NoRepairKitInteractionInfo; //return null interaction info
+			}
+		}
+	}
+
+	return FA1InteractionInfo();
 }
 
 void AA1RepairBase::GetMeshComponents(TArray<UMeshComponent*>& OutMeshComponents) const
@@ -54,7 +77,7 @@ void AA1RepairBase::SetCurrentState(RepairState InState)
 	{
 		SetSpriteNotBroken();
 	}
-	else //Complete
+	else
 	{
 		SetSpriteComplete();
 	}
@@ -63,4 +86,42 @@ void AA1RepairBase::SetCurrentState(RepairState InState)
 void AA1RepairBase::OnRepairChanged()
 {
 	OnRepairStateChanged.Broadcast();
+}
+
+bool AA1RepairBase::IsHoldingRepairKit(ALyraCharacter* Character) const
+{
+	if (!IsValid(Character))
+	{
+		return false;
+	}
+
+	UA1EquipManagerComponent* EquipManager = Character->FindComponentByClass<UA1EquipManagerComponent>();
+	if (!EquipManager)
+	{
+		return false;
+	}
+
+	EMainHandState CurrentMainHand = EquipManager->GetCurrentMainHand();
+	EEquipmentSlotType MainHandSlot = EquipManager->ConvertToEquipmentSlotType(CurrentMainHand);
+
+	AA1EquipmentBase* EquippedItem = EquipManager->GetEquippedActor(EEquipmentSlotType::TwoHand);
+	if (!EquippedItem)
+	{
+		EquippedItem = EquipManager->GetEquippedActor(MainHandSlot);
+	}
+
+	if (!IsValid(EquippedItem))
+	{
+		return false;
+	}
+
+	FString ClassName = EquippedItem->GetClass()->GetName();
+
+	if (ClassName.Contains(TEXT("B_Utility_RepairKit")) ||
+		ClassName.Contains(TEXT("RepairKit")))
+	{
+		return true;
+	}
+
+	return false;
 }

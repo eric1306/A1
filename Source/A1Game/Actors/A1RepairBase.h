@@ -5,6 +5,7 @@
 #include "Interaction/A1WorldInteractable.h"
 #include "A1RepairBase.generated.h"
 
+class ALyraCharacter;
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnRepairStateChanged);
 
 class UArrowComponent;
@@ -48,12 +49,23 @@ public:
 	void SetSpriteBreak();
 	UFUNCTION(BlueprintImplementableEvent)
 	void SetSpriteComplete();
+
+protected:
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	bool IsHoldingRepairKit(ALyraCharacter* Character) const;
+
 public:
 	UPROPERTY(BlueprintAssignable)
 	FOnRepairStateChanged OnRepairStateChanged;
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Info")
 	FA1InteractionInfo InteractionInfo;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Info")
+	FA1InteractionInfo NoRepairKitInteractionInfo;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Info")
+	FA1InteractionInfo AlreadyRepairedInteractionInfo;
 
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
