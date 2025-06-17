@@ -249,18 +249,7 @@ void AA1TutorialManager::DoPlayVideo(const FString& Params)
     if (UIWidget)
     {
         OpenWidget();
-        //UIWidget->AddToViewport();
-        //FInputModeUIOnly UIMode;
-        //PlayerController->SetInputMode(UIMode);
     }
-
-    FTimerHandle TimerHandle;
-    GetWorldTimerManager().SetTimer(TimerHandle, [this]()
-        {
-            UIWidget->RemoveFromParent();
-            FInputModeGameOnly  GUMode;
-            PlayerController->SetInputMode(GUMode);
-        }, 20.f, false);
 }
 
 void AA1TutorialManager::DoShowMessage(const FString& Params)
