@@ -47,7 +47,13 @@ public:
 	EChestState GetChestState() const { return ChestState; }
 
 	UFUNCTION(BlueprintCallable)
-	void SpawnItem();
+	void SpawnItems();
+
+
+	UFUNCTION(BlueprintCallable)
+	void SpawnItem(int32 idx);
+
+
 
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Bed|Info")

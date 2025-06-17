@@ -3,8 +3,34 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "A1RaiderRoom.h"
 #include "GameFramework/Actor.h"
 #include "A1RandomMapGenerator.generated.h"
+
+USTRUCT()
+struct FSpawnQueue
+{
+    GENERATED_BODY()
+
+    enum ESpawnType
+    {
+        Enemy,
+        Item
+    };
+
+    ESpawnType Type;
+
+    UPROPERTY()
+    TObjectPtr<AA1RaiderRoom> RaiderRoom;
+
+    FSpawnQueue()
+    {
+        Type = Enemy;
+        RaiderRoom = nullptr;
+    }
+
+    FSpawnQueue(ESpawnType InType, AA1RaiderRoom* InRoom) : Type(InType), RaiderRoom(InRoom) { }
+};
 
 class AA1RoomBridge;
 DECLARE_LOG_CATEGORY_EXTERN(LogMap, Log, All);
@@ -26,10 +52,12 @@ class A1GAME_API AA1RandomMapGenerator : public AActor
 public:
     AA1RandomMapGenerator();
 
+protected:
     virtual void BeginPlay() override;
     virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
     virtual void PreReplication(IRepChangedPropertyTracker& ChangedPropertyTracker) override;
-
+public:
+    virtual void Tick(float DeltaSeconds) override;
     //Call by GA_Interaction_DockingSignalHandler
     UFUNCTION(BlueprintImplementableEvent)
     void StartRandomMap();
@@ -101,6 +129,14 @@ public:
     void Client_RepairInvalidWall(int32 WallIndex, FTransform WallTransform);
 
     uint8 GetbDungeonGenerateComplete() const { return bDungeonGenerateComplete; }
+
+private:
+    void AddEnemyToQueue(AA1RaiderRoom* Room);
+    void AddItemToQueue(AA1RaiderRoom* Room);
+
+    // 큐에서 처리하는 함수
+    void ProcessSpawnQueue();
+
 
 protected:
     void SetupNetworkProperties(AActor* Actor);
@@ -197,4 +233,28 @@ private:
 
     int32 RepairAttempts;
     static const int32 MaxRepairAttempts = 3;
+
+    // 스폰 큐
+	TQueue<FSpawnQueue> SpawnQueue;
+
+    // 동적 스폰 제한
+    UPROPERTY(EditAnywhere, Category = "Spawn Optimization")
+    int32 MinSpawnPerTick = 1;
+
+    UPROPERTY(EditAnywhere, Category = "Spawn Optimization")
+    int32 MaxSpawnPerTick = 5;
+
+    // 프레임 시간 체크
+    float LastFrameTime = 0.0f;
+    float TargetFrameTime = 0.016f; // 60 FPS 기준
+
+    // 스폰 간격
+    UPROPERTY(EditAnywhere, Category = "Spawn Optimization")
+    float SpawnInterval = 0.1f; // 0.1초마다 큐 처리
+
+    float SpawnTimer = 0.0f;
+
+    // 틱당 스폰 개수
+    UPROPERTY(EditAnywhere, Category = "Spawn")
+    int32 SpawnPerTick = 5;
 };

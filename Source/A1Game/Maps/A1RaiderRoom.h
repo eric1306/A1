@@ -5,9 +5,38 @@
 #include "Maps/A1MasterRoom.h"
 #include "A1RaiderRoom.generated.h"
 
+USTRUCT()
+struct FSpawnQueueItem
+{
+	GENERATED_BODY()
+
+	enum ESpawnType
+	{
+		Enemy,
+		Item,
+		Chest
+	};
+
+	ESpawnType Type;
+	FTransform Transform;
+	int32 ItemIndex;
+
+	FSpawnQueueItem()
+	{
+		Type = Enemy;
+		Transform = FTransform::Identity;
+		ItemIndex = 0;
+	}
+
+	FSpawnQueueItem(ESpawnType InType, const FTransform& InTransform, int32 InItemIndex = 0)
+		: Type(InType), Transform(InTransform), ItemIndex(InItemIndex) {
+	}
+};
+
 class AA1ChestBase;
 class AA1EquipmentBase;
 class AA1RaiderBase;
+
 /**
  * 
  */
@@ -23,11 +52,21 @@ protected:
 	virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const override;
 
 public:
+	virtual void Tick(float DeltaSeconds) override;
 	UFUNCTION(BlueprintCallable)
-	void SpawnEnemy();
+	void SpawnEnemys();
 
 	UFUNCTION(BlueprintCallable)
-	void SpawnItem();
+	void SpawnEnemy(FTransform SpawnTransform);
+
+	UFUNCTION(BlueprintCallable)
+	void SpawnItems();
+
+	UFUNCTION(BlueprintCallable)
+	void SpawnItem(int32 idx);
+
+	UFUNCTION(BlueprintCallable)
+	void SpawnChest(FTransform SpawnTransform);
 
 	UFUNCTION(BlueprintCallable)
 	void RemoveEnemy();
@@ -37,6 +76,17 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void RemoveChest();
+
+private:
+
+	// 큐에 추가하는 헬퍼 함수들
+	void AddEnemyToQueue(const FTransform& Transform);
+	void AddItemToQueue(int32 ItemIndex);
+	void AddChestToQueue(const FTransform& Transform);
+
+	// 큐에서 처리하는 함수
+	void ProcessSpawnQueue();
+
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Raider|EssentialSpawn")
 	TObjectPtr<USceneComponent> EssentialSpawn;
@@ -89,4 +139,29 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TArray<TSubclassOf<class UA1ItemTemplate>> CachedItemTemplates;
+
+private:
+	// 스폰 큐
+	TQueue<FSpawnQueueItem> SpawnQueue;
+
+	// 동적 스폰 제한
+	UPROPERTY(EditAnywhere, Category = "Spawn Optimization")
+	int32 MinSpawnPerTick = 1;
+
+	UPROPERTY(EditAnywhere, Category = "Spawn Optimization")
+	int32 MaxSpawnPerTick = 5;
+
+	// 프레임 시간 체크
+	float LastFrameTime = 0.0f;
+	float TargetFrameTime = 0.016f; // 60 FPS 기준
+
+	// 스폰 간격
+	UPROPERTY(EditAnywhere, Category = "Spawn Optimization")
+	float SpawnInterval = 0.1f; // 0.1초마다 큐 처리
+
+	float SpawnTimer = 0.0f;
+
+	// 틱당 스폰 개수
+	UPROPERTY(EditAnywhere, Category = "Spawn")
+	int32 SpawnPerTick = 5;
 };
