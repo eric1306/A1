@@ -219,12 +219,16 @@ void AA1EquipmentBase::Highlight()
 		return;
 
 	bHighlighted = true;
-	MeshComponent->SetRenderCustomDepth(true);
-	MeshComponent->SetCustomDepthStencilValue(250);
+	if (MeshComponent)
+	{
+		MeshComponent->SetRenderCustomDepth(true);
+		MeshComponent->SetCustomDepthStencilValue(250);
+	}
 }
 
 void AA1EquipmentBase::UnHighlight()
 {
 	bHighlighted = false;
-	MeshComponent->SetRenderCustomDepth(false);
+	if (MeshComponent)
+		MeshComponent->SetRenderCustomDepth(false);
 }

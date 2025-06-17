@@ -34,7 +34,7 @@ void AA1ChestBase::BeginPlay()
 	FTimerHandle TimerHandle;
 	GetWorldTimerManager().SetTimer(TimerHandle, [this]()
 		{
-			SpawnItem();
+			SpawnItems();
 		}, 2.f, false);
 }
 
@@ -68,7 +68,7 @@ void AA1ChestBase::OnRep_ChestState()
 	OnChestStateChanged(ChestState);
 }
 
-void AA1ChestBase::SpawnItem()
+void AA1ChestBase::SpawnItems()
 {
 	TArray<USceneComponent*> FoundComponents;
 	ItemLocation->GetChildrenComponents(false, FoundComponents);
@@ -80,22 +80,31 @@ void AA1ChestBase::SpawnItem()
 
 	for (int i = 0; i < ItemAmount; i++)
 	{
-		int32 ItemtoSpawn = FMath::RandRange(2, CachedItemTemplates.Num() - 1);
-		TSubclassOf<UA1ItemTemplate> ItemTemplateClass = CachedItemTemplates[ItemtoSpawn];
-		int32 ItemTemplateId = UA1ItemData::Get().FindItemTemplateIDByClass(ItemTemplateClass);
-		UA1ItemInstance* AddedItemInstance = NewObject<UA1ItemInstance>();
-		AddedItemInstance->Init(ItemTemplateId, EItemRarity::Poor);
-		const UA1ItemFragment_Equipable_Attachment* AttachmentFragment = AddedItemInstance->FindFragmentByClass<UA1ItemFragment_Equipable_Attachment>();
-		const FA1ItemAttachInfo& AttachInfo = AttachmentFragment->ItemAttachInfo;
-		if (AttachInfo.SpawnItemClass)
-		{
-			AA1EquipmentBase* NewSpawnedItem = GetWorld()->SpawnActorDeferred<AA1EquipmentBase>(AttachInfo.SpawnItemClass, FTransform::Identity, this);
-			NewSpawnedItem->Init(AddedItemInstance->GetItemTemplateID(), EEquipmentSlotType::Count, AddedItemInstance->GetItemRarity());
-			NewSpawnedItem->SetActorRelativeTransform(ItemLocations[i]->GetComponentTransform());
-			NewSpawnedItem->SetActorScale3D(FVector(1.f, 1.f, 1.f));
-			NewSpawnedItem->SetPickup(false);
-			NewSpawnedItem->SetActorHiddenInGame(false);
-			NewSpawnedItem->FinishSpawning(FTransform::Identity, true);
-		}
+		FTimerHandle ItemSpawnHandle;
+		FTimerDelegate ItemDelegate;
+		ItemDelegate.BindUFunction(this, FName("SpawnItem"), i);
+
+		GetWorldTimerManager().SetTimer(ItemSpawnHandle, ItemDelegate, 0.2f, false);
+	}
+}
+
+void AA1ChestBase::SpawnItem(int32 idx)
+{
+	int32 ItemtoSpawn = FMath::RandRange(2, CachedItemTemplates.Num() - 1);
+	TSubclassOf<UA1ItemTemplate> ItemTemplateClass = CachedItemTemplates[ItemtoSpawn];
+	int32 ItemTemplateId = UA1ItemData::Get().FindItemTemplateIDByClass(ItemTemplateClass);
+	UA1ItemInstance* AddedItemInstance = NewObject<UA1ItemInstance>();
+	AddedItemInstance->Init(ItemTemplateId, EItemRarity::Poor);
+	const UA1ItemFragment_Equipable_Attachment* AttachmentFragment = AddedItemInstance->FindFragmentByClass<UA1ItemFragment_Equipable_Attachment>();
+	const FA1ItemAttachInfo& AttachInfo = AttachmentFragment->ItemAttachInfo;
+	if (AttachInfo.SpawnItemClass)
+	{
+		AA1EquipmentBase* NewSpawnedItem = GetWorld()->SpawnActorDeferred<AA1EquipmentBase>(AttachInfo.SpawnItemClass, FTransform::Identity, this);
+		NewSpawnedItem->Init(AddedItemInstance->GetItemTemplateID(), EEquipmentSlotType::Count, AddedItemInstance->GetItemRarity());
+		NewSpawnedItem->SetActorRelativeTransform(ItemLocations[idx]->GetComponentTransform());
+		NewSpawnedItem->SetActorScale3D(FVector(1.f, 1.f, 1.f));
+		NewSpawnedItem->SetPickup(false);
+		NewSpawnedItem->SetActorHiddenInGame(false);
+		NewSpawnedItem->FinishSpawning(FTransform::Identity, true);
 	}
 }

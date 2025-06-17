@@ -18,6 +18,8 @@
 
 AA1RaiderRoom::AA1RaiderRoom(const FObjectInitializer& ObjectInitializer)
 {
+    PrimaryActorTick.bCanEverTick = true;
+
 	EssentialSpawn = CreateDefaultSubobject<USceneComponent>(TEXT("Essential Spawn Area"));
 	EssentialSpawn->SetupAttachment(GetRootComponent());
 
@@ -47,7 +49,35 @@ void AA1RaiderRoom::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& 
 	DOREPLIFETIME(AA1RaiderRoom, SpawnedItems);
 }
 
-void AA1RaiderRoom::SpawnEnemy()
+void AA1RaiderRoom::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+
+    if (!HasAuthority())
+        return;
+
+    // 스폰 간격 체크
+    SpawnTimer += DeltaSeconds;
+    if (SpawnTimer < SpawnInterval)
+        return;
+
+    SpawnTimer = 0.0f;
+
+    // 프레임 시간에 따라 스폰 개수 동적 조정
+    float CurrentFrameTime = FApp::GetDeltaTime();
+    if (CurrentFrameTime > TargetFrameTime * 1.5f) // 40 FPS 이하
+    {
+        SpawnPerTick = MinSpawnPerTick;
+    }
+    else if (CurrentFrameTime < TargetFrameTime) // 60 FPS 이상
+    {
+        SpawnPerTick = MaxSpawnPerTick;
+    }
+
+    ProcessSpawnQueue();
+}
+
+void AA1RaiderRoom::SpawnEnemys()
 {
     if (!HasAuthority())
         return;
@@ -61,34 +91,7 @@ void AA1RaiderRoom::SpawnEnemy()
     {
         if (child)
         {
-            //Spawn Raider
-            FTransform childTransform = child->GetComponentTransform();
-            AA1RaiderBase* Raider = GetWorld()->SpawnActorDeferred<AA1RaiderBase>(RaiderClass, childTransform, this);
-            if (Raider)
-            {
-                //Net Update
-                Raider->SetReplicates(true);
-                Raider->bAlwaysRelevant = true;
-                Raider->NetUpdateFrequency = 60.0f;
-                Raider->MinNetUpdateFrequency = 30.0f;
-                Raider->NetPriority = 3.0f;
-
-                UGameplayStatics::FinishSpawningActor(Raider, childTransform);
-
-                Raider->SetReplicates(true);
-                Raider->SetReplicateMovement(true);
-                Raider->SetActorTickEnabled(true);
-                Raider->bAlwaysRelevant = true;
-                Raider->NetUpdateFrequency = 60.0f;
-                Raider->MinNetUpdateFrequency = 30.0f;
-                Raider->NetPriority = 3.0f;
-                Raider->SetNetDormancy(ENetDormancy::DORM_Awake);
-
-                Raider->ForceNetUpdate();
-
-                //Replicated
-                SpawnedRaiders.Add(Raider);
-            }
+            AddEnemyToQueue(child->GetComponentTransform());
         }
     }
 
@@ -112,41 +115,34 @@ void AA1RaiderRoom::SpawnEnemy()
         if (child && SpawnOptionalMonsterRate--)
         {
             //Spawn Raider
-            
-            FTransform childTransform = child->GetComponentTransform();
-            AA1RaiderBase* Raider = GetWorld()->SpawnActorDeferred<AA1RaiderBase>(RaiderClass, childTransform, this);
-            if (Raider)
-            {
-                UE_LOG(LogTemp, Log, TEXT("Spawn Raider Complete!"));
-
-                Raider->SetReplicates(true);
-                Raider->bAlwaysRelevant = true;
-                Raider->NetUpdateFrequency = 60.0f;
-                Raider->MinNetUpdateFrequency = 30.0f;
-                Raider->NetPriority = 3.0f;
-
-                UGameplayStatics::FinishSpawningActor(Raider, childTransform);
-
-                Raider->SetReplicates(true);
-                Raider->SetReplicateMovement(true);
-                Raider->SetActorTickEnabled(true);
-                Raider->bAlwaysRelevant = true;
-                Raider->NetUpdateFrequency = 60.0f;
-                Raider->MinNetUpdateFrequency = 30.0f;
-                Raider->NetPriority = 3.0f;
-                Raider->SetNetDormancy(ENetDormancy::DORM_Awake);
-
-                Raider->ForceNetUpdate();
-
-                //Replicated
-                SpawnedRaiders.Add(Raider);
-            }
+            AddEnemyToQueue(child->GetComponentTransform());
         }
     }
-
 }
 
-void AA1RaiderRoom::SpawnItem()
+void AA1RaiderRoom::SpawnEnemy(FTransform SpawnTransform)
+{
+    AA1RaiderBase* Raider = GetWorld()->SpawnActorDeferred<AA1RaiderBase>(RaiderClass, SpawnTransform, this);
+    if (Raider)
+    {
+        //UE_LOG(LogTemp, Log, TEXT("Spawn Raider Complete!"));
+
+        //Raider->SetReplicates(true);
+        //Raider->bAlwaysRelevant = false;
+        //Raider->NetUpdateFrequency = 30.0f;
+        //Raider->MinNetUpdateFrequency = 10.0f;
+        //Raider->NetPriority = 2.0f; // 우선순위 감소
+
+        //// 초기에는 Dormant 상태로 설정
+        //Raider->SetNetDormancy(ENetDormancy::DORM_DormantAll);
+
+        UGameplayStatics::FinishSpawningActor(Raider, SpawnTransform);
+
+        //Replicated
+        SpawnedRaiders.Add(Raider);
+    }
+}
+void AA1RaiderRoom::SpawnItems()
 {
     //Spawn Items
     TArray<USceneComponent*> ChildrenComp;
@@ -162,24 +158,8 @@ void AA1RaiderRoom::SpawnItem()
 
     for (int i = 0; i < SpawnItemRate; i++)
     {
-        int32 ItemtoSpawn = FMath::RandRange(2, CachedItemTemplates.Num() - 1);
-        TSubclassOf<UA1ItemTemplate> ItemTemplateClass = CachedItemTemplates[ItemtoSpawn];
-        int32 ItemTemplateId = UA1ItemData::Get().FindItemTemplateIDByClass(ItemTemplateClass);
-        UA1ItemInstance* AddedItemInstance = NewObject<UA1ItemInstance>();
-        AddedItemInstance->Init(ItemTemplateId, EItemRarity::Poor);
-        const UA1ItemFragment_Equipable_Attachment* AttachmentFragment = AddedItemInstance->FindFragmentByClass<UA1ItemFragment_Equipable_Attachment>();
-        const FA1ItemAttachInfo& AttachInfo = AttachmentFragment->ItemAttachInfo;
-
-        if (AttachInfo.SpawnItemClass)
-        {
-            AA1EquipmentBase* NewSpawnedItem = GetWorld()->SpawnActorDeferred<AA1EquipmentBase>(AttachInfo.SpawnItemClass, FTransform::Identity, this);
-            NewSpawnedItem->Init(AddedItemInstance->GetItemTemplateID(), EEquipmentSlotType::Count, AddedItemInstance->GetItemRarity());
-            NewSpawnedItem->SetActorRelativeTransform(ItemSpawnLocations[i]->GetComponentTransform());
-            NewSpawnedItem->SetActorScale3D(FVector(1.f, 1.f, 1.f));
-            NewSpawnedItem->SetPickup(false);
-            NewSpawnedItem->SetActorHiddenInGame(false);
-            NewSpawnedItem->FinishSpawning(FTransform::Identity, true);
-        }
+        // 큐에 추가
+        AddItemToQueue(i);
     }
 
     //Spawn Chest
@@ -191,15 +171,41 @@ void AA1RaiderRoom::SpawnItem()
     {
         if (child)
         {
-            FTransform childTransform = child->GetComponentTransform();
-            AA1ChestBase* Chest = GetWorld()->SpawnActorDeferred<AA1ChestBase>(ChestClass, childTransform, this);
-            if (Chest)
-            {
-                UGameplayStatics::FinishSpawningActor(Chest, childTransform);
-                //Replicated
-                SpawnedChests.Add(Chest);
-            }
+            AddChestToQueue(child->GetComponentTransform());
         }
+    }
+}
+
+void AA1RaiderRoom::SpawnItem(int32 idx)
+{
+    int32 ItemtoSpawn = FMath::RandRange(2, CachedItemTemplates.Num() - 1);
+    TSubclassOf<UA1ItemTemplate> ItemTemplateClass = CachedItemTemplates[ItemtoSpawn];
+    int32 ItemTemplateId = UA1ItemData::Get().FindItemTemplateIDByClass(ItemTemplateClass);
+    UA1ItemInstance* AddedItemInstance = NewObject<UA1ItemInstance>();
+    AddedItemInstance->Init(ItemTemplateId, EItemRarity::Poor);
+    const UA1ItemFragment_Equipable_Attachment* AttachmentFragment = AddedItemInstance->FindFragmentByClass<UA1ItemFragment_Equipable_Attachment>();
+    const FA1ItemAttachInfo& AttachInfo = AttachmentFragment->ItemAttachInfo;
+
+    if (AttachInfo.SpawnItemClass)
+    {
+        AA1EquipmentBase* NewSpawnedItem = GetWorld()->SpawnActorDeferred<AA1EquipmentBase>(AttachInfo.SpawnItemClass, FTransform::Identity, this);
+        NewSpawnedItem->Init(AddedItemInstance->GetItemTemplateID(), EEquipmentSlotType::Count, AddedItemInstance->GetItemRarity());
+        NewSpawnedItem->SetActorRelativeTransform(ItemSpawnLocations[idx]->GetComponentTransform());
+        NewSpawnedItem->SetActorScale3D(FVector(1.f, 1.f, 1.f));
+        NewSpawnedItem->SetPickup(false);
+        NewSpawnedItem->SetActorHiddenInGame(false);
+        NewSpawnedItem->FinishSpawning(FTransform::Identity, true);
+    }
+}
+
+void AA1RaiderRoom::SpawnChest(FTransform SpawnTransform)
+{
+    AA1ChestBase* Chest = GetWorld()->SpawnActorDeferred<AA1ChestBase>(ChestClass, SpawnTransform, this);
+    if (Chest)
+    {
+        UGameplayStatics::FinishSpawningActor(Chest, SpawnTransform);
+        //Replicated
+        SpawnedChests.Add(Chest);
     }
 }
 
@@ -266,5 +272,48 @@ void AA1RaiderRoom::RemoveChest()
             c->SetLifeSpan(0.01f);
             c->Destroy(true);
 	    }
+    }
+}
+
+void AA1RaiderRoom::AddEnemyToQueue(const FTransform& Transform)
+{
+    SpawnQueue.Enqueue(FSpawnQueueItem(FSpawnQueueItem::Enemy, Transform));
+}
+
+void AA1RaiderRoom::AddItemToQueue(int32 ItemIndex)
+{
+    SpawnQueue.Enqueue(FSpawnQueueItem(FSpawnQueueItem::Item, FTransform::Identity, ItemIndex));
+}
+
+void AA1RaiderRoom::AddChestToQueue(const FTransform& Transform)
+{
+    SpawnQueue.Enqueue(FSpawnQueueItem(FSpawnQueueItem::Chest, Transform));
+}
+
+void AA1RaiderRoom::ProcessSpawnQueue()
+{
+    if (!HasAuthority())
+        return;
+
+    int32 SpawnedThisTick = 0;
+    FSpawnQueueItem Item;
+
+    // 틱당 최대 SpawnPerTick 개수만큼 스폰
+    while (SpawnedThisTick < SpawnPerTick && SpawnQueue.Dequeue(Item))
+    {
+        switch (Item.Type)
+        {
+        case FSpawnQueueItem::Enemy:
+            SpawnEnemy(Item.Transform);
+            break;
+        case FSpawnQueueItem::Item:
+            SpawnItem(Item.ItemIndex);
+            break;
+        case FSpawnQueueItem::Chest:
+            SpawnChest(Item.Transform);
+            break;
+        }
+
+        SpawnedThisTick++;
     }
 }

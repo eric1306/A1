@@ -17,7 +17,7 @@ DEFINE_LOG_CATEGORY(LogMap);
 // 기본값 설정
 AA1RandomMapGenerator::AA1RandomMapGenerator()
 {
-    PrimaryActorTick.bCanEverTick = false;
+    PrimaryActorTick.bCanEverTick = true;
 
     // 네트워크 설정 최적화
     bReplicates = true;
@@ -92,6 +92,34 @@ void AA1RandomMapGenerator::PreReplication(IRepChangedPropertyTracker& ChangedPr
     }
 }
 
+void AA1RandomMapGenerator::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+
+    if (!HasAuthority())
+        return;
+
+    // 스폰 간격 체크
+    SpawnTimer += DeltaSeconds;
+    if (SpawnTimer < SpawnInterval)
+        return;
+
+    SpawnTimer = 0.0f;
+
+    // 프레임 시간에 따라 스폰 개수 동적 조정
+    float CurrentFrameTime = FApp::GetDeltaTime();
+    if (CurrentFrameTime > TargetFrameTime * 1.5f) // 40 FPS 이하
+    {
+        SpawnPerTick = MinSpawnPerTick;
+    }
+    else if (CurrentFrameTime < TargetFrameTime) // 60 FPS 이상
+    {
+        SpawnPerTick = MaxSpawnPerTick;
+    }
+
+    ProcessSpawnQueue();
+}
+
 void AA1RandomMapGenerator::Multicast_PlaySiren_Implementation()
 {
     if (!HasAuthority())
@@ -114,12 +142,13 @@ void AA1RandomMapGenerator::Server_SpawnEnemy_Implementation()
     if (!HasAuthority())
         return;
 
+    MAP_LOG(LogMap, Log, TEXT("SpawnedRooms Count: %d"), SpawnedRooms.Num());
+
     for (auto Room : SpawnedRooms)
     {
-        MAP_LOG(LogMap, Log, TEXT("SpawnedRooms Count: %d"), SpawnedRooms.Num());
 	    if (AA1RaiderRoom* RaiderRoom = Cast<AA1RaiderRoom>(Room))
 	    {
-            RaiderRoom->SpawnEnemy();
+            AddEnemyToQueue(RaiderRoom);
 	    }
     }
 }
@@ -129,13 +158,49 @@ void AA1RandomMapGenerator::Server_SpawnItem_Implementation()
     if (!HasAuthority())
         return;
 
+    MAP_LOG(LogMap, Log, TEXT("SpawnedRooms Count: %d"), SpawnedRooms.Num());
+
     for (auto Room : SpawnedRooms)
     {
-        MAP_LOG(LogMap, Log, TEXT("SpawnedRooms Count: %d"), SpawnedRooms.Num());
         if (AA1RaiderRoom* RaiderRoom = Cast<AA1RaiderRoom>(Room))
         {
-            RaiderRoom->SpawnItem();
+            AddItemToQueue(RaiderRoom);
         }
+    }
+}
+
+void AA1RandomMapGenerator::AddEnemyToQueue(AA1RaiderRoom* Room)
+{
+    SpawnQueue.Enqueue(FSpawnQueue(FSpawnQueue::Enemy, Room));
+}
+
+void AA1RandomMapGenerator::AddItemToQueue(AA1RaiderRoom* Room)
+{
+    SpawnQueue.Enqueue(FSpawnQueue(FSpawnQueue::Item, Room));
+}
+
+void AA1RandomMapGenerator::ProcessSpawnQueue()
+{
+    if (!HasAuthority())
+        return;
+
+    int32 SpawnedThisTick = 0;
+    FSpawnQueue Queue;
+
+    // 틱당 최대 SpawnPerTick 개수만큼 스폰
+    while (SpawnedThisTick < SpawnPerTick && SpawnQueue.Dequeue(Queue))
+    {
+        switch (Queue.Type)
+        {
+        case FSpawnQueue::Enemy:
+            Queue.RaiderRoom->SpawnEnemys();
+            break;
+        case FSpawnQueue::Item:
+            Queue.RaiderRoom->SpawnItems();
+            break;
+        }
+
+        SpawnedThisTick++;
     }
 }
 
@@ -175,7 +240,7 @@ void AA1RandomMapGenerator::Server_SetSeed_Implementation()
 
     //Set Room Number by Day
     int32 CurrentDay = AA1DayNightManager::Get(GetWorld())->GetCurrentDay();
-    MaxRoomAmount =  10 + 20 * FMath::Min(CurrentDay / 40, 1);
+    MaxRoomAmount =  15 + 15 * FMath::Min(CurrentDay / 40, 1);
     RoomAmount = MaxRoomAmount;
 
     MAP_LOG(LogMap, Log, TEXT("Set Seed!: %d"), Stream.GetInitialSeed());
