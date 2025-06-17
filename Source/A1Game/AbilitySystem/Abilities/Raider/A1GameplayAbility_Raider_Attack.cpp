@@ -11,6 +11,7 @@
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
 #include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
 #include "AbilitySystem/LyraAbilitySystemComponent.h"
+#include "Data/A1AbilityData.h"
 #include "System/LyraAssetManager.h"
 #include "System/LyraGameData.h"
 
@@ -107,17 +108,20 @@ void UA1GameplayAbility_Raider_Attack::ProcessHitResult(FHitResult HitResult, fl
 	if (HasAuthority(&CurrentActivationInfo))
 	{
 		FGameplayAbilityTargetDataHandle TargetDataHandle = UAbilitySystemBlueprintLibrary::AbilityTargetDataFromActor(HitResult.GetActor());
-		const TSubclassOf<UGameplayEffect> DamageGE = ULyraAssetManager::GetSubclassByPath(ULyraGameData::Get().DamageGameplayEffect_SetByCaller);
-		FGameplayEffectSpecHandle EffectSpecHandle = MakeOutgoingGameplayEffectSpec(DamageGE);
+		const TSubclassOf<UGameplayEffect> DamageGE = UA1AbilityData::Get().GetGameplayEffect("Attack");
+		if (DamageGE)
+		{
+			FGameplayEffectSpecHandle EffectSpecHandle = MakeOutgoingGameplayEffectSpec(DamageGE);
 
-		//FGameplayEffectContextHandle EffectContextHandle = SourceASC->MakeEffectContext();
-		//HitResult.bBlockingHit = bBlockingHit;
-		//EffectContextHandle.AddHitResult(HitResult);
-		//EffectContextHandle.AddInstigator(SourceASC->AbilityActorInfo->OwnerActor.Get(), nullptr);
-		//EffectSpecHandle.Data->SetContext(EffectContextHandle);
+			//FGameplayEffectContextHandle EffectContextHandle = SourceASC->MakeEffectContext();
+			//HitResult.bBlockingHit = bBlockingHit;
+			//EffectContextHandle.AddHitResult(HitResult);
+			//EffectContextHandle.AddInstigator(SourceASC->AbilityActorInfo->OwnerActor.Get(), nullptr);
+			//EffectSpecHandle.Data->SetContext(EffectContextHandle);
 
-		EffectSpecHandle.Data->SetSetByCallerMagnitude(A1GameplayTags::SetByCaller_BaseDamage, Damage);
-		ApplyGameplayEffectSpecToTarget(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, EffectSpecHandle, TargetDataHandle);
+			EffectSpecHandle.Data->SetSetByCallerMagnitude(A1GameplayTags::SetByCaller_BaseDamage, Damage);
+			ApplyGameplayEffectSpecToTarget(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, EffectSpecHandle, TargetDataHandle);
+		}
 	}
 }
 

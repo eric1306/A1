@@ -6,6 +6,7 @@
 #include "AbilitySystem/LyraAbilitySystemComponent.h"
 #include "Actors/A1EquipmentBase.h"
 #include "AbilitySystemBlueprintLibrary.h"
+#include "Data/A1AbilityData.h"
 #include "System/LyraAssetManager.h"
 #include "System/LyraGameData.h"
 
@@ -124,16 +125,19 @@ void UA1GameplayAbility_Weapon_MeleeAttack::ConsumeOxygen()
 		float Oxygen = GetEquipmentStatValue(A1GameplayTags::SetByCaller_BaseOxygen, WeaponActor);
 		FGameplayAbilityTargetDataHandle TargetDataHandle = UAbilitySystemBlueprintLibrary::AbilityTargetDataFromActor(SourceASC->AbilityActorInfo->AvatarActor.Get());
 
-		const TSubclassOf<UGameplayEffect> OxygenGE = ULyraAssetManager::GetSubclassByPath(ULyraGameData::Get().ConsumeOxygenByWeapon_SetByCaller);
-		FGameplayEffectSpecHandle OxygenEffectSpecHandle = MakeOutgoingGameplayEffectSpec(OxygenGE);
-		OxygenEffectSpecHandle.Data->SetContext(EffectContextHandle);
-
-		if (OxygenEffectSpecHandle.IsValid())
+		const TSubclassOf<UGameplayEffect> OxygenGE = UA1AbilityData::Get().GetGameplayEffect("GE_ConsumeOxygenByAttack");
+		if (OxygenGE)
 		{
-			// 무기에 희귀도에 따른 대미지 차별화			
-			OxygenEffectSpecHandle.Data->SetSetByCallerMagnitude(A1GameplayTags::SetByCaller_BaseOxygen, Oxygen);
-			float DamageSet = OxygenEffectSpecHandle.Data->GetSetByCallerMagnitude(A1GameplayTags::SetByCaller_BaseOxygen, false);
-			ApplyGameplayEffectSpecToTarget(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, OxygenEffectSpecHandle, TargetDataHandle);
+			FGameplayEffectSpecHandle OxygenEffectSpecHandle = MakeOutgoingGameplayEffectSpec(OxygenGE);
+			OxygenEffectSpecHandle.Data->SetContext(EffectContextHandle);
+
+			if (OxygenEffectSpecHandle.IsValid())
+			{
+				// 무기에 희귀도에 따른 대미지 차별화			
+				OxygenEffectSpecHandle.Data->SetSetByCallerMagnitude(A1GameplayTags::SetByCaller_BaseOxygen, Oxygen);
+				float DamageSet = OxygenEffectSpecHandle.Data->GetSetByCallerMagnitude(A1GameplayTags::SetByCaller_BaseOxygen, false);
+				ApplyGameplayEffectSpecToTarget(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, OxygenEffectSpecHandle, TargetDataHandle);
+			}
 		}
 	}
 }

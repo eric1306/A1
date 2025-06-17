@@ -20,6 +20,7 @@ class UA1UIData;
 class UA1NoticeData;
 class UA1GuideData;
 class UA1CmdData;
+class UA1AbilityData;
 
 struct FLyraBundles
 {
@@ -71,6 +72,7 @@ public:
 	const UA1NoticeData& GetNoticeData();
 	const UA1GuideData& GetGuideData();
 	const UA1CmdData& GetCmdData();
+	const UA1AbilityData& GetAbilityData();
 	
 protected:
 	template <typename GameDataClass>
@@ -137,6 +139,9 @@ protected:
 
 	UPROPERTY(Config)
 	TSoftObjectPtr<UA1CmdData> CmdDataPath;
+
+	UPROPERTY(Config)
+	TSoftObjectPtr<UA1AbilityData> AbilityDataPath;
 
 private:
 	// Flushes the StartupJobs array. Processes all startup work.

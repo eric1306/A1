@@ -42,7 +42,7 @@ public:
 
 };
 
-UCLASS(BlueprintType)
+UCLASS(BlueprintType, Const, meta = (DisplayName = "A1 Character Data"))
 class A1GAME_API UA1CharacterData : public UPrimaryDataAsset
 {
 	GENERATED_BODY()
