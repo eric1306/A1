@@ -160,6 +160,8 @@ public:
 
     UFUNCTION(BlueprintCallable, Category = "Spaceship|GameState", BlueprintAuthorityOnly)
     void SetMeetRescueShip(bool bMeetRescue);
+    UFUNCTION()
+    void CheckTwoDaysAgo(int32 NewDay);
 
 protected:
     UFUNCTION(BlueprintCallable, Category = "Spaceship|Components")
@@ -167,9 +169,6 @@ protected:
 
     UFUNCTION(BlueprintCallable, Category = "Spaceship|Components")
     void FindComponentsByTags();
-
-    UFUNCTION()
-    void CheckRepairFixRate(const FA1ScoreData& FinalScore);
 
 public:
     //Fuel Change Delegate
@@ -251,6 +250,12 @@ protected:
 
     UPROPERTY(VisibleAnywhere, Category = "Spaceship|RepairBase")
     TArray<AA1RepairBase*> CachedRepairs;
+
+    UPROPERTY(VisibleAnywhere, Category = "Spaceship|RepairBase")
+    TArray<AA1RepairBase*> CachedNonBrokenRepairs;
+
+    UPROPERTY()
+    int32 CurrentDay = 1;
 
 private:
     FTimerHandle FuelConsumeTimer;

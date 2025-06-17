@@ -45,6 +45,19 @@ void AA1RepairBase::GetMeshComponents(TArray<UMeshComponent*>& OutMeshComponents
 void AA1RepairBase::SetCurrentState(RepairState InState)
 {
 	CurrentState = InState;
+
+	if (CurrentState == RepairState::Break)
+	{
+		SetSpriteBreak();
+	}
+	else if (CurrentState == RepairState::NotBroken)
+	{
+		SetSpriteNotBroken();
+	}
+	else //Complete
+	{
+		SetSpriteComplete();
+	}
 }
 
 void AA1RepairBase::OnRepairChanged()

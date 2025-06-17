@@ -41,6 +41,13 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void OnRepairChanged();
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void SetSpriteNotBroken();
+	UFUNCTION(BlueprintImplementableEvent)
+	void SetSpriteBreak();
+	UFUNCTION(BlueprintImplementableEvent)
+	void SetSpriteComplete();
 public:
 	UPROPERTY(BlueprintAssignable)
 	FOnRepairStateChanged OnRepairStateChanged;
