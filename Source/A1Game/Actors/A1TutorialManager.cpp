@@ -364,7 +364,7 @@ void AA1TutorialManager::DoHighlightActors(const FString& Params)
                     //오버랩 검사 활성화
                     Repair->ActivateCheckOverlap();
 
-                    Repair->SetCurrentState(RepairState::Complete);
+                    Repair->SetCurrentState(RepairState::Break);
                     UE_LOG(LogA1, Log, TEXT("Set Repair State Complete"));
                     
                     // 액터 하이라이트 적용
