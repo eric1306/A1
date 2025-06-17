@@ -43,9 +43,9 @@ void UA1OxygenExecution::Execute_Implementation(const FGameplayEffectCustomExecu
     float CurrentOxygen = 0.0f;
     ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(OxygenStatics().OxygenDef, EvaluateParameters, CurrentOxygen);
 
-    // 5초마다 Hunger 감소
+    // 5초마다 Oxygen 감소
     OutExecutionOutput.AddOutputModifier(
-        FGameplayModifierEvaluatedData(UA1CharacterAttributeSet::GetOxygenAttribute(), EGameplayModOp::Additive, -1.f));
+        FGameplayModifierEvaluatedData(UA1CharacterAttributeSet::GetOxygenAttribute(), EGameplayModOp::Additive, -2.f));
 
     // Oxygen이 0 이하면 hp감소, weight 증가
     if (CurrentOxygen <= 0.0f)

@@ -25,4 +25,11 @@ protected:
 
 private:
 	FTimerHandle LoopHandle;
+
+protected:
+	UPROPERTY()
+	UAudioComponent* LoopingAudioComponent;
+
+	UPROPERTY(EditAnywhere)
+	USoundBase* SpraySound;
 };

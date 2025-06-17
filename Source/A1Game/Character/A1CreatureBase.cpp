@@ -4,6 +4,7 @@
 #include "Character/A1CreatureBase.h"
 #include "AbilitySystemComponent.h"
 #include "Controller/Player/A1PlayerState.h"
+#include "Kismet/GameplayStatics.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(A1CreatureBase)
@@ -33,6 +34,8 @@ void AA1CreatureBase::SetDead()
 	if (DeadMontage)
 	{
 		GetMesh()->PlayAnimation(DeadMontage, false);
+		if (DeathSound)
+			UGameplayStatics::SpawnSoundAttached(DeathSound, GetRootComponent());
 	}
 	SetActorEnableCollision(false);
 }

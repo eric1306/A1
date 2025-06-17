@@ -11,6 +11,8 @@
 #include "Physics/LyraCollisionChannels.h"
 #include "System/LyraAssetManager.h"
 #include "Kismet/KismetSystemLibrary.h"
+#include "Kismet/GameplayStatics.h"
+#include "Components/AudioComponent.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(A1GameplayAbility_Utility_Spray)
 
@@ -31,6 +33,23 @@ void UA1GameplayAbility_Utility_Spray::ActivateAbility(const FGameplayAbilitySpe
 		InputReleaseTask->ReadyForActivation();
 	}
 
+	if (SpraySound)
+	{
+		LoopingAudioComponent = UGameplayStatics::SpawnSoundAttached(
+			SpraySound,
+			GetAvatarActorFromActorInfo()->GetRootComponent(),
+			NAME_None,
+			FVector::ZeroVector,
+			EAttachLocation::KeepRelativeOffset,
+			true  // Looping
+		);
+
+		if (LoopingAudioComponent)
+		{
+			LoopingAudioComponent->bIsUISound = false;
+		}
+	}
+
 	if (HasAuthority(&CurrentActivationInfo))
 	{
 		GetWorld()->GetTimerManager().SetTimer(LoopHandle, this, &UA1GameplayAbility_Utility_Spray::TrySprayFoam, 0.1f, true);
@@ -40,6 +59,11 @@ void UA1GameplayAbility_Utility_Spray::ActivateAbility(const FGameplayAbilitySpe
 void UA1GameplayAbility_Utility_Spray::OnInputReleased(float TimeHeld)
 {
 	GetWorld()->GetTimerManager().ClearTimer(LoopHandle);
+	if (LoopingAudioComponent)
+	{
+		LoopingAudioComponent->Stop();
+		LoopingAudioComponent = nullptr;
+	}
 	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
 }
 
@@ -83,7 +107,7 @@ void UA1GameplayAbility_Utility_Spray::TrySprayFoam()
 		{
 			float rate = HitResult.GetActor()->GetActorScale3D().X;
 			if(rate <=0.5)
-				HitResult.GetActor()->SetActorScale3D(HitResult.GetActor()->GetActorScale3D() * 1.1f);
+				HitResult.GetActor()->SetActorScale3D(HitResult.GetActor()->GetActorScale3D() * 1.2f);
 		}
 		else
 		{
