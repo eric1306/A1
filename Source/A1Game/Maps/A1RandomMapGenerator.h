@@ -230,6 +230,9 @@ protected:
     UPROPERTY(VisibleAnywhere)
     TObjectPtr<AA1DayNightManager> DayNightManager;
 
+    UPROPERTY(EditDefaultsOnly)
+    TSubclassOf<AActor> PlundererSpawnClass;
+
 private:
     FTimerHandle GenerateTimer;
     FTimerHandle RepairTimer;

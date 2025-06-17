@@ -401,6 +401,14 @@ void AA1RandomMapGenerator::Server_SpawnNextRoom_Implementation()
             *printlog, *SpawnedActor->GetName());
     }
 
+    if (MaxRoomAmount == RoomAmount + 1)
+    {
+        if(AA1RaiderRoom* Raider = Cast<AA1RaiderRoom>(SpawnedActor))
+        {
+            Raider->SpawnPlundererSpawner();
+        }
+    }
+
     FTimerHandle TimerHandle;
     GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &AA1RandomMapGenerator::Server_CheckForOverlap, 0.1f, false);
 }
@@ -637,6 +645,14 @@ void AA1RandomMapGenerator::Server_ResetMap_Implementation()
         else
             Multicast_StopSiren();
     }
+
+    AActor* Actor = UGameplayStatics::GetActorOfClass(GetWorld(), PlundererSpawnClass);
+    if (Actor)
+    {
+        UE_LOG(LogA1, Log, TEXT("Actor Name: %s"), *Actor->GetName());
+        Actor->Destroy();
+    }
+    
 
     Multicast_StopSiren();
 }
