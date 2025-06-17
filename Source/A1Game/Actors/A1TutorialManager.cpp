@@ -8,6 +8,8 @@
 #include "A1GameplayTags.h"
 #include "A1LogChannels.h"
 #include "A1RepairBase.h"
+#include "A1StorageBase.h"
+#include "A1StorageEntryBase.h"
 #include "MediaPlayer.h"
 #include "GameFramework/GameplayMessageSubsystem.h"
 #include "GameModes/LyraGameMode.h"
@@ -206,6 +208,19 @@ void AA1TutorialManager::SendUIMessage(FText Title, FText Content)
     MessageSystem.BroadcastMessage(A1GameplayTags::Message_Tutorial_Notice, Message);
 }
 
+void AA1TutorialManager::OnItemFill(AA1EquipmentBase* CachedItem)
+{
+    bool bResult = CachedItem->GetName().Contains(TEXT("FoamGun")) || CachedItem->GetName().Contains(TEXT("OneHandSword"))|| CachedItem->GetName().Contains(TEXT("FlashLight"));
+    if (bResult)
+    {
+        ItemStoredCount++;
+    }
+    if (ItemStoredCount == 3)
+    {
+        NextStep();
+    }
+}
+
 void AA1TutorialManager::ExecuteAction(ETutorialActionType ActionType, const FString& Params)
 {
     switch (ActionType)
@@ -215,6 +230,7 @@ void AA1TutorialManager::ExecuteAction(ETutorialActionType ActionType, const FSt
     case ETutorialActionType::HighlightActors:  DoHighlightActors(Params); break;
     case ETutorialActionType::SpawnEffects:     DoSpawnEffects(Params); break;
     case ETutorialActionType::PlaySound:        DoPlaySound(Params); break;
+    case ETutorialActionType::CheckStorage:     DoCheckStorage(Params); break;
     case ETutorialActionType::WaitForCondition: DoWaitForCondition(Params); break;
     case ETutorialActionType::ChangeLevel:      DoChangeLevel(Params); break;
     case ETutorialActionType::FadeScreen:       DoFadeScreen(Params); break;
@@ -231,7 +247,8 @@ void AA1TutorialManager::ChangeTutorialStep(ETutorialStep CurrentStep)
     case ETutorialStep::VideoPlayBack: SetTutorialStep(ETutorialStep::CarryItems); break;
     case ETutorialStep::CarryItems: SetTutorialStep(ETutorialStep::Emergency); break;
     case ETutorialStep::Emergency: SetTutorialStep(ETutorialStep::Repair); break;
-    case ETutorialStep::Repair: SetTutorialStep(ETutorialStep::Collapse); break;
+    case ETutorialStep::Repair: SetTutorialStep(ETutorialStep::Store); break;
+    case ETutorialStep::Store: SetTutorialStep(ETutorialStep::Collapse); break;
     case ETutorialStep::Collapse: SetTutorialStep(ETutorialStep::End); break;
     }
 
@@ -394,6 +411,61 @@ void AA1TutorialManager::DoPlaySound(const FString& Params)
 {
     // 파라미터: "Sound=/Game/Audio/Alarm;Volume=1.0;Loop=true"
     UE_LOG(LogA1System, Log, TEXT("Playing sound: %s"), *Params);
+}
+
+void AA1TutorialManager::DoCheckStorage(const FString& Params)
+{
+    TArray<AActor*> Results;
+    UGameplayStatics::GetAllActorsOfClass(GetWorld(), AA1StorageEntryBase::StaticClass(), OUT Results);
+    if (Results.Num() > 0)
+    {
+	    for (auto Result : Results)
+	    {
+		    if (AA1StorageEntryBase* Entry = Cast<AA1StorageEntryBase>(Result))
+		    {
+                if (Entry->GetItem()!=nullptr)
+                {
+                    bool bResult = Entry->GetItem()->GetName().Contains(TEXT("FoamGun")) || Entry->GetItem()->GetName().Contains(TEXT("OneHandSword")) || Entry->GetItem()->GetName().Contains(TEXT("FlashLight"));
+                    ItemStoredCount++;
+
+                    ETutorialActionType ActionType = StepDataArray[CurrentStepIndex]->Actions[0];
+                    FString Params = StepDataArray[CurrentStepIndex]->ActionParams.FindRef(ActionType);
+
+                    FText Title;
+                    FText Content;
+                    TArray<FString> ParamPairs;
+                    Params.ParseIntoArray(ParamPairs, TEXT(";"));
+
+                    for (const FString& Pair : ParamPairs)
+                    {
+                        FString Key, Value;
+                        if (Pair.Split(TEXT("="), &Key, &Value))
+                        {
+                            if (Key == TEXT("Title"))
+                            {
+                                Title = FText::FromString(Value);
+                            }
+                            else if (Key == TEXT("Content"))
+                            {
+                                Content = FText::FromString(FString::Printf(TEXT("%s %d/3"), *Value, ItemStoredCount));
+                            }
+                        }
+                    }
+
+                    SendUIMessage(Title, Content);
+                }
+                else
+                {
+                    Entry->OnItemEntryStateChanged.AddDynamic(this, &AA1TutorialManager::OnItemFill);
+                }
+		    }
+	    }
+    }
+
+    if (ItemStoredCount == 3)
+    {
+        NextStep();
+    }
 }
 
 void AA1TutorialManager::DoWaitForCondition(const FString& Params)

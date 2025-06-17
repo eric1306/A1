@@ -5,6 +5,9 @@
 #include "Interaction/A1WorldInteractable.h"
 #include "A1StorageEntryBase.generated.h"
 
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnItemEntryStateChanged, AA1EquipmentBase*, CachedItem);
+
 enum class EEquipmentSlotType : uint8;
 enum class EItemRarity : uint8;
 class UArrowComponent;
@@ -42,10 +45,13 @@ public:
 	UFUNCTION()
 	void SetItemOutput();
 
+	void SpawnItem(int32 TemplateID);
+
 	FORCEINLINE EItemEntryState GetItemEntryState() const { return ItemState; }
 	FORCEINLINE void SetItemEntryState(EItemEntryState InItemState) { ItemState = InItemState; }
 	FORCEINLINE AA1EquipmentBase* GetItem() { return CachedItem; }
 
+	FOnItemEntryStateChanged OnItemEntryStateChanged;
 protected:
 	//필요한 기능
 	/*

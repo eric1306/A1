@@ -38,6 +38,8 @@ public:
 	bool RemoveItem(AA1RaiderBase* InstigatorActor);
 	bool EntryIsEmpty();
 
+	void SpawnDefaultItems();
+
 protected:
 	void SetupTags();
 

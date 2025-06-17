@@ -7,6 +7,7 @@
 #include "Components/ArrowComponent.h"
 #include "Components/BoxComponent.h"
 #include "Data/A1ItemData.h"
+#include "Item/A1ItemInstance.h"
 #include "Item/A1ItemTemplate.h"
 #include "Item/Fragments/A1ItemFragment_Equipable_Attachment.h"
 #include "Net/UnrealNetwork.h"
@@ -87,6 +88,7 @@ void AA1StorageEntryBase::SetItemInput()
 	UE_LOG(LogTemp, Log, TEXT("[AA1StorageEntryBase] Item Detected!"));
 	ItemState = EItemEntryState::Exist;
 	UA1ScoreBlueprintFunctionLibrary::SetStorageItems(UA1ScoreBlueprintFunctionLibrary::GetStorageItems() + 1);
+	OnItemEntryStateChanged.Broadcast(CachedItem);
 }
 
 void AA1StorageEntryBase::SetItemOutput()
@@ -95,4 +97,14 @@ void AA1StorageEntryBase::SetItemOutput()
 	CachedItem = nullptr;
 	ItemState = EItemEntryState::None;
 	UA1ScoreBlueprintFunctionLibrary::SetStorageItems(UA1ScoreBlueprintFunctionLibrary::GetStorageItems() - 1);
+}
+
+void AA1StorageEntryBase::SpawnItem(int32 TemplateID)
+{
+	const UA1ItemTemplate& ItemTemplateClass = UA1ItemData::Get().FindItemTemplateByID(TemplateID);
+	UA1ItemInstance* AddedItemInstance = NewObject<UA1ItemInstance>();
+	AddedItemInstance->Init(TemplateID, EItemRarity::Poor);
+	const UA1ItemFragment_Equipable_Attachment* AttachmentFragment = AddedItemInstance->FindFragmentByClass<UA1ItemFragment_Equipable_Attachment>();
+
+	SetItemTransform(TemplateID, EItemRarity::Poor, AttachmentFragment->ItemHandType);
 }

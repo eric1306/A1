@@ -7,6 +7,7 @@
 #include "GameFramework/Actor.h"
 #include "A1TutorialManager.generated.h"
 
+class AA1EquipmentBase;
 class UMediaSource;
 class UMediaPlayer;
 class UA1TutorialHelperWidget;
@@ -37,6 +38,7 @@ enum class ETutorialActionType : uint8
     HighlightActors,    // 액터들 하이라이트
     SpawnEffects,       // 이펙트 스폰
     PlaySound,          // 사운드 재생
+    CheckStorage,       // 창고에 아이템 유무 검사
     WaitForCondition,   // 조건 대기
     ChangeLevel,        // 레벨 변경
     FadeScreen,         // 화면 페이드
@@ -51,6 +53,7 @@ enum class ETutorialStep : uint8
     CarryItems,         //아이템 옮기기
     Emergency,          //비상 사태
     Repair,             //수리
+    Store,              //창고에 아이템 저장
     Escape,             //탈출
     Collapse,           //붕괴
     End                 //튜토리얼 종료
@@ -138,6 +141,9 @@ public:
     UFUNCTION(BlueprintCallable)
     FORCEINLINE ALyraPlayerController* GetPlayerController() { return PlayerController; }
 
+    UFUNCTION()
+    void OnItemFill(AA1EquipmentBase* CachedItem);
+
 protected:
     // 액션 실행 함수들 - 각 액션 타입별 처리
     void ExecuteAction(ETutorialActionType ActionType, const FString& Params);
@@ -149,6 +155,7 @@ protected:
     void DoHighlightActors(const FString& Params);
     void DoSpawnEffects(const FString& Params);
     void DoPlaySound(const FString& Params);
+    void DoCheckStorage(const FString& Params);
     void DoWaitForCondition(const FString& Params);
     void DoChangeLevel(const FString& Params);
     UFUNCTION(BlueprintImplementableEvent)
@@ -209,6 +216,7 @@ protected:
 
     uint32 ItemCount = 0;
     uint32 RepairCount = 0;
+    int32 ItemStoredCount = 0;
 
     // 런타임 데이터
     TArray<FA1TutorialStepData*> StepDataArray;

@@ -6,6 +6,7 @@
 #include "A1LogChannels.h"
 #include "A1ScoreBlueprintFunctionLibrary.h"
 #include "A1ScoreSaveGame.h"
+#include "Actors/A1TutorialManager.h"
 #include "Kismet/GameplayStatics.h"
 
 UA1ScoreManager* UA1ScoreManager::Instance = nullptr;
@@ -47,6 +48,8 @@ void UA1ScoreManager::EndGame(EGameEndReason EndReason)
 
 	// 이벤트 브로드캐스트
 	OnGameEnded.Broadcast(CurrentGameScore);
+
+	SetDoTutorial(false);
 
 	UE_LOG(LogA1ScoreSystem, Log, TEXT("[ScoreManager] Game %d ended. Final score: %d"), CurrentGameScore.GameNumber, CurrentGameScore.TotalScore);
 	UE_LOG(LogA1ScoreSystem, Log, TEXT("[ScoreManager] Score breakdown: %s"), *CurrentGameScore.GetScoreBreakdown());
@@ -228,4 +231,10 @@ FString UA1ScoreManager::GetCurrentScoreBreakdown() const
 	FA1ScoreData TempScore = CurrentGameScore;
 	TempScore.CalculateScore();
 	return TempScore.GetScoreBreakdown();
+}
+
+void UA1ScoreManager::SetDoTutorial(bool InDoTutorial)
+{
+	 bDoTutorial = InDoTutorial;
+	 UE_LOG(LogA1ScoreSystem, Log, TEXT("Set Do Tutoiral: %s"), bDoTutorial ? TEXT("True") : TEXT("False"));
 }
