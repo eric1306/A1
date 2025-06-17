@@ -55,6 +55,7 @@ public:
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnGameEndEvent, EGameEndState, EndState);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnFuelChanged, float, NewFuelAmount);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnDeactivateMap);
 
 UCLASS()
 class AA1SpaceshipBase : public AActor
@@ -177,6 +178,9 @@ public:
 
     UPROPERTY(BlueprintAssignable, Category = "Spaceship|GameState")
     FOnGameEndEvent OnGameEndEvent;
+
+    UPROPERTY(BlueprintAssignable, Category = "Spaceship|DeactivateSpace")
+    FOnDeactivateMap OnDeactivateMap;
 
 protected:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spaceship|Fuel")

@@ -90,7 +90,7 @@ void UA1GameplayAbility_Interact_Bed::ActivateAbility(const FGameplayAbilitySpec
         FTransform BedTransform = BedActor->GetLayDownTransform();
         LyraCharacter->SetActorTransform(BedTransform);
 
-        //TODO eric1306: fuck why rotation?
+        //TODO eric1306: why rotation?
 
         //Temp Code eric1306: Character get BedActor's Transform -> Set Character Scale
         LyraCharacter->SetActorScale3D(FVector(1.f, 1.f, 1.f));

@@ -77,6 +77,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void RemoveChest();
 
+	UFUNCTION(BlueprintImplementableEvent)
+	void SpawnPlundererSpawner();
+
 private:
 
 	// 큐에 추가하는 헬퍼 함수들

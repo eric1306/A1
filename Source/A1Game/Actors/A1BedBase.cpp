@@ -24,8 +24,8 @@ AA1BedBase::AA1BedBase(const FObjectInitializer& ObjectInitializer) : Super(Obje
 	MeshComponent->SetCollisionProfileName(TEXT("Interactable"));
 	MeshComponent->SetCanEverAffectNavigation(true);
 
-	MaxLyingTimeRate = 8.f; //TODO eric1306 -> Original Value : 300.f(5 minute)
-	DecreaseWeightTimeRate = 3.f; //TODO eric1306 -> Original Value : 30.f(30 second)
+	MaxLyingTimeRate = 300.f; //TODO eric1306 -> Original Value : 300.f(5 minute)
+	DecreaseWeightTimeRate = 30.f; //TODO eric1306 -> Original Value : 30.f(30 second)
 }
 
 void AA1BedBase::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const

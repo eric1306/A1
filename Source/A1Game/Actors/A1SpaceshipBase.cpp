@@ -209,6 +209,12 @@ void AA1SpaceshipBase::CheckTwoDaysAgo(int32 NewDay)
 		UE_LOG(LogA1, Log, TEXT("[AA1Spaceship] %s Changed to break!"), *CachedNonBrokenRepairs[idx]->GetName());
 		CachedNonBrokenRepairs.RemoveAt(idx);
 		CurrentDay = NewDay;
+
+		//Game Over if all repair base activate
+		if (CachedNonBrokenRepairs.Num() == 0)
+		{
+			HandleGameOver();
+		}
 	}
 }
 
@@ -468,6 +474,7 @@ void AA1SpaceshipBase::DeactivateExternalMap()
 			break;
 		}
 	}
+	OnDeactivateMap.Broadcast();
 }
 
 bool AA1SpaceshipBase::IsGameOver() const
