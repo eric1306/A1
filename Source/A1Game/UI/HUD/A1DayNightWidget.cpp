@@ -6,36 +6,32 @@
 #include "Actors/A1DayNightManager.h"
 #include "Components/Image.h"
 #include "Components/TextBlock.h"
+#include "Kismet/GameplayStatics.h"
 
 void UA1DayNightWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
 
 	//Get DayNightManager Reference
-	DayNightManager = AA1DayNightManager::Get(GetWorld());
+	AActor* Actor = UGameplayStatics::GetActorOfClass(GetWorld(), AA1DayNightManager::StaticClass());
+	if (AA1DayNightManager* DayNight = Cast<AA1DayNightManager>(Actor))
+	{
+		DayNightManager = DayNight;
+	}
 
 	if (DayNightManager)
 	{
-		if (!DayNightManager->OnDayPhaseChanged.IsBound())
-        {
-            DayNightManager->OnDayPhaseChanged.AddDynamic(this, &UA1DayNightWidget::OnDayPhaseChanged);
-        }
-        
-        if (!DayNightManager->OnDayChanged.IsBound())
-        {
-            DayNightManager->OnDayChanged.AddDynamic(this, &UA1DayNightWidget::OnDayChanged);
-        }
-        
-        if (!DayNightManager->OnTimeChanged.IsBound())
-        {
-            DayNightManager->OnTimeChanged.AddDynamic(this, &UA1DayNightWidget::OnTimeChanged);
-        }
+		DayNightManager->OnDayPhaseChanged.AddDynamic(this, &UA1DayNightWidget::OnDayPhaseChanged);
+        DayNightManager->OnDayChanged.AddDynamic(this, &UA1DayNightWidget::OnDayChanged);
+		DayNightManager->OnTimeChanged.AddDynamic(this, &UA1DayNightWidget::OnTimeChanged);
 
 		//초기 UI 설정
 		UpdateUI();
 		UpdateTimeDisplay(12, 0);
 		Text_Time->SetColorAndOpacity(FSlateColor(FLinearColor::White));
 	}
+
+	
 }
 
 void UA1DayNightWidget::NativeDestruct()
@@ -47,6 +43,7 @@ void UA1DayNightWidget::NativeDestruct()
 		DayNightManager->OnDayChanged.Clear();
 		DayNightManager->OnTimeChanged.Clear();
 	}
+
 
 	Super::NativeDestruct();
 }
@@ -68,8 +65,6 @@ void UA1DayNightWidget::OnTimeChanged(int32 Hour, int32 Minute)
 
 void UA1DayNightWidget::UpdateUI()
 {
-	if (!DayNightManager)
-		return;
 
 	//Update Text
 	if (DayCount)

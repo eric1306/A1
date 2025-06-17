@@ -77,7 +77,9 @@ bool AA1StorageBase::RemoveItem(AA1RaiderBase* InstigatorActor)
         {
             AA1StorageEntryBase* ItemEntry = StorageEntries[i];
             if (ItemEntry->GetItemEntryState() == EItemEntryState::None)
+            {
                 continue;
+            }
             else
             {
                 TWeakObjectPtr<AA1EquipmentBase> Item = ItemEntry->GetItem();
@@ -109,6 +111,13 @@ bool AA1StorageBase::EntryIsEmpty()
         }
     }
     return true;
+}
+
+void AA1StorageBase::SpawnDefaultItems()
+{
+    // TODO eric1306: Gae Ship ship HardCoding
+    StorageEntries[14].Get()->SpawnItem(2004);
+    StorageEntries[15].Get()->SpawnItem(1000);
 }
 
 void AA1StorageBase::SetupTags()

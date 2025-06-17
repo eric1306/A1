@@ -109,6 +109,11 @@ public:
     UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Score")
     FString GetCurrentScoreBreakdown() const;
 
+    bool GetDoTutorial() const { return bDoTutorial; }
+
+    UFUNCTION(BlueprintCallable)
+    void SetDoTutorial(bool InDoTutorial);
+
 protected:
     // 현재 게임 세션 점수
     UPROPERTY(BlueprintReadOnly, Category = "Score")
@@ -122,4 +127,6 @@ private:
     static UA1ScoreManager* Instance;
 
     static const FString SaveSlotName;
+
+    bool bDoTutorial = false;
 };

@@ -49,12 +49,12 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "DayNight|Icon UI")
 	TObjectPtr<UTexture2D> NightIcon;
 
-	UPROPERTY()
-	AA1DayNightManager* DayNightManager;
-
 	// 시간 표시 텍스트
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UTextBlock> Text_Time;
+
+	UPROPERTY(VisibleAnywhere)
+	TObjectPtr<AA1DayNightManager> DayNightManager;
 
 	// 시간 표시 형식 (12시간/24시간)
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "DayNight UI")
