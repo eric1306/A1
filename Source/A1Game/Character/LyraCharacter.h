@@ -32,6 +32,7 @@ struct FGameplayTagContainer;
 class UA1CharacterAttributeSet;
 
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnNotice, FText);
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnGunEquipped, int);
 
 /**
  * FLyraReplicatedAcceleration: Compressed representation of acceleration
@@ -252,6 +253,7 @@ protected:
 	void HandleChangeOfWeight(const FOnAttributeChangeData& ChangeData);
 	void HandleOutOfHealth(AActor* InActor, float OldValue, float NewValue);
 public:
+	UFUNCTION(BlueprintCallable)
 	void HandleNoticeWarning(FName Label, int index);
 	
 	UPROPERTY()
@@ -272,8 +274,11 @@ public:
 	UPROPERTY(EditAnywhere, Category = Stat, Meta = (AllowPrivateAccess = "true"))
 	TArray<TSubclassOf<UGameplayEffect>> StatEffects;
 
+	int bullets = 0;
+
 public:
 	FOnNotice OnNotice;
+	FOnGunEquipped OnGunEquipped;
 
 	/* ---------------------
 	*	   TEMP Space

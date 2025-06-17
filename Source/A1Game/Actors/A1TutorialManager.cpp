@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2025 THIS-ACCENT. All Rights Reserved.
+// Copyright (c) 2025 THIS-ACCENT. All Rights Reserved.
 
 
 #include "Actors/A1TutorialManager.h"
@@ -244,7 +244,12 @@ void AA1TutorialManager::DoPlayVideo(const FString& Params)
     // Param : "VideoPath=/Game/Videos/Briefing.mp4;AutoProgress=true"
     UE_LOG(LogA1System, Log, TEXT("Playing video with params: %s"), *Params);
 
-    OpenWidget();
+    UIWidget = CreateWidget<UA1ActivatableWidget>(PlayerController, UIWidgetClass);
+
+    if (UIWidget)
+    {
+        OpenWidget();
+    }
     NextStep();
 }
 

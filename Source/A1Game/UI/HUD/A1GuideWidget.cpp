@@ -68,7 +68,7 @@ void UA1GuideWidget::TryInitPawn()
 void UA1GuideWidget::OnEquipmentEntryChanged(EEquipmentSlotType EquipmentSlotType, UA1ItemInstance* ItemInstance, int32 ItemCount)
 {
 	EMainHandState CurrentMainHand = EquipManager->GetCurrentMainHand();
-	if (EquipmentSlotType != EquipManager->ConvertToEquipmentSlotType(CurrentMainHand))
+	if (EquipmentSlotType!=EEquipmentSlotType::TwoHand && EquipmentSlotType != EquipManager->ConvertToEquipmentSlotType(CurrentMainHand))
 		return;
 
 	RenewGuide(ItemInstance);

@@ -29,15 +29,18 @@ private:
 	void OnEquipmentEntryChanged(EEquipmentSlotType EquipmentSlotType, UA1ItemInstance* ItemInstance, int32 ItemCount);
 	void OnMainHandChanged(EMainHandState NewEquipState);
 	void TryInitPawn();
+	void DisplayBullet(int count);
 	
 public:
 	EMainHandState ChoosedItemSlot = EMainHandState::Count;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TArray<TObjectPtr<UImage>> Bullets;
 
 private:
 	UPROPERTY(meta=(BindWidget))
 	TObjectPtr<UCommonVisibilitySwitcher> Switcher_Slots;
 
-private:
 	UPROPERTY(meta=(BindWidget))
 	TObjectPtr<UImage> Image_SlotBothHand;
 
@@ -52,6 +55,8 @@ private:
 
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UImage> Image_OverlayRight;
+
+
 
 //private:
 //	UPROPERTY(meta=(BindWidgetAnim), Transient)

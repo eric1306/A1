@@ -2,6 +2,7 @@
 
 #include "CommonVisibilitySwitcher.h"
 #include "Animation/UMGSequencePlayer.h"
+#include "Actors/A1GunBase.h"
 #include "Character/LyraCharacter.h"
 #include "Components/Image.h"
 #include "Components/TextBlock.h"
@@ -35,6 +36,9 @@ void UA1WeaponSlotWidget::TryInitPawn()
 	ALyraCharacter* LyraCharacter = Cast<ALyraCharacter>(GetOwningPlayerPawn());
 	if (LyraCharacter != nullptr)
 	{
+		LyraCharacter->OnGunEquipped.AddUObject(this, &ThisClass::DisplayBullet);
+		DisplayBullet(LyraCharacter->bullets);
+
 		EquipManager = LyraCharacter->GetComponentByClass<UA1EquipManagerComponent>();
 		EquipmentManager = LyraCharacter->GetComponentByClass<UA1EquipmentManagerComponent>();
 		if (EquipManager == nullptr || EquipmentManager == nullptr)
@@ -61,6 +65,17 @@ void UA1WeaponSlotWidget::TryInitPawn()
 	else
 	{
 		GetWorld()->GetTimerManager().SetTimerForNextTick(this, &UA1WeaponSlotWidget::TryInitPawn);
+	}
+}
+
+void UA1WeaponSlotWidget::DisplayBullet(int count)
+{
+	for (int i = 0; i < 6; i++)
+	{
+		if(i<count)
+			Bullets[i]->SetVisibility(ESlateVisibility::Visible);
+		else
+			Bullets[i]->SetVisibility(ESlateVisibility::Hidden);
 	}
 }
 
