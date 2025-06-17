@@ -52,6 +52,8 @@ void AA1SpaceshipBase::BeginPlay()
 	UA1ScoreManager::Get()->OnGameEnded.AddDynamic(this, &AA1SpaceshipBase::OnStopFuelConsume);
 
 	FindAllRepairBases();
+
+	UA1ScoreManager::Get()->OnGameEnded.AddDynamic(this, &AA1SpaceshipBase::CheckRepairFixRate);
 }
 
 void AA1SpaceshipBase::Tick(float DeltaTime)
@@ -326,6 +328,26 @@ void AA1SpaceshipBase::FindComponentsByTags()
 		else if (Actor->ActorHasTag(ShipOutputTag) && !ShipOutput)
 		{
 			ShipOutput = Cast<AA1ShipOutputBase>(Actor);
+		}
+	}
+}
+
+void AA1SpaceshipBase::CheckRepairFixRate(const FA1ScoreData& FinalScore)
+{
+	for (auto it : CachedRepairs)
+	{
+		if (it->CurrentState == RepairState::NotBroken)
+		{
+			continue;
+		}
+		else if (it->CurrentState == RepairState::Break)
+		{
+			UA1ScoreManager::Get()->SetTotalRepair(UA1ScoreManager::Get()->GetTotalRepair() + 1);
+		}
+		else //Complete
+		{
+			UA1ScoreManager::Get()->SetTotalRepair(UA1ScoreManager::Get()->GetTotalRepair() + 1);
+			UA1ScoreManager::Get()->SetCompleteRepair(UA1ScoreManager::Get()->GetCompleteRepair() + 1);
 		}
 	}
 }

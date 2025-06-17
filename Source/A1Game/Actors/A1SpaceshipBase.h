@@ -168,6 +168,9 @@ protected:
     UFUNCTION(BlueprintCallable, Category = "Spaceship|Components")
     void FindComponentsByTags();
 
+    UFUNCTION()
+    void CheckRepairFixRate(const FA1ScoreData& FinalScore);
+
 public:
     //Fuel Change Delegate
     UPROPERTY(BlueprintAssignable, Category = "Spaceship|Fuel")

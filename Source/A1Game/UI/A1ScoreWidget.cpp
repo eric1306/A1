@@ -21,7 +21,7 @@ void UA1ScoreWidget::SetEndingText()
 	int32 BonusValue = Data.bRepairedBeforeEscape ? 5000 : 0;
 	Escape->SetText(FText::FromString(IntegertoString(Escape->GetText(), BonusValue)));
 
-	Repair->SetText(FText::FromString(FloatToString(Repair->GetText(), Data.RepairRate * 10.f)));
+	Repair->SetText(FText::FromString(IntegertoString(Repair->GetText(), Data.CompleteRepair * 20)));
 
 	Fuel->SetText(FText::FromString(IntegertoString(Fuel->GetText(), (Data.RemainingFuel/1000)*100)));
 

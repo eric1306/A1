@@ -47,9 +47,6 @@ protected:
     UTextBlock* RepairScoreText;
 
     UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
-    UTextBlock* RepairDetailText;
-
-    UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
     UTextBlock* FuelScoreText;
 
     UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
