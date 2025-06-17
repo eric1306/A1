@@ -244,23 +244,8 @@ void AA1TutorialManager::DoPlayVideo(const FString& Params)
     // Param : "VideoPath=/Game/Videos/Briefing.mp4;AutoProgress=true"
     UE_LOG(LogA1System, Log, TEXT("Playing video with params: %s"), *Params);
 
-    UIWidget = CreateWidget<UA1ActivatableWidget>(PlayerController, UIWidgetClass);
-
-    if (UIWidget)
-    {
-        OpenWidget();
-        //UIWidget->AddToViewport();
-        //FInputModeUIOnly UIMode;
-        //PlayerController->SetInputMode(UIMode);
-    }
-
-    FTimerHandle TimerHandle;
-    GetWorldTimerManager().SetTimer(TimerHandle, [this]()
-        {
-            UIWidget->RemoveFromParent();
-            FInputModeGameOnly  GUMode;
-            PlayerController->SetInputMode(GUMode);
-        }, 20.f, false);
+    OpenWidget();
+    NextStep();
 }
 
 void AA1TutorialManager::DoShowMessage(const FString& Params)
