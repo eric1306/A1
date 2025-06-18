@@ -12,6 +12,7 @@
 #include "Data/A1NoticeData.h"
 #include "Data/A1GuideData.h"
 #include "Data/A1CmdData.h"
+#include "Data/A1AbilityData.h"
 #include "AbilitySystemGlobals.h"
 #include "Character/LyraPawnData.h"
 #include "Misc/App.h"
@@ -131,6 +132,7 @@ void ULyraAssetManager::StartInitialLoading()
 		STARTUP_JOB_WEIGHTED(GetNoticeData(), 25.f);
 		STARTUP_JOB_WEIGHTED(GetGuideData(), 25.f);
 		STARTUP_JOB_WEIGHTED(GetCmdData(), 25.f);
+		STARTUP_JOB_WEIGHTED(GetAbilityData(), 25.f);
 	}
 
 	// Run all the queued up startup jobs
@@ -195,6 +197,11 @@ const UA1GuideData& ULyraAssetManager::GetGuideData()
 const UA1CmdData& ULyraAssetManager::GetCmdData()
 {
 	return GetOrLoadTypedGameData<UA1CmdData>(CmdDataPath);
+}
+
+const UA1AbilityData& ULyraAssetManager::GetAbilityData()
+{
+	return GetOrLoadTypedGameData<UA1AbilityData>(AbilityDataPath);
 }
 
 UPrimaryDataAsset* ULyraAssetManager::LoadGameDataOfClass(TSubclassOf<UPrimaryDataAsset> DataClass, const TSoftObjectPtr<UPrimaryDataAsset>& DataClassPath, FPrimaryAssetType PrimaryAssetType)

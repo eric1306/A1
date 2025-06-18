@@ -6,6 +6,7 @@
 #include "AbilitySystem/LyraAbilitySystemComponent.h"
 #include "Actors/A1EquipmentBase.h"
 #include "Development/A1DeveloperSettings.h"
+#include "Data/A1AbilityData.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "System/LyraAssetManager.h"
 #include "System/LyraGameData.h"
@@ -102,19 +103,22 @@ void UA1GameplayAbility_Weapon_Melee::ProcessHitResult(FHitResult HitResult, flo
 		}
 
 		FGameplayAbilityTargetDataHandle TargetDataHandle = UAbilitySystemBlueprintLibrary::AbilityTargetDataFromActor(HitResult.GetActor());
-		const TSubclassOf<UGameplayEffect> DamageGE = ULyraAssetManager::GetSubclassByPath(ULyraGameData::Get().DamageGameplayEffect_SetByCaller);
-		FGameplayEffectSpecHandle EffectSpecHandle = MakeOutgoingGameplayEffectSpec(DamageGE);
-		
-		FGameplayEffectContextHandle EffectContextHandle = SourceASC->MakeEffectContext();
-		HitResult.bBlockingHit = bBlockingHit;
-		EffectContextHandle.AddHitResult(HitResult);
-		EffectContextHandle.AddInstigator(SourceASC->AbilityActorInfo->AvatarActor.Get(), WeaponActor);
-		EffectSpecHandle.Data->SetContext(EffectContextHandle);
-		
-		Damage = bBlockingHit ? Damage * BlockHitDamageMultiplier : Damage;
-		
-		EffectSpecHandle.Data->SetSetByCallerMagnitude(A1GameplayTags::SetByCaller_BaseDamage, Damage);
-		ApplyGameplayEffectSpecToTarget(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, EffectSpecHandle, TargetDataHandle);
+		const TSubclassOf<UGameplayEffect> DamageGE = UA1AbilityData::Get().GetGameplayEffect("Attack");
+		if (DamageGE)
+		{
+			FGameplayEffectSpecHandle EffectSpecHandle = MakeOutgoingGameplayEffectSpec(DamageGE);
+
+			FGameplayEffectContextHandle EffectContextHandle = SourceASC->MakeEffectContext();
+			HitResult.bBlockingHit = bBlockingHit;
+			EffectContextHandle.AddHitResult(HitResult);
+			EffectContextHandle.AddInstigator(SourceASC->AbilityActorInfo->AvatarActor.Get(), WeaponActor);
+			EffectSpecHandle.Data->SetContext(EffectContextHandle);
+
+			Damage = bBlockingHit ? Damage * BlockHitDamageMultiplier : Damage;
+
+			EffectSpecHandle.Data->SetSetByCallerMagnitude(A1GameplayTags::SetByCaller_BaseDamage, Damage);
+			ApplyGameplayEffectSpecToTarget(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, EffectSpecHandle, TargetDataHandle);
+		}
 	}
 	
 	DrawDebugHitPoint(HitResult);
