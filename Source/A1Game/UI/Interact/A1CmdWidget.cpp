@@ -24,6 +24,7 @@ UA1CmdWidget::UA1CmdWidget(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
     EscapeMode = false;
+    TutoMode = false; //default
 }
 
 void UA1CmdWidget::NativeConstruct()
@@ -134,11 +135,6 @@ void UA1CmdWidget::InputEnded(FText InText)
     else if (InText.ToString() == TEXT("Map"))
     {
     	MapScreen->SetVisibility(ESlateVisibility::Visible);
-        /*if (ASC)
-        {
-            FGameplayEventData Payload;
-            ASC->HandleGameplayEvent(A1GameplayTags::GameplayEvent_Cmd_Map, &Payload);
-        }*/
     }
     else
     {

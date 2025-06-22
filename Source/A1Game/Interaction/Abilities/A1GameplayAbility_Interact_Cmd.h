@@ -34,22 +34,13 @@ public:
 
 protected:
 	UFUNCTION()
-	void OpenMap(FGameplayEventData Payload);
-
-	UFUNCTION()
 	void CloseCmd(FGameplayEventData Payload);
 
 protected:
-	UPROPERTY(EditDefaultsOnly)
-	TObjectPtr<UMaterialInterface> MinimapMaterial;
-
 	UPROPERTY(BlueprintReadOnly)
 	bool bTutorialMode = false;
 
 private:
-	UPROPERTY()
-	TObjectPtr<UAbilityTask_WaitGameplayEvent> OpenMapTask;
-
 	UPROPERTY()
 	TObjectPtr<UAbilityTask_WaitGameplayEvent> ExitWidgetTask;
 };
