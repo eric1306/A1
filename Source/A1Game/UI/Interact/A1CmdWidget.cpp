@@ -14,6 +14,7 @@
 #include "Data/A1UIData.h"
 #include "EngineUtils.h"
 #include "Actors/A1TutorialManager.h"
+#include "Components/Image.h"
 #include "GameModes/LyraGameMode.h"
 #include "Kismet/GameplayStatics.h"
 #include "Score/A1ScoreBlueprintFunctionLibrary.h"
@@ -132,11 +133,12 @@ void UA1CmdWidget::InputEnded(FText InText)
     // Map Open
     else if (InText.ToString() == TEXT("Map"))
     {
-        if (ASC)
+    	MapScreen->SetVisibility(ESlateVisibility::Visible);
+        /*if (ASC)
         {
             FGameplayEventData Payload;
             ASC->HandleGameplayEvent(A1GameplayTags::GameplayEvent_Cmd_Map, &Payload);
-        }
+        }*/
     }
     else
     {
@@ -205,6 +207,7 @@ void UA1CmdWidget::InputEnded(FText InText)
         }
         else if (InText.ToString() == TEXT("Exit"))
         {
+            MapScreen->SetVisibility(ESlateVisibility::Hidden);
             DestructUI();
             if (ASC)
             {
