@@ -6,6 +6,7 @@
 #include "GameFramework/GameplayMessageSubsystem.h"
 #include "A1CmdWidget.generated.h"
 
+class UImage;
 class UTextBlock;
 class UEditableText;
 class UVerticalBox;
@@ -101,6 +102,9 @@ private:
 
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UTextBlock> EscapeKeyTxt;
+
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UImage> MapScreen;
 
 private:
 	UPROPERTY()

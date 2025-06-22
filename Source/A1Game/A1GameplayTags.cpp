@@ -126,7 +126,6 @@ namespace A1GameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(GameplayEvent_Gun_ADS,							"GameplayEvent.Gun.ADS");
 	UE_DEFINE_GAMEPLAY_TAG(GameplayEvent_Widget_Inventory,					"GameplayEvent.Widget.Inventory");
 	UE_DEFINE_GAMEPLAY_TAG(GameplayEvent_HitReact,							"GameplayEvent.HitReact");
-	UE_DEFINE_GAMEPLAY_TAG(GameplayEvent_Cmd_Map,							"GameplayEvent.Cmd.Map");
 	UE_DEFINE_GAMEPLAY_TAG(GameplayEvent_Cmd_Exit,							"GameplayEvent.Cmd.Exit");
 
 	

@@ -51,13 +51,6 @@ void UA1GameplayAbility_Interact_Cmd::ActivateAbility(const FGameplayAbilitySpec
 		ExitWidgetTask->ReadyForActivation();
 	}
 
-	OpenMapTask = UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(this, A1GameplayTags::GameplayEvent_Cmd_Map, nullptr, false, true);
-	if (OpenMapTask)
-	{
-		OpenMapTask->EventReceived.AddDynamic(this, &ThisClass::OpenMap);
-		OpenMapTask->ReadyForActivation();
-	}
-
 	// CMD 오픈에 따른 UI 비활성화
 	FA1WidgetActiveMessage Message;
 	Message.bActive = false;
@@ -91,24 +84,6 @@ void UA1GameplayAbility_Interact_Cmd::EndAbility(const FGameplayAbilitySpecHandl
 	bool bReplicateEndAbility, bool bWasCancelled)
 {
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
-}
-
-void UA1GameplayAbility_Interact_Cmd::OpenMap(FGameplayEventData Payload)
-{
-	// Map Material Set
-	UE_LOG(LogA1System, Log, TEXT("OpenMap"));
-	if (AA1CMDBase* CMD = Cast<AA1CMDBase>(InteractableActor))
-	{
-		TArray<UMeshComponent*> OutMesh;
-		CMD->GetMeshComponents(OutMesh);
-		if (OutMesh.Num() == 1)
-		{
-			if (UStaticMeshComponent* StaticMeshComponent = Cast<UStaticMeshComponent>(OutMesh[0]))
-			{
-				StaticMeshComponent->SetMaterial(1, MinimapMaterial);
-			}
-		}
-	}
 }
 
 void UA1GameplayAbility_Interact_Cmd::CloseCmd(FGameplayEventData Payload)
