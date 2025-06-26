@@ -115,7 +115,7 @@ enum class EUtilityType : uint8
 	Food,
 	Drink,
 	Light,
-	FoamGun,
+	FoamGun UMETA(DisplayName = "FoamGun"),
 	Documents,
 	Repairkit,
 	

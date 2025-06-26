@@ -42,7 +42,9 @@ public class A1Game : ModuleRules
 				"Niagara",
 				"AsyncMixin",
 				"ControlFlows",
-				"PropertyPath"
+				"PropertyPath",
+				"Media",
+				"MediaAssets",
 			}
 		);
 
