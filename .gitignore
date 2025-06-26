@@ -62,7 +62,6 @@ Content/Effects
 Content/Feedback
 Content/GameplayCueNotifies
 Content/GameplayEffects
-Content/Input
 Content/Legal
 Content/Localization
 Content/PhysicsMaterials
@@ -74,15 +73,13 @@ Content/B_LyraGameMode.uasset
 Content/DefaultGame_Label.uasset
 Content/DefaultGameData.uasset
 
-# TEMP
-Content/ParagonKhaimera
-Content/ParagonMorigesh
-
 # Content(For Develop)
 Content/Maps/DevMap
 Content/Blueprints/Developing
 
 # Content(Fab Asset)
+Content/ParagonKhaimera
+Content/ParagonMorigesh
 Content/SpaceshipInterior
 Content/SciFiCharacterPack
 Content/ModSci_Engineer

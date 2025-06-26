@@ -51,7 +51,6 @@ protected:
 
 private:
 	void ConstructUI(FGameplayTag Channel, const FASCInitializeMessage& Message);
-	void DestructUI();
 
 protected:
 	UFUNCTION(BlueprintCallable)

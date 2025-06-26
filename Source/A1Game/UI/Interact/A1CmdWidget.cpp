@@ -60,14 +60,6 @@ void UA1CmdWidget::ConstructUI(FGameplayTag Channel, const FASCInitializeMessage
     }
 }
 
-void UA1CmdWidget::DestructUI()
-{
-    HiddenMenu();
-    SuperviseText->SetText(FText::FromString(""));
-    EscapeGuideTxt->SetText(FText::FromString(""));
-    EscapeKeyTxt->SetText(FText::FromString(""));
-}
-
 void UA1CmdWidget::InputEnded(FText InText)
 {
     if (InText.ToString() == TEXT(""))
@@ -83,6 +75,7 @@ void UA1CmdWidget::InputEnded(FText InText)
     {
         if (InText.ToString() == TEXT("Confirm"))
         {
+            EscapeScreen->SetVisibility(ESlateVisibility::Hidden);
             if (TutoMode)    // tutorial
             {
                 // TODO eric1306
@@ -113,7 +106,7 @@ void UA1CmdWidget::InputEnded(FText InText)
                 UA1ScoreManager::Get()->SetRepairedBeforeEscape(true);
                 UA1ScoreBlueprintFunctionLibrary::EndGame(EGameEndReason::Escape);
             }
-            DestructUI();
+            Destruct();
             return;
         }
         else if (InText.ToString() == TEXT("Deny"))
@@ -204,7 +197,7 @@ void UA1CmdWidget::InputEnded(FText InText)
         else if (InText.ToString() == TEXT("Exit"))
         {
             MapScreen->SetVisibility(ESlateVisibility::Hidden);
-            DestructUI();
+            Destruct();
             if (ASC)
             {
                 FGameplayEventData Payload;
