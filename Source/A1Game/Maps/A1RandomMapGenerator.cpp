@@ -213,6 +213,28 @@ void AA1RandomMapGenerator::ProcessSpawnQueue()
     }
 }
 
+void AA1RandomMapGenerator::IsShowFirstFloor(bool bIsShow)
+{
+    for (auto FirstFloor : FirstFloorRooms)
+    {
+        if(UStaticMeshComponent* Mesh = Cast<UStaticMeshComponent>(FirstFloor->GetGeometryFolder()->GetChildComponent(0)))
+        {
+            Mesh->SetHiddenInSceneCapture(!bIsShow);
+        }
+    }
+}
+
+void AA1RandomMapGenerator::IsShowSecondFloor(bool bIsShow)
+{
+    for (auto FirstFloor : SecondFloorRooms)
+    {
+        if (UStaticMeshComponent* Mesh = Cast<UStaticMeshComponent>(FirstFloor->GetGeometryFolder()->GetChildComponent(0)))
+        {
+            Mesh->SetHiddenInSceneCapture(!bIsShow);
+        }
+    }
+}
+
 void AA1RandomMapGenerator::SetupNetworkProperties(AActor* Actor)
 {
     if (!Actor)
@@ -292,6 +314,10 @@ void AA1RandomMapGenerator::Server_SpawnStartRoom_Implementation()
 
         //Done in Server
         UGameplayStatics::FinishSpawningActor(SpawnedActor, InitMapTransform);
+
+
+        //Save in FirstFloor Array
+        FirstFloorRooms.Add(SpawnedActor);
 
         // Set SpawnedActor Network Setting
         SetupNetworkProperties(SpawnedActor);
@@ -387,6 +413,21 @@ void AA1RandomMapGenerator::Server_SpawnNextRoom_Implementation()
         SpawnedActor->NetPriority = 3.0f;
 
         UGameplayStatics::FinishSpawningActor(SpawnedActor, NextRoomTransform);
+
+        //Save Rooms By Z location
+        if (SpawnedActor->GetActorLocation().Z > 1000.f)
+        {
+            SecondFloorRooms.Add(SpawnedActor);
+        }
+        else
+        {
+            FirstFloorRooms.Add(SpawnedActor);
+
+            if (OutIndex == RoomList.Num() - 1)
+            {
+                SecondFloorRooms.Add(SpawnedActor);
+            }
+        }
 
         SetupNetworkProperties(SpawnedActor);
 
@@ -547,6 +588,23 @@ void AA1RandomMapGenerator::Server_CheckForOverlap_Implementation()
                     }
                 }
             }
+            //Remove Floor Rooms
+            if (LatestRoom->GetActorLocation().Z > 1000.f)
+            {
+                int32 RoomIndex = SecondFloorRooms.Find(LatestRoom);
+                SecondFloorRooms.RemoveAt(RoomIndex);
+            }
+            else
+            {
+                int32 RoomIndex = FirstFloorRooms.Find(LatestRoom);
+                FirstFloorRooms.RemoveAt(RoomIndex);
+
+                if (LatestRoom.GetName().Contains(TEXT("SecondFloor")))
+                {
+                    int32 RoomIndex2 = SecondFloorRooms.Find(LatestRoom);
+                    SecondFloorRooms.RemoveAt(RoomIndex2);
+                }
+            }
 
             //Remove Room
             int32 RoomIndex = SpawnedRooms.Find(LatestRoom);
@@ -582,6 +640,9 @@ void AA1RandomMapGenerator::Server_ResetMap_Implementation()
     //Reset All Map generated.
     if (!HasAuthority())
         return;
+
+    FirstFloorRooms.Reset();
+    SecondFloorRooms.Reset();
 
     for (auto Room : SpawnedRooms)
     {
@@ -755,6 +816,8 @@ void AA1RandomMapGenerator::Server_CloseHoles_Implementation()
     MAP_LOG(LogMap, Log, TEXT("Seed: %d"), Stream.GetInitialSeed());
     MAP_LOG(LogMap, Log, TEXT("Rooms created: %d"), SpawnedRooms.Num());
     MAP_LOG(LogMap, Log, TEXT("EndWalls created: %d"), SpawnedEndWalls.Num());
+    MAP_LOG(LogMap, Log, TEXT("FirstFloorRooms created: %d"), FirstFloorRooms.Num());
+    MAP_LOG(LogMap, Log, TEXT("SecondFloorRooms created: %d"), SecondFloorRooms.Num());
 
     //Play Sound depend on NetMode
     if (GetNetMode() == NM_Standalone)
@@ -765,6 +828,10 @@ void AA1RandomMapGenerator::Server_CloseHoles_Implementation()
     // Call RPC Functions
     FTimerHandle TimerHandle;
     GetWorldTimerManager().SetTimer(TimerHandle, this, &AA1RandomMapGenerator::Multicast_CloseHoles, 0.3f, false);
+
+    
+    IsShowSecondFloor(false);
+    IsShowFirstFloor(true);
 
     Server_SpawnEnemy();
     Server_SpawnItem();
