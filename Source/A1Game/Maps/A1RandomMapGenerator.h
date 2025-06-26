@@ -132,17 +132,23 @@ public:
 
     uint8 GetbDungeonGenerateComplete() const { return bDungeonGenerateComplete; }
 
+    //show in RenderScene
+    UFUNCTION(BlueprintCallable)
+    void IsShowFirstFloor(bool bIsShow);
+
+    UFUNCTION(BlueprintCallable)
+    void IsShowSecondFloor(bool bIsShow);
+
+protected:
+    void SetupNetworkProperties(AActor* Actor);
+
 private:
     void AddEnemyToQueue(AA1RaiderRoom* Room);
     void AddItemToQueue(AA1RaiderRoom* Room);
 
     // 큐에서 처리하는 함수
     void ProcessSpawnQueue();
-
-
 protected:
-    void SetupNetworkProperties(AActor* Actor);
-
 
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Generator", meta = (AllowPrivateAccess = "true"))
     TArray<TObjectPtr<USceneComponent>> ExitsList;
@@ -189,6 +195,12 @@ protected:
 
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Generator", Replicated)
     TArray<TObjectPtr<class AA1EndWall>> SpawnedEndWalls;
+
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Generator")
+    TArray<TObjectPtr<AA1MasterRoom>> FirstFloorRooms;
+
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Generator")
+    TArray<TObjectPtr<AA1MasterRoom>> SecondFloorRooms;
 
     //For Recovery
     UPROPERTY(Replicated)

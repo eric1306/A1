@@ -17,7 +17,8 @@ public:
 	AA1MasterRoom();
     virtual void BeginPlay() override;
     virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const override;
-    FORCEINLINE class USceneComponent* GetExitsFolder() const { return ExitsFolder; }
+    FORCEINLINE USceneComponent* GetGeometryFolder() const { return GeometryFolder; }
+    FORCEINLINE USceneComponent* GetExitsFolder() const { return ExitsFolder; }
     FORCEINLINE USceneComponent* GetOverlapFolder() const { return OverlapFolder; }
 protected:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
