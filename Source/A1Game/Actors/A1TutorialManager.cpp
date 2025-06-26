@@ -19,6 +19,7 @@
 #include "MediaSource.h"
 #include "Blueprint/UserWidget.h"
 #include "Character/LyraCharacter.h"
+#include "Data/A1AssetData.h"
 #include "Data/A1ItemData.h"
 #include "UI/A1ActivatableWidget.h"
 #include "Item/A1ItemTemplate.h"
@@ -49,6 +50,8 @@ void AA1TutorialManager::BeginPlay()
         TutorialStepsTable->GetAllRows<FA1TutorialStepData>(TEXT("TutorialSteps"), StepDataArray);
         UE_LOG(LogA1System, Log, TEXT("Loaded %d tutorial steps"), StepDataArray.Num());
     }
+
+    StartTutorial();
 }
 
 void AA1TutorialManager::EndPlay(const EEndPlayReason::Type EndPlayReason)
