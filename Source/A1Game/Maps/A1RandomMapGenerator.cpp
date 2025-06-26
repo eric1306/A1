@@ -249,7 +249,8 @@ void AA1RandomMapGenerator::Server_SetSeed_Implementation()
 
     //Set Room Number by Day
     int32 CurrentDay = DayNightManager->GetCurrentDay();
-    MaxRoomAmount =  15 + 15 * FMath::Min(CurrentDay / 40, 1);
+    float DayPercentage = static_cast<float>(CurrentDay) / 40;
+    MaxRoomAmount =  15 + 15 * FMath::Min(DayPercentage, 1.f);
     RoomAmount = MaxRoomAmount;
 
     MAP_LOG(LogMap, Log, TEXT("Set Seed!: %d"), Stream.GetInitialSeed());
