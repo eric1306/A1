@@ -112,10 +112,19 @@ void UA1GameplayAbility_Utility_SprayFoam::TrySprayFoam()
 		}
 		else
 		{
-			AActor* SpawnedFoam = GetWorld()->SpawnActor<AActor>(FoamClass, SpawnLocation, SpawnRotation, SpawnParameters);
-			if (SpawnedFoam == nullptr)
-				UE_LOG(LogA1System, Warning, TEXT("Foam Is Null"));
+			if (HitResult.GetComponent() != nullptr)
+			{
+				AActor* SpawnedFoam = GetWorld()->SpawnActor<AActor>(FoamClass, SpawnLocation, SpawnRotation, SpawnParameters);
+
+				if (SpawnedFoam == nullptr)
+				{
+					UE_LOG(LogA1System, Warning, TEXT("Foam Is Null"));
+				}
+				else
+				{
+					SpawnedFoam->AttachToComponent(HitResult.GetComponent(), FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+				}
+			}
 		}
 	}
-
 }
