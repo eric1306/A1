@@ -35,6 +35,14 @@ AA1EquipmentBase::AA1EquipmentBase(const FObjectInitializer& ObjectInitializer)
 	MeshComponent->SetRenderCustomDepth(false);
 	MeshComponent->PrimaryComponentTick.bStartWithTickEnabled = false;
 	MeshComponent->VisibilityBasedAnimTickOption = EVisibilityBasedAnimTickOption::OnlyTickPoseWhenRendered;
+
+	// TODO 일단 최적화 없이 만들어서 성능 측정 부터
+	//// Rendering 최적화
+	//MeshComponent->bCastHiddenShadow = false;
+	//MeshComponent->SetCullDistance(3000.f);
+	//
+	//// CullDistanceVolume을 맵에 깔아야 한다고 함 
+	//MeshComponent->bAllowCullDistanceVolume = true;
 	
 	TraceDebugCollision = CreateDefaultSubobject<UBoxComponent>("TraceDebugCollision");
 	TraceDebugCollision->SetCollisionProfileName("NoCollision");
