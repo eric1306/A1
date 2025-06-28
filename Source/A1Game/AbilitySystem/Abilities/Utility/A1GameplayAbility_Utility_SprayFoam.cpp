@@ -97,12 +97,11 @@ void UA1GameplayAbility_Utility_SprayFoam::TrySprayFoam()
 
 	if(bHit)
 	{
-		// 맞은 대상이 폼 액터인 경우
-		if (FoamClass == HitResult.GetActor()->GetClass())
+		float rate = HitResult.GetActor()->GetActorScale3D().X;
+		// 맞은 대상이 폼 액터이고 특정 크기 이하인 경우
+		if ( FoamClass == HitResult.GetActor()->GetClass() && rate <= 0.5)
 		{
-			float rate = HitResult.GetActor()->GetActorScale3D().X;
-			if(rate <=0.5)
-				HitResult.GetActor()->SetActorScale3D(HitResult.GetActor()->GetActorScale3D() * 1.2f);
+			HitResult.GetActor()->SetActorScale3D(HitResult.GetActor()->GetActorScale3D() * 1.2f);	
 		}
 		else
 		{
