@@ -20,8 +20,8 @@ AA1DayNightManager::AA1DayNightManager()
 	 * - 20 minutes = 1 day
 	 * - 10 minue day/night
 	 */
-	DayDurationMinutes = 20.f; //eric1306->OriginalValue : 20.f
-	DayPhaseDurationMinutes = 10.f; //eric1306->OriginalValue : 10.f
+	DayDurationMinutes = 0.1f; //eric1306->OriginalValue : 20.f
+	DayPhaseDurationMinutes = 0.05f; //eric1306->OriginalValue : 10.f
 
 	CurrentPhase = EDayPhase::Day;
 	CurrentDay = 1;
@@ -201,7 +201,7 @@ void AA1DayNightManager::UpdateTime(float DeltaTime)
 	{
 		ChangePhase(EDayPhase::Night);
 	}
-	else if (CurrentPhase == EDayPhase::Night && ElapsedTime >= PhaseChangeDuration * 2.0f) {
+	else if (CurrentPhase == EDayPhase::Night && ElapsedTime == 0.f) {
 		ChangePhase(EDayPhase::Day);
 	}
 
