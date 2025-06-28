@@ -79,10 +79,6 @@ void UA1GameplayAbility_Utility_SprayFoam::TrySprayFoam()
 	const int32 MaxTryCount = 5.f;
 	TArray<AActor*> ActorsToIgnore = { Character };
 
-	FActorSpawnParameters SpawnParameters;
-	SpawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
-
-
 	FHitResult HitResult;
 	FVector2D RandPoint = FMath::RandPointInCircle(MaxDistance);
 
@@ -101,9 +97,7 @@ void UA1GameplayAbility_Utility_SprayFoam::TrySprayFoam()
 
 	if(bHit)
 	{
-		FVector SpawnLocation = HitResult.Location;
-		FRotator SpawnRotation = FRotationMatrix::MakeFromZ(HitResult.Normal).Rotator();
-
+		// 맞은 대상이 폼 액터인 경우
 		if (FoamClass == HitResult.GetActor()->GetClass())
 		{
 			float rate = HitResult.GetActor()->GetActorScale3D().X;
@@ -112,17 +106,46 @@ void UA1GameplayAbility_Utility_SprayFoam::TrySprayFoam()
 		}
 		else
 		{
-			if (HitResult.GetComponent() != nullptr)
-			{
-				AActor* SpawnedFoam = GetWorld()->SpawnActor<AActor>(FoamClass, SpawnLocation, SpawnRotation, SpawnParameters);
+			// 액터 스폰
+			FVector SpawnLocation = HitResult.Location + HitResult.Normal * 3.f;
+			FRotator SpawnRotation = FRotationMatrix::MakeFromZ(HitResult.Normal).Rotator();
 
-				if (SpawnedFoam == nullptr)
+			FActorSpawnParameters SpawnParameters;
+			SpawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+		
+			AActor* SpawnedFoam = GetWorld()->SpawnActor<AActor>(FoamClass, SpawnLocation, SpawnRotation, SpawnParameters);
+
+
+			// skeletal mesh 대상인 경우
+			USkeletalMeshComponent* MeshComp = HitResult.GetActor()->FindComponentByClass<USkeletalMeshComponent>();
+			if (MeshComp)
+			{
+				// 1. 본 중에서 HitResult.Location에 가장 가까운 본 찾기
+				FName ClosestBoneName = MeshComp->FindClosestBone(HitResult.Location);
+				if (ClosestBoneName == NAME_None)
+					return;
+
+				// 2. 상대 위치 계산
+				FVector BoneWorldLocation = MeshComp->GetBoneLocation(ClosestBoneName);
+				FVector RelativeOffset = HitResult.Location - BoneWorldLocation;
+
+				// 3. 붙이기: 상대 위치를 유지하며 해당 본에 붙이기
+				if (SpawnedFoam)
 				{
-					UE_LOG(LogA1System, Warning, TEXT("Foam Is Null"));
+					SpawnedFoam->AttachToComponent(MeshComp, FAttachmentTransformRules::KeepRelativeTransform, ClosestBoneName);
+					SpawnedFoam->SetActorRelativeLocation(RelativeOffset); // 본 기준 상대 위치로 맞춰줌
 				}
-				else
+			}
+
+			// Static Mesh인 경우
+			else               
+			{
+				if (HitResult.GetComponent() != nullptr)
 				{
-					SpawnedFoam->AttachToComponent(HitResult.GetComponent(), FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+					if(SpawnedFoam)
+					{
+						SpawnedFoam->AttachToComponent(HitResult.GetComponent(), FAttachmentTransformRules::KeepWorldTransform);
+					}
 				}
 			}
 		}
