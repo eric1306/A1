@@ -22,6 +22,7 @@ UA1GameplayAbility_Utility_SprayFoam::UA1GameplayAbility_Utility_SprayFoam(const
 {
 	bServerRespectsRemoteAbilityCancellation = false;
 	NetSecurityPolicy = EGameplayAbilityNetSecurityPolicy::ServerOnlyTermination;
+	ActivationOwnedTags.AddTag(A1GameplayTags::Status_ActiveUtility);
 	ActivationRequiredTags.AddTag(A1GameplayTags::Status_MainHand_Left);
 }
 

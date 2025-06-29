@@ -86,6 +86,7 @@ namespace A1GameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(Status_Death_Dead,								"Status.Death.Dead");
 	UE_DEFINE_GAMEPLAY_TAG(Status_Attack,									"Status.Attack");
 	UE_DEFINE_GAMEPLAY_TAG(Status_Skill,									"Status.Skill");
+	UE_DEFINE_GAMEPLAY_TAG(Status_ActiveUtility,							"Status.ActiveUtility");
 	UE_DEFINE_GAMEPLAY_TAG(Status_Throw,									"Status.Throw");
 	UE_DEFINE_GAMEPLAY_TAG(Status_Food,										"Status.Food");
 	UE_DEFINE_GAMEPLAY_TAG(Status_Block,									"Status.Block");
