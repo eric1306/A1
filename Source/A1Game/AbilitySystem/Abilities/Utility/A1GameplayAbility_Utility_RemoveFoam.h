@@ -2,14 +2,14 @@
 
 #pragma once
 
-#include "AbilitySystem/Abilities/LyraGameplayAbility.h"
+#include "AbilitySystem/Abilities/Docker/A1GameplayAbility_Equipment.h"
 #include "A1GameplayAbility_Utility_RemoveFoam.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class A1GAME_API UA1GameplayAbility_Utility_RemoveFoam : public ULyraGameplayAbility
+class A1GAME_API UA1GameplayAbility_Utility_RemoveFoam : public UA1GameplayAbility_Equipment
 {
 	GENERATED_BODY()
 

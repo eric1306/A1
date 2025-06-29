@@ -6,6 +6,7 @@
 #include "A1GameplayTags.h"
 #include "A1LogChannels.h"
 #include "Abilities/Tasks/AbilityTask_WaitInputRelease.h"
+#include "Actors/A1FoamGunBase.h"
 #include "Character/LyraCharacter.h"
 #include "Player/LyraPlayerController.h"
 #include "Physics/LyraCollisionChannels.h"
@@ -34,6 +35,13 @@ void UA1GameplayAbility_Utility_RemoveFoam::ActivateAbility(const FGameplayAbili
 		InputReleaseTask->ReadyForActivation();
 	}
 
+	AA1FoamGunBase* EquippedFoamGun = Cast<AA1FoamGunBase>(GetFirstEquipmentActor());
+	if (EquippedFoamGun)
+	{
+		EquippedFoamGun->ShowNiagara(true);
+		EquippedFoamGun->ChangeMode(false);
+	}
+
 	if (RemoveSound)
 	{
 		LoopingAudioComponent = UGameplayStatics::SpawnSoundAttached(
@@ -59,6 +67,12 @@ void UA1GameplayAbility_Utility_RemoveFoam::ActivateAbility(const FGameplayAbili
 
 void UA1GameplayAbility_Utility_RemoveFoam::OnInputReleased(float TimeHeld)
 {
+	AA1FoamGunBase* EquippedFoamGun = Cast<AA1FoamGunBase>(GetFirstEquipmentActor());
+	if (EquippedFoamGun)
+	{
+		EquippedFoamGun->ShowNiagara(false);
+	}
+
 	GetWorld()->GetTimerManager().ClearTimer(LoopHandle);
 	if (LoopingAudioComponent)
 	{
