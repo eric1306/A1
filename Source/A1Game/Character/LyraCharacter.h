@@ -259,7 +259,7 @@ public:
 	UPROPERTY()
 	TObjectPtr<const UA1CharacterAttributeSet> Vital;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Combat, Meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Player|Combat", Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UAnimMontage> DeadMontage;
 
 	// Replicated state used to handle dying.
@@ -271,7 +271,7 @@ public:
 	UPROPERTY()
 	EA1DeathState DeathState = EA1DeathState::NotDead;
 
-	UPROPERTY(EditAnywhere, Category = Stat, Meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, Category = "Player|Stat", Meta = (AllowPrivateAccess = "true"))
 	TArray<TSubclassOf<UGameplayEffect>> StatEffects;
 
 	int bullets = 0;

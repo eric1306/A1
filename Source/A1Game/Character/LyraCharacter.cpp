@@ -219,6 +219,9 @@ void ALyraCharacter::OnAbilitySystemInitialized()
 
 	// 0번 무한 허기 감소
 	ApplyStatEffect(0);
+
+	// 1번 10분마다 weight 증가
+	ApplyStatEffect(1);
 }
 
 void ALyraCharacter::OnAbilitySystemUninitialized()
@@ -363,7 +366,7 @@ void ALyraCharacter::OutsideOrNot(bool bOut)
 {
 	if (bOut == false)
 	{
-		DeleteStatEffect(1);
+		DeleteStatEffect(2);
 
 		if (UAbilitySystemComponent* ASC = GetAbilitySystemComponent())
 		{
@@ -373,7 +376,7 @@ void ALyraCharacter::OutsideOrNot(bool bOut)
 	}
 	else if (bOut && bOutside == false)
 	{
-		ApplyStatEffect(1);
+		ApplyStatEffect(2);
 		bOutside = true;
 	}
 }
@@ -423,9 +426,9 @@ void ALyraCharacter::HandleChangeOfWeight(const FOnAttributeChangeData& ChangeDa
 		LyraMoveComp->MaxWalkSpeed = MaxSpeed;
 	
 	if (ChangeData.NewValue >= 100.f)			// 새 값이 100이상이면 HP감소 적용
-		ApplyStatEffect(2);
+		ApplyStatEffect(3);
 	else if (ChangeData.OldValue >= 100.f)		// 새 값이 100이하, 기존 값이 100이상 HP감소 해제
-		DeleteStatEffect(2);
+		DeleteStatEffect(3);
 }
 
 void ALyraCharacter::HandleOutOfHealth(AActor* InActor, float OldValue, float NewValue)

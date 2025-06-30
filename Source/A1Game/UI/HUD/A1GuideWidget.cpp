@@ -119,5 +119,8 @@ void UA1GuideWidget::RenewGuide(UA1ItemInstance* ItemInstance)
 		
 
 		TxtLMB->SetText(GuideTextSet.TextEntries[0]);
+
+		if (GuideTextSet.TextEntries.Num() > 1)
+			TxtRMB->SetText(GuideTextSet.TextEntries[1]);
 	}
 }

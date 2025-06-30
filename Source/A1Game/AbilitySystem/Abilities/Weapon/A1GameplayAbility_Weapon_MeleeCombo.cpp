@@ -17,6 +17,7 @@ UA1GameplayAbility_Weapon_MeleeCombo::UA1GameplayAbility_Weapon_MeleeCombo(const
 	: Super(ObjectInitializer)
 {
 	ActivationGroup = ELyraAbilityActivationGroup::Exclusive_Replaceable;
+	ActivationOwnedTags.AddTag(A1GameplayTags::Status_Attack);
 	ActivationRequiredTags.AddTag(A1GameplayTags::Status_MainHand_Right);
 	ActivationBlockedTags.AddTag(A1GameplayTags::Status_MainHand_Left);
 }

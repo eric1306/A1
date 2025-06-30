@@ -6,6 +6,7 @@
 #include "A1GameplayTags.h"
 #include "A1LogChannels.h"
 #include "Abilities/Tasks/AbilityTask_WaitInputRelease.h"
+#include "Actors/A1FoamGunBase.h"
 #include "Character/LyraCharacter.h"
 #include "Player/LyraPlayerController.h"
 #include "Physics/LyraCollisionChannels.h"
@@ -21,6 +22,7 @@ UA1GameplayAbility_Utility_RemoveFoam::UA1GameplayAbility_Utility_RemoveFoam(con
 {
 	bServerRespectsRemoteAbilityCancellation = false;
 	NetSecurityPolicy = EGameplayAbilityNetSecurityPolicy::ServerOnlyTermination;
+	ActivationOwnedTags.AddTag(A1GameplayTags::Status_ActiveUtility);
 	ActivationRequiredTags.AddTag(A1GameplayTags::Status_MainHand_Left);
 }
 
@@ -32,6 +34,13 @@ void UA1GameplayAbility_Utility_RemoveFoam::ActivateAbility(const FGameplayAbili
 	{
 		InputReleaseTask->OnRelease.AddDynamic(this, &UA1GameplayAbility_Utility_RemoveFoam::OnInputReleased);
 		InputReleaseTask->ReadyForActivation();
+	}
+
+	AA1FoamGunBase* EquippedFoamGun = Cast<AA1FoamGunBase>(GetFirstEquipmentActor());
+	if (EquippedFoamGun)
+	{
+		EquippedFoamGun->ShowNiagara(true);
+		EquippedFoamGun->ChangeMode(false);
 	}
 
 	if (RemoveSound)
@@ -59,6 +68,12 @@ void UA1GameplayAbility_Utility_RemoveFoam::ActivateAbility(const FGameplayAbili
 
 void UA1GameplayAbility_Utility_RemoveFoam::OnInputReleased(float TimeHeld)
 {
+	AA1FoamGunBase* EquippedFoamGun = Cast<AA1FoamGunBase>(GetFirstEquipmentActor());
+	if (EquippedFoamGun)
+	{
+		EquippedFoamGun->ShowNiagara(false);
+	}
+
 	GetWorld()->GetTimerManager().ClearTimer(LoopHandle);
 	if (LoopingAudioComponent)
 	{

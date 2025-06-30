@@ -20,6 +20,7 @@ UA1GameplayAbility_Utility_Food::UA1GameplayAbility_Utility_Food(const FObjectIn
 {
 	AbilityTags.AddTag(A1GameplayTags::Ability_Food);
 	ActivationOwnedTags.AddTag(A1GameplayTags::Status_Food);
+	ActivationOwnedTags.AddTag(A1GameplayTags::Status_ActiveUtility);
 	ActivationRequiredTags.AddTag(A1GameplayTags::Status_MainHand_Left);
 }
 
