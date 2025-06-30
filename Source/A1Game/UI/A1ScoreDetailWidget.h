@@ -26,9 +26,6 @@ public:
 protected:
     // UI 요소들 (Blueprint에서 바인딩)
     UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
-    UTextBlock* GameTitleText;
-
-    UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
     UTextBlock* TotalScoreText;
 
     UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
