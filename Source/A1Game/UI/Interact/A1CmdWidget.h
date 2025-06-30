@@ -26,15 +26,6 @@ public:
 	bool bTutorial;
 };
 
-struct FTypingState
-{
-	FString FullText;
-	FString CurrentText;
-	int32 CurrentIndex = 0;
-	UTextBlock* TargetTextBlock;
-	FTimerHandle TimerHandle;
-};
-
 UCLASS()
 class A1GAME_API UA1CmdWidget : public UA1ActivatableWidget
 {
@@ -61,7 +52,6 @@ protected:
 
 	void ShowMenu();
 	void HiddenMenu();
-	void AffectTypingEffect(UTextBlock* TargetTextBlock, FString InText, float delta ,float startdelay);
 
 public:
 	UPROPERTY(EditAnywhere, meta = (Categories = "Message"))
@@ -108,11 +98,7 @@ private:
 private:
 	UPROPERTY()
 	TObjectPtr<UAbilitySystemComponent> ASC;
-
 	FGameplayMessageListenerHandle MessageListenerHandle;
-
-	UPROPERTY(EditAnywhere)
-	USoundBase* CmdSound;
 
 	float TypingDelta = 0.1f;
 
