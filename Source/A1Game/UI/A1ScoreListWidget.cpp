@@ -3,7 +3,6 @@
 
 #include "UI/A1ScoreListWidget.h"
 
-#include "A1ScoreDetailWidget.h"
 #include "A1ScoreEntryButtonWidget.h"
 #include "Blueprint/WidgetTree.h"
 #include "Components/Button.h"
@@ -93,38 +92,6 @@ void UA1ScoreListWidget::RefreshScoreList()
         int32 HighScore = UA1ScoreBlueprintFunctionLibrary::GetHighestScore();
         HighestScoreText->SetText(FText::FromString(FString::Printf(TEXT("Highest Score: %d"), HighScore)));
     }
-}
-
-void UA1ScoreListWidget::OnScoreClicked(int32 ScoreIndex)
-{
-    UE_LOG(LogA1ScoreSystem, Log, TEXT("[ScoreList] Score clicked: Index %d"), ScoreIndex);
-
-    if (!CurrentScores.IsValidIndex(ScoreIndex))
-    {
-        UE_LOG(LogA1ScoreSystem, Warning, TEXT("[ScoreList] Invalid score index: %d"), ScoreIndex);
-        return;
-    }
-    // 세부 정보 위젯 생성 및 표시
-    if (!ScoreDetailWidgetClass)
-    {
-        UE_LOG(LogA1ScoreSystem, Error, TEXT("[ScoreList] ScoreDetailWidgetClass is not set! Please assign WBP_ScoreDetail in Blueprint."));
-        return;
-    }
-
-    
-    UA1ScoreDetailWidget* DetailWidget = CreateWidget<UA1ScoreDetailWidget>(this, ScoreDetailWidgetClass);
-
-    if (DetailWidget)
-    {
-        DetailWidget->SetScoreData(CurrentScores[ScoreIndex]);
-        DetailWidget->AddToViewport(1000); // 높은 Z-Order
-        UE_LOG(LogA1ScoreSystem, Log, TEXT("[ScoreList] Opened detail for %s"), *CurrentScores[ScoreIndex].GetGameName());
-    }
-    else
-    {
-        UE_LOG(LogA1ScoreSystem, Error, TEXT("[ScoreList] Failed to create detail widget"));
-    }
-    
 }
 
 void UA1ScoreListWidget::OnSortChanged(FString SelectedItem, ESelectInfo::Type SelectionType)
@@ -233,9 +200,6 @@ UA1ScoreEntryButtonWidget* UA1ScoreListWidget::CreateScoreEntry(const FA1ScoreDa
     {
         // 데이터 설정
         EntryWidget->SetupScoreEntry(ScoreData, Rank, Index);
-
-        // 클릭 이벤트 바인딩
-        EntryWidget->OnScoreEntryClicked.AddDynamic(this, &UA1ScoreListWidget::OnScoreClicked);
 
         UE_LOG(LogA1ScoreSystem, Log, TEXT("[ScoreList] Created entry widget for %s"), *ScoreData.GetGameName());
     }

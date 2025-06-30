@@ -6,9 +6,14 @@
 #include "Blueprint/UserWidget.h"
 #include "A1ScoreEntryButtonWidget.generated.h"
 
+class UBorder;
 class UButton;
 class UTextBlock;
+class USizeBox;
+class UA1ScoreDetailWidget;
+
 struct FA1ScoreData;
+
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnScoreEntryClicked, int32, ScoreIndex);
 /**
  * 
@@ -28,10 +33,25 @@ public:
 protected:
     // UI 요소들
     UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
+    TObjectPtr<UBorder> Border_BG;
+
+    UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
     TObjectPtr<UButton> EntryButton;
 
     UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
     TObjectPtr<UTextBlock> ScoreInfoText;
+
+    UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
+    TObjectPtr<USizeBox> DetailScoreBox;
+
+    UPROPERTY(EditAnywhere, meta = (BindWidget))
+    TObjectPtr<UA1ScoreDetailWidget> ScoreDetailWidget;
+
+    UPROPERTY(EditAnywhere)
+    TObjectPtr<UMaterialInstance> EscapeMaterial;
+
+    UPROPERTY(EditAnywhere)
+    TObjectPtr<UMaterialInstance> DeadMaterial;
 
 public:
     // 설정 함수

@@ -3,9 +3,12 @@
 
 #include "UI/A1ScoreEntryButtonWidget.h"
 
+#include "Components/Border.h"
 #include "Components/Button.h"
 #include "Components/TextBlock.h"
+#include "Components/SizeBox.h"
 #include "Score/A1ScoreBlueprintFunctionLibrary.h"
+#include "UI/A1ScoreDetailWidget.h"
 
 void UA1ScoreEntryButtonWidget::NativeConstruct()
 {
@@ -39,7 +42,9 @@ void UA1ScoreEntryButtonWidget::SetupScoreEntry(const FA1ScoreData& ScoreData, i
         RankIcon = FString::Printf(TEXT("%d."), Rank);
 
         // 결과 아이콘
-        FString ResultIcon = (ScoreData.GameEndReason == EGameEndReason::Escape) ? TEXT("Escape") : TEXT("Dead");
+        bool IsEscape = (ScoreData.GameEndReason == EGameEndReason::Escape);
+        FString ResultIcon = IsEscape ? TEXT("Escape") : TEXT("Dead");
+        Border_BG->SetBrushFromMaterial(IsEscape ? EscapeMaterial : DeadMaterial);
 
         // 텍스트 구성
         FString ScoreInfo = FString::Printf(
@@ -54,10 +59,17 @@ void UA1ScoreEntryButtonWidget::SetupScoreEntry(const FA1ScoreData& ScoreData, i
         UE_LOG(LogTemp, Log, TEXT("%s"), *ScoreInfo);
 
         ScoreInfoText->SetText(FText::FromString(ScoreInfo));
+
+        ScoreDetailWidget->SetScoreData(ScoreData);
     }
 }
 
 void UA1ScoreEntryButtonWidget::OnButtonClicked()
 {
-    OnScoreEntryClicked.Broadcast(StoredIndex);
+    bool IsOpen = DetailScoreBox->GetVisibility() == ESlateVisibility::Visible;
+
+    if(IsOpen)
+        DetailScoreBox->SetVisibility(ESlateVisibility::Collapsed);
+    else
+        DetailScoreBox->SetVisibility(ESlateVisibility::Visible);
 }

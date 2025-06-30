@@ -2,8 +2,7 @@
 
 #pragma once
 
-#include "CoreMinimal.h"
-#include "LyraActivatableWidget.h"
+#include "UI/A1ActivatableWidget.h"
 #include "A1ScoreWidget.generated.h"
 
 class UTextBlock;
@@ -11,7 +10,7 @@ class UTextBlock;
  * 
  */
 UCLASS()
-class A1GAME_API UA1ScoreWidget : public ULyraActivatableWidget
+class A1GAME_API UA1ScoreWidget : public UA1ActivatableWidget
 {
 	GENERATED_BODY()
 
@@ -46,5 +45,4 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, meta = (BindWidget))
 	TObjectPtr<UTextBlock> Total;
-
 };

@@ -26,9 +26,6 @@ public:
 protected:
     // UI 요소들 (Blueprint에서 바인딩)
     UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
-    UTextBlock* GameTitleText;
-
-    UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
     UTextBlock* TotalScoreText;
 
     UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
@@ -55,18 +52,10 @@ protected:
     UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
     UTextBlock* DateText;
 
-    UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
-    UButton* CloseButton;
-
 public:
     // 메인 기능
     UFUNCTION(BlueprintCallable)
     void SetScoreData(const FA1ScoreData& ScoreData);
-
-protected:
-    // 이벤트 핸들러
-    UFUNCTION()
-    void OnCloseClicked();
 
 private:
     // 저장된 데이터

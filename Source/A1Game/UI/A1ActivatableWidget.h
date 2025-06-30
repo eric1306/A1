@@ -5,6 +5,16 @@
 #include "CommonActivatableWidget.h"
 #include "A1ActivatableWidget.generated.h"
 
+class UTextBlock;
+
+struct FTypingState
+{
+	FString FullText;
+	FString CurrentText;
+	int32 CurrentIndex = 0;
+	UTextBlock* TargetTextBlock;
+	FTimerHandle TimerHandle;
+};
 
 UCLASS()
 class A1GAME_API UA1ActivatableWidget : public UCommonActivatableWidget
@@ -20,4 +30,10 @@ public:
 protected:
 	virtual void NativeOnActivated() override;
 	virtual void NativeOnDeactivated() override;
+
+	void AffectTypingEffect(UTextBlock* TargetTextBlock, FString InText, float delta, float startdelay);
+
+
+	UPROPERTY(EditAnywhere)
+	USoundBase* TypingSound;
 };
