@@ -6,6 +6,7 @@
 #include "Blueprint/UserWidget.h"
 #include "A1ScoreEntryButtonWidget.generated.h"
 
+class UBorder;
 class UButton;
 class UTextBlock;
 class USizeBox;
@@ -32,6 +33,9 @@ public:
 protected:
     // UI 요소들
     UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
+    TObjectPtr<UBorder> Border_BG;
+
+    UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
     TObjectPtr<UButton> EntryButton;
 
     UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
@@ -42,6 +46,12 @@ protected:
 
     UPROPERTY(EditAnywhere, meta = (BindWidget))
     TObjectPtr<UA1ScoreDetailWidget> ScoreDetailWidget;
+
+    UPROPERTY(EditAnywhere)
+    TObjectPtr<UMaterialInstance> EscapeMaterial;
+
+    UPROPERTY(EditAnywhere)
+    TObjectPtr<UMaterialInstance> DeadMaterial;
 
 public:
     // 설정 함수

@@ -3,6 +3,7 @@
 
 #include "UI/A1ScoreEntryButtonWidget.h"
 
+#include "Components/Border.h"
 #include "Components/Button.h"
 #include "Components/TextBlock.h"
 #include "Components/SizeBox.h"
@@ -41,7 +42,9 @@ void UA1ScoreEntryButtonWidget::SetupScoreEntry(const FA1ScoreData& ScoreData, i
         RankIcon = FString::Printf(TEXT("%d."), Rank);
 
         // 결과 아이콘
-        FString ResultIcon = (ScoreData.GameEndReason == EGameEndReason::Escape) ? TEXT("Escape") : TEXT("Dead");
+        bool IsEscape = (ScoreData.GameEndReason == EGameEndReason::Escape);
+        FString ResultIcon = IsEscape ? TEXT("Escape") : TEXT("Dead");
+        Border_BG->SetBrushFromMaterial(IsEscape ? EscapeMaterial : DeadMaterial);
 
         // 텍스트 구성
         FString ScoreInfo = FString::Printf(
