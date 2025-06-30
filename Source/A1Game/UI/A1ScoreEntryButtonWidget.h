@@ -8,7 +8,11 @@
 
 class UButton;
 class UTextBlock;
+class USizeBox;
+class UA1ScoreDetailWidget;
+
 struct FA1ScoreData;
+
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnScoreEntryClicked, int32, ScoreIndex);
 /**
  * 
@@ -32,6 +36,12 @@ protected:
 
     UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
     TObjectPtr<UTextBlock> ScoreInfoText;
+
+    UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
+    TObjectPtr<USizeBox> DetailScoreBox;
+
+    UPROPERTY(EditAnywhere, meta = (BindWidget))
+    TObjectPtr<UA1ScoreDetailWidget> ScoreDetailWidget;
 
 public:
     // 설정 함수

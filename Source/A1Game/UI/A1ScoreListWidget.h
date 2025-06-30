@@ -48,16 +48,10 @@ protected:
     UPROPERTY(EditAnywhere, Category = "UI", BlueprintReadOnly)
     TSubclassOf<UA1ScoreEntryButtonWidget> ScoreEntryWidgetClass;
 
-    UPROPERTY(EditAnywhere, Category = "UI", BlueprintReadOnly)
-    TSubclassOf<class UA1ScoreDetailWidget> ScoreDetailWidgetClass;
-
 public:
     // 메인 기능
     UFUNCTION(BlueprintCallable)
     void RefreshScoreList();
-
-    UFUNCTION(BlueprintCallable)
-    void OnScoreClicked(int32 ScoreIndex);
 
 protected:
     // 이벤트 핸들러

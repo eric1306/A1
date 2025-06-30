@@ -55,18 +55,10 @@ protected:
     UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
     UTextBlock* DateText;
 
-    UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
-    UButton* CloseButton;
-
 public:
     // 메인 기능
     UFUNCTION(BlueprintCallable)
     void SetScoreData(const FA1ScoreData& ScoreData);
-
-protected:
-    // 이벤트 핸들러
-    UFUNCTION()
-    void OnCloseClicked();
 
 private:
     // 저장된 데이터

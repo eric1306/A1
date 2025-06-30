@@ -5,7 +5,9 @@
 
 #include "Components/Button.h"
 #include "Components/TextBlock.h"
+#include "Components/SizeBox.h"
 #include "Score/A1ScoreBlueprintFunctionLibrary.h"
+#include "UI/A1ScoreDetailWidget.h"
 
 void UA1ScoreEntryButtonWidget::NativeConstruct()
 {
@@ -54,10 +56,17 @@ void UA1ScoreEntryButtonWidget::SetupScoreEntry(const FA1ScoreData& ScoreData, i
         UE_LOG(LogTemp, Log, TEXT("%s"), *ScoreInfo);
 
         ScoreInfoText->SetText(FText::FromString(ScoreInfo));
+
+        ScoreDetailWidget->SetScoreData(ScoreData);
     }
 }
 
 void UA1ScoreEntryButtonWidget::OnButtonClicked()
 {
-    OnScoreEntryClicked.Broadcast(StoredIndex);
+    bool IsOpen = DetailScoreBox->GetVisibility() == ESlateVisibility::Visible;
+
+    if(IsOpen)
+        DetailScoreBox->SetVisibility(ESlateVisibility::Collapsed);
+    else
+        DetailScoreBox->SetVisibility(ESlateVisibility::Visible);
 }

@@ -10,22 +10,11 @@
 void UA1ScoreDetailWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
-
-    // 버튼 이벤트 바인딩
-    if (CloseButton)
-    {
-        CloseButton->OnClicked.AddDynamic(this, &UA1ScoreDetailWidget::OnCloseClicked);
-    }
 }
 
 void UA1ScoreDetailWidget::NativeDestruct()
 {
 	Super::NativeDestruct();
-
-    if (CloseButton)
-    {
-        CloseButton->OnClicked.Clear();
-    }
 }
 
 void UA1ScoreDetailWidget::SetScoreData(const FA1ScoreData& ScoreData)
@@ -110,11 +99,6 @@ void UA1ScoreDetailWidget::SetScoreData(const FA1ScoreData& ScoreData)
     {
         DateText->SetText(FText::FromString(FString::Printf(TEXT("Play Date: %s"), *ScoreData.Timestamp.ToString(TEXT("%Y-%m-%d %H:%M")))));
     }
-}
-
-void UA1ScoreDetailWidget::OnCloseClicked()
-{
-    RemoveFromParent();
 }
 
 FString UA1ScoreDetailWidget::FormatScore(int32 Score) const
