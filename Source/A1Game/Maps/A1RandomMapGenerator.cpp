@@ -7,6 +7,7 @@
 #include "A1MasterRoom.h"
 #include "A1RaiderRoom.h"
 #include "Actors/A1DayNightManager.h"
+#include "Actors/A1SpaceshipBase.h"
 #include "Components/AudioComponent.h"
 #include "Components/BoxComponent.h"
 #include "Kismet/GameplayStatics.h"
@@ -832,6 +833,15 @@ void AA1RandomMapGenerator::Server_CloseHoles_Implementation()
     
     IsShowSecondFloor(false);
     IsShowFirstFloor(true);
+
+    AActor* Actor = UGameplayStatics::GetActorOfClass(GetWorld(), AA1SpaceshipBase::StaticClass());
+    if (Actor)
+    {
+        if (AA1SpaceshipBase* SpaceshipActor = Cast<AA1SpaceshipBase>(Actor))
+        {
+            SpaceshipActor->SetIsExternamMapActive(true);
+        }
+    }
 
     Server_SpawnEnemy();
     Server_SpawnItem();

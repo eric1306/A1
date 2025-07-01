@@ -75,17 +75,7 @@ void UA1GameplayAbility_Interact_DockingSignalHandler::ActivateAbility(const FGa
 				break;
 			}
 		}
-
-		UGameplayStatics::GetAllActorsOfClass(GetWorld(), AA1SpaceshipBase::StaticClass(), FoundActors);
-		for (AActor* Actor : FoundActors)
-		{
-			if (AA1SpaceshipBase* SpaceshipActor = Cast<AA1SpaceshipBase>(Actor))
-			{
-				SpaceshipActor->SetIsExternamMapActive(true);
-				break;
-			}
-
-		}
+		
 		//Stop PlaySound
 		Spaceship->GetSignalDetection()->SetSignalDetectionState(ESignalDetectionState::None);
 		Spaceship->GetSignalDetection()->StopDetectSignal();
