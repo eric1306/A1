@@ -46,7 +46,7 @@ void UA1GameplayAbility_Interact_Repair::ActivateAbility(const FGameplayAbilityS
     }
 
     AA1RepairBase* RepairActor = Cast<AA1RepairBase>(InteractableActor);
-    if (RepairActor == nullptr || RepairActor->CurrentState != RepairState::Break)
+    if (RepairActor == nullptr || RepairActor->CurrentState != RepairState::Break && RepairActor->CurrentState != RepairState::Foamed)
     {
         CancelAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true);
         return;

@@ -49,10 +49,11 @@ float UA1FoamWrapChecker::GetActorFoamCoverage(AActor* TargetActor)
         for (const FOverlapResult& Result : OverlapResults)
         {
             AActor* OverlapActor = Result.GetActor();
-            UE_LOG(LogA1, Log, TEXT("%s"), *OverlapActor->GetName())
+            
             if (IsValid(OverlapActor) &&
                 OverlapActor->GetClass()->GetName().Contains(TEXT("Foam")))
             {
+                UE_LOG(LogA1, Log, TEXT("%s"), *OverlapActor->GetName())
                 FoamActors.AddUnique(OverlapActor);
             }
         }

@@ -4,9 +4,12 @@
 #include "Actors/A1RepairBase.h"
 
 #include "A1EquipmentBase.h"
+#include "A1SpaceshipBase.h"
+#include "A1TutorialManager.h"
 #include "Character/LyraCharacter.h"
 #include "Components/ArrowComponent.h"
 #include "Item/Managers/A1EquipManagerComponent.h"
+#include "Kismet/GameplayStatics.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(A1RepairBase)
 
@@ -25,6 +28,8 @@ AA1RepairBase::AA1RepairBase(const FObjectInitializer& objectInitializer) : Supe
 void AA1RepairBase::BeginPlay()
 {
 	Super::BeginPlay();
+
+	FindOwningSpaceship();
 }
 
 void AA1RepairBase::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const
@@ -72,21 +77,48 @@ void AA1RepairBase::SetCurrentState(RepairState InState)
 	if (CurrentState == RepairState::Break)
 	{
 		SetSpriteBreak();
+		bIsFoamed = false;
 	}
 	else if (CurrentState == RepairState::NotBroken)
 	{
 		SetSpriteNotBroken();
 	}
-	else
+	else if (CurrentState == RepairState::Foamed)
+	{
+		SetSpriteFoamed();
+		if (!bIsFoamed)
+		{
+			bIsFoamed = true;
+			CachedSpaceship->SetFuelConsumeAmount(CachedSpaceship->GetFuelConsumeAmount() - 1);
+		}
+	}
+	else //RepairState::Complete
 	{
 		SetSpriteComplete();
+		bIsFoamed = false;
 	}
 }
 
 void AA1RepairBase::OnRepairChanged()
 {
-	SetCurrentState(RepairState::Complete);
-	OnRepairStateChanged.Broadcast();
+	//TODO eric1306
+	/*
+	 * Tutorial -> Complete 여야함 -> 이후 InnerMap 에서 해당 Foam 객체들을 RepairBase -> Foam으로 변경
+	 * not Tutorial -> Foamed 여야함 -> 이후 
+	 */
+	if (CachedSpaceship)
+	{
+		if (CachedSpaceship->GetbTutorial())
+		{
+			SetCurrentState(RepairState::Complete);
+		}
+		else
+		{
+			SetCurrentState(RepairState::Foamed);
+		}
+
+		OnRepairStateChanged.Broadcast();
+	}
 }
 
 bool AA1RepairBase::IsHoldingRepairKit(ALyraCharacter* Character) const
@@ -125,4 +157,16 @@ bool AA1RepairBase::IsHoldingRepairKit(ALyraCharacter* Character) const
 	}
 
 	return false;
+}
+
+void AA1RepairBase::FindOwningSpaceship()
+{
+	AActor* Actor = UGameplayStatics::GetActorOfClass(GetWorld(), AA1SpaceshipBase::StaticClass());
+	if (Actor)
+	{
+		if (AA1SpaceshipBase* Spaceship = Cast<AA1SpaceshipBase>(Actor))
+		{
+			CachedSpaceship = Spaceship;
+		}
+	}
 }
