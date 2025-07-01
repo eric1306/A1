@@ -5,16 +5,18 @@
 #include "Interaction/A1WorldInteractable.h"
 #include "A1RepairBase.generated.h"
 
+class AA1SpaceshipBase;
 class ALyraCharacter;
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnRepairStateChanged);
 
 class UArrowComponent;
 
-UENUM()
-enum class RepairState
+UENUM(BlueprintType)
+enum class RepairState : uint8
 {
 	NotBroken,
 	Break,
+	Foamed,
 	Complete
 };
 
@@ -49,11 +51,15 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 	void SetSpriteBreak();
 	UFUNCTION(BlueprintImplementableEvent)
+	void SetSpriteFoamed();
+	UFUNCTION(BlueprintImplementableEvent)
 	void SetSpriteComplete();
 
 protected:
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	bool IsHoldingRepairKit(ALyraCharacter* Character) const;
+
+	void FindOwningSpaceship();
 
 public:
 	UPROPERTY(BlueprintAssignable)
@@ -75,7 +81,13 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TObjectPtr<UStaticMeshComponent> MeshComponent;
 
+	UPROPERTY()
+	TObjectPtr<AA1SpaceshipBase> CachedSpaceship;
+
 public:
 	UPROPERTY(VisibleAnywhere)
 	RepairState CurrentState = RepairState::Break;
+
+private:
+	bool bIsFoamed = false;
 };

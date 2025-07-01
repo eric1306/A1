@@ -127,6 +127,9 @@ public:
     UFUNCTION(BlueprintCallable, Category = "Spaceship|Fuel", BlueprintAuthorityOnly)
     void ConsumeFuel(float AmountToConsume);
 
+    UFUNCTION(BlueprintCallable, Category = "Spaceship|Fuel", BlueprintAuthorityOnly)
+    void ConsumeDefaultFuel();
+
     
     UFUNCTION(BlueprintCallable, Category = "Spaceship|ExternalMap", BlueprintAuthorityOnly)
     void ActivateExternalMap();
@@ -153,11 +156,14 @@ public:
     void FindAllRepairBases();
 
     FORCEINLINE bool GetIsExternalMapActive() const { return bIsExternalMapActive; }
-    FORCEINLINE void SetIsExternamMapActive(bool InExternalMapActive) { bIsExternalMapActive = InExternalMapActive; }
+    void SetIsExternamMapActive(bool InExternalMapActive);
     FORCEINLINE AA1DoorBase* GetCachedDoor() const { return CacheDoor; }
     FORCEINLINE AA1SignalDetectionBase* GetSignalDetection() const { return SignalDetection; }
     FORCEINLINE bool GetCanUseDockingSignalHandler() const { return bCanUseDockingSignalHandler; }
     FORCEINLINE void SetCanUseDockingSignalHandler(bool InDockingSingalHandler) { bCanUseDockingSignalHandler = InDockingSingalHandler; }
+    FORCEINLINE bool GetbTutorial() const { return bTutorial; }
+    FORCEINLINE float GetFuelConsumeAmount() const {return CurrentFuelConsumeAmount;}
+    FORCEINLINE void SetFuelConsumeAmount(float InCurrentFuelConsumeAmount) { CurrentFuelConsumeAmount = InCurrentFuelConsumeAmount; }
 
     UFUNCTION(BlueprintCallable, Category = "Spaceship|GameState", BlueprintAuthorityOnly)
     void SetMeetRescueShip(bool bMeetRescue);
@@ -260,6 +266,12 @@ protected:
 
     UPROPERTY()
     int32 CurrentDay = 1;
+
+    UPROPERTY()
+    float CurrentFuelConsumeAmount = 1.f;
+
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Spaceship|Tutorial")
+    bool bTutorial = false;
 
 private:
     FTimerHandle FuelConsumeTimer;
