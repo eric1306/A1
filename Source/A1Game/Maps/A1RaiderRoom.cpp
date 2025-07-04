@@ -14,6 +14,7 @@
 #include "Net/UnrealNetwork.h"
 #include "Physics/LyraCollisionChannels.h"
 #include "Engine/OverlapResult.h"
+#include "Components/DynamicMeshComponent.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(A1RaiderRoom)
 
@@ -35,6 +36,9 @@ AA1RaiderRoom::AA1RaiderRoom(const FObjectInitializer& ObjectInitializer)
 
     RemoveItemPosition = CreateDefaultSubobject<USceneComponent>(TEXT("Remove Pos Location"));
     RemoveItemPosition->SetupAttachment(GetRootComponent());
+
+    DynamicMeshComponent = CreateDefaultSubobject<UDynamicMeshComponent>(TEXT("DynamicMeshComponent"));
+    DynamicMeshComponent->SetupAttachment(GeometryFolder);
 }
 
 void AA1RaiderRoom::BeginPlay()
@@ -264,6 +268,39 @@ void AA1RaiderRoom::RemoveChest()
             c->SetLifeSpan(0.01f);
             c->Destroy(true);
 	    }
+    }
+}
+
+void AA1RaiderRoom::SetRoomType(int32 RoomIndex)
+{
+    switch (RoomIndex)
+    {
+    case 0:
+    case 6:
+    case 7:
+        RoomType = ERoomType::Rounge;
+        break;
+    case 1:
+        RoomType = ERoomType::Storage;
+        break;
+    case 2:
+        RoomType = ERoomType::Container;
+        break;
+    case 3:
+        RoomType = ERoomType::Master;
+        break;
+    case 4:
+        RoomType = ERoomType::Bridge;
+        break;
+    case 5:
+        RoomType = ERoomType::LBridge;
+        break;
+    case 8:
+        RoomType = ERoomType::BedRoom;
+        break;
+    case 9:
+        RoomType = ERoomType::SecondFloor;
+        break;
     }
 }
 

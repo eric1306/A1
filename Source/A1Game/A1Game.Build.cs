@@ -45,6 +45,7 @@ public class A1Game : ModuleRules
 				"PropertyPath",
 				"Media",
 				"MediaAssets",
+				"GeometryFramework",
 			}
 		);
 

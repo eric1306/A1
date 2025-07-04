@@ -5,11 +5,24 @@
 #include "Maps/A1MasterRoom.h"
 #include "A1RaiderRoom.generated.h"
 
+class UDynamicMeshComponent;
 class AA1CreatureBase;
 class AA1ChestBase;
 class AA1EquipmentBase;
 class AA1RaiderBase;
 
+UENUM(BlueprintType)
+enum class ERoomType : uint8
+{
+	Rounge,
+	Storage,
+	Container,
+	Master,
+	Bridge,
+	LBridge,
+	BedRoom,
+	SecondFloor
+};
 USTRUCT()
 struct FSpawnQueueItem
 {
@@ -83,6 +96,13 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 	void SpawnPlundererSpawner();
 
+	UFUNCTION(BlueprintImplementableEvent)
+	void MakeCliff();
+
+	void SetRoomType(int32 RoomIndex);
+
+	FORCEINLINE ERoomType GetRoomType() const { return RoomType; }
+
 private:
 
 	// 큐에 추가하는 헬퍼 함수들
@@ -143,6 +163,12 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TArray<TSubclassOf<class UA1ItemTemplate>> CachedItemTemplates;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "DynamicMesh")
+	TObjectPtr<UDynamicMeshComponent> DynamicMeshComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "RoomType")
+	ERoomType RoomType = ERoomType::Rounge;
 
 private:
 	// 스폰 큐
