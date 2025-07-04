@@ -16,12 +16,11 @@ AA1DayNightManager::AA1DayNightManager()
 	bReplicates = true;
 
 	/*
-	 * 
 	 * - 20 minutes = 1 day
 	 * - 10 minue day/night
 	 */
-	DayDurationMinutes = 0.1f; //eric1306->OriginalValue : 20.f
-	DayPhaseDurationMinutes = 0.05f; //eric1306->OriginalValue : 10.f
+	DayDurationMinutes = 1.f; //eric1306->OriginalValue : 20.f
+	DayPhaseDurationMinutes = 0.5f; //eric1306->OriginalValue : 10.f
 
 	CurrentPhase = EDayPhase::Day;
 	CurrentDay = 1;

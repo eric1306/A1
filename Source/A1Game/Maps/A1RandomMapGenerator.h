@@ -245,6 +245,10 @@ protected:
     UPROPERTY(EditDefaultsOnly)
     TSubclassOf<AActor> PlundererSpawnClass;
 
+    //Enemy
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Map|Enemy")
+    TSubclassOf<AA1CreatureBase> RaiderClass;
+
 private:
     FTimerHandle GenerateTimer;
     FTimerHandle RepairTimer;

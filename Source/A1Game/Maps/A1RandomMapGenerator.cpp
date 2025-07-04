@@ -203,7 +203,7 @@ void AA1RandomMapGenerator::ProcessSpawnQueue()
         switch (Queue.Type)
         {
         case FSpawnQueue::Enemy:
-            Queue.RaiderRoom->SpawnEnemys();
+            Queue.RaiderRoom->SpawnEnemies(RaiderClass);
             break;
         case FSpawnQueue::Item:
             Queue.RaiderRoom->SpawnItems();
@@ -273,10 +273,11 @@ void AA1RandomMapGenerator::Server_SetSeed_Implementation()
     //Set Room Number by Day
     int32 CurrentDay = DayNightManager->GetCurrentDay();
     float DayPercentage = static_cast<float>(CurrentDay) / 40;
-    MaxRoomAmount =  10 + 20 * FMath::Min(DayPercentage, 1.f);
+    MaxRoomAmount = 30;//10 + 20 * FMath::Min(DayPercentage, 1.f);
     RoomAmount = MaxRoomAmount;
 
     MAP_LOG(LogMap, Log, TEXT("Set Seed!: %d"), Stream.GetInitialSeed());
+
     Server_SpawnStartRoom();
 }
 
@@ -412,6 +413,7 @@ void AA1RandomMapGenerator::Server_SpawnNextRoom_Implementation()
         SpawnedActor->NetUpdateFrequency = 60.0f;
         SpawnedActor->MinNetUpdateFrequency = 30.0f;
         SpawnedActor->NetPriority = 3.0f;
+
 
         UGameplayStatics::FinishSpawningActor(SpawnedActor, NextRoomTransform);
 
