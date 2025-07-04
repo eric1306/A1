@@ -5,6 +5,24 @@
 #include "Maps/A1MasterRoom.h"
 #include "A1RaiderRoom.generated.h"
 
+class UDynamicMeshComponent;
+class AA1CreatureBase;
+class AA1ChestBase;
+class AA1EquipmentBase;
+class AA1RaiderBase;
+
+UENUM(BlueprintType)
+enum class ERoomType : uint8
+{
+	Rounge,
+	Storage,
+	Container,
+	Master,
+	Bridge,
+	LBridge,
+	BedRoom,
+	SecondFloor
+};
 USTRUCT()
 struct FSpawnQueueItem
 {
@@ -19,23 +37,21 @@ struct FSpawnQueueItem
 
 	ESpawnType Type;
 	FTransform Transform;
+	TSubclassOf<AA1CreatureBase> EnemyClass;
 	int32 ItemIndex;
 
 	FSpawnQueueItem()
 	{
 		Type = Enemy;
 		Transform = FTransform::Identity;
+		EnemyClass = nullptr;
 		ItemIndex = 0;
 	}
 
-	FSpawnQueueItem(ESpawnType InType, const FTransform& InTransform, int32 InItemIndex = 0)
-		: Type(InType), Transform(InTransform), ItemIndex(InItemIndex) {
+	FSpawnQueueItem(ESpawnType InType, const FTransform& InTransform, TSubclassOf<AA1CreatureBase> InEnemyClass = nullptr, int32 InItemIndex = 0)
+		: Type(InType), Transform(InTransform), EnemyClass(InEnemyClass), ItemIndex(InItemIndex) {
 	}
 };
-
-class AA1ChestBase;
-class AA1EquipmentBase;
-class AA1RaiderBase;
 
 /**
  * 
@@ -54,10 +70,10 @@ protected:
 public:
 	virtual void Tick(float DeltaSeconds) override;
 	UFUNCTION(BlueprintCallable)
-	void SpawnEnemys();
+	void SpawnEnemies(TSubclassOf<AA1CreatureBase> CreatureClass);
 
 	UFUNCTION(BlueprintCallable)
-	void SpawnEnemy(FTransform SpawnTransform);
+	void SpawnEnemy(FTransform SpawnTransform, TSubclassOf<AA1CreatureBase> EnemyClass);
 
 	UFUNCTION(BlueprintCallable)
 	void SpawnItems();
@@ -80,10 +96,17 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 	void SpawnPlundererSpawner();
 
+	UFUNCTION(BlueprintImplementableEvent)
+	void MakeCliff();
+
+	void SetRoomType(int32 RoomIndex);
+
+	FORCEINLINE ERoomType GetRoomType() const { return RoomType; }
+
 private:
 
 	// 큐에 추가하는 헬퍼 함수들
-	void AddEnemyToQueue(const FTransform& Transform);
+	void AddEnemyToQueue(TSubclassOf<AA1CreatureBase> EnemyClass, const FTransform& Transform);
 	void AddItemToQueue(int32 ItemIndex);
 	void AddChestToQueue(const FTransform& Transform);
 
@@ -112,8 +135,6 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Raider|ItemSpawnLocations")
 	TArray<TObjectPtr<USceneComponent>> ItemBoxSpawnLocations;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Raider | Pawn")
-	TSubclassOf<AA1RaiderBase> RaiderClass;
 	UPROPERTY(EditDefaultsOnly, Category = "Raider | Chest")
 	TSubclassOf<AA1ChestBase> ChestClass;
 
@@ -132,7 +153,7 @@ protected:
 	int32 SpawnPercentage;
 
 	UPROPERTY(VisibleAnywhere, Category = "Raider", Replicated)
-	TArray<TObjectPtr<AA1RaiderBase>> SpawnedRaiders;
+	TArray<TObjectPtr<AA1CreatureBase>> SpawnedCreatures;
 
 	UPROPERTY(VisibleAnywhere, Category = "Raider", Replicated)
 	TArray<TObjectPtr<AA1EquipmentBase>> SpawnedItems;
@@ -143,16 +164,15 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TArray<TSubclassOf<class UA1ItemTemplate>> CachedItemTemplates;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "DynamicMesh")
+	TObjectPtr<UDynamicMeshComponent> DynamicMeshComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "RoomType")
+	ERoomType RoomType = ERoomType::Rounge;
+
 private:
 	// 스폰 큐
 	TQueue<FSpawnQueueItem> SpawnQueue;
-
-	// 동적 스폰 제한
-	UPROPERTY(EditAnywhere, Category = "Spawn Optimization")
-	int32 MinSpawnPerTick = 1;
-
-	UPROPERTY(EditAnywhere, Category = "Spawn Optimization")
-	int32 MaxSpawnPerTick = 5;
 
 	// 프레임 시간 체크
 	float LastFrameTime = 0.0f;
@@ -160,11 +180,11 @@ private:
 
 	// 스폰 간격
 	UPROPERTY(EditAnywhere, Category = "Spawn Optimization")
-	float SpawnInterval = 0.1f; // 0.1초마다 큐 처리
+	float SpawnInterval = 0.3f; // 0.1초마다 큐 처리
 
 	float SpawnTimer = 0.0f;
 
 	// 틱당 스폰 개수
 	UPROPERTY(EditAnywhere, Category = "Spawn")
-	int32 SpawnPerTick = 5;
+	int32 SpawnPerTick = 1;
 };

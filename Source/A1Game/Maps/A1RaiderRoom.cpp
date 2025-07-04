@@ -3,6 +3,7 @@
 
 #include "Maps/A1RaiderRoom.h"
 
+#include "A1LogChannels.h"
 #include "Actors/A1ChestBase.h"
 #include "Actors/A1EquipmentBase.h"
 #include "Character/Raider/A1RaiderBase.h"
@@ -13,6 +14,7 @@
 #include "Net/UnrealNetwork.h"
 #include "Physics/LyraCollisionChannels.h"
 #include "Engine/OverlapResult.h"
+#include "Components/DynamicMeshComponent.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(A1RaiderRoom)
 
@@ -34,6 +36,9 @@ AA1RaiderRoom::AA1RaiderRoom(const FObjectInitializer& ObjectInitializer)
 
     RemoveItemPosition = CreateDefaultSubobject<USceneComponent>(TEXT("Remove Pos Location"));
     RemoveItemPosition->SetupAttachment(GetRootComponent());
+
+    DynamicMeshComponent = CreateDefaultSubobject<UDynamicMeshComponent>(TEXT("DynamicMeshComponent"));
+    DynamicMeshComponent->SetupAttachment(GeometryFolder);
 }
 
 void AA1RaiderRoom::BeginPlay()
@@ -45,7 +50,7 @@ void AA1RaiderRoom::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& 
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-    DOREPLIFETIME(AA1RaiderRoom, SpawnedRaiders);
+    DOREPLIFETIME(AA1RaiderRoom, SpawnedCreatures);
 	DOREPLIFETIME(AA1RaiderRoom, SpawnedItems);
 }
 
@@ -63,21 +68,10 @@ void AA1RaiderRoom::Tick(float DeltaSeconds)
 
     SpawnTimer = 0.0f;
 
-    // 프레임 시간에 따라 스폰 개수 동적 조정
-    float CurrentFrameTime = FApp::GetDeltaTime();
-    if (CurrentFrameTime > TargetFrameTime * 1.5f) // 40 FPS 이하
-    {
-        SpawnPerTick = MinSpawnPerTick;
-    }
-    else if (CurrentFrameTime < TargetFrameTime) // 60 FPS 이상
-    {
-        SpawnPerTick = MaxSpawnPerTick;
-    }
-
     ProcessSpawnQueue();
 }
 
-void AA1RaiderRoom::SpawnEnemys()
+void AA1RaiderRoom::SpawnEnemies(TSubclassOf<AA1CreatureBase> CreatureClass)
 {
     if (!HasAuthority())
         return;
@@ -91,7 +85,7 @@ void AA1RaiderRoom::SpawnEnemys()
     {
         if (child)
         {
-            AddEnemyToQueue(child->GetComponentTransform());
+            AddEnemyToQueue(CreatureClass, child->GetComponentTransform());
         }
     }
 
@@ -115,14 +109,14 @@ void AA1RaiderRoom::SpawnEnemys()
         if (child && SpawnOptionalMonsterRate--)
         {
             //Spawn Raider
-            AddEnemyToQueue(child->GetComponentTransform());
+            AddEnemyToQueue(CreatureClass, child->GetComponentTransform());
         }
     }
 }
 
-void AA1RaiderRoom::SpawnEnemy(FTransform SpawnTransform)
+void AA1RaiderRoom::SpawnEnemy(FTransform SpawnTransform, TSubclassOf<AA1CreatureBase> EnemyClass)
 {
-    AA1RaiderBase* Raider = GetWorld()->SpawnActorDeferred<AA1RaiderBase>(RaiderClass, SpawnTransform, this);
+    AA1CreatureBase* Raider = GetWorld()->SpawnActorDeferred<AA1CreatureBase>(EnemyClass, SpawnTransform, this);
     if (Raider)
     {
         //UE_LOG(LogTemp, Log, TEXT("Spawn Raider Complete!"));
@@ -139,7 +133,7 @@ void AA1RaiderRoom::SpawnEnemy(FTransform SpawnTransform)
         UGameplayStatics::FinishSpawningActor(Raider, SpawnTransform);
 
         //Replicated
-        SpawnedRaiders.Add(Raider);
+        SpawnedCreatures.Add(Raider);
     }
 }
 void AA1RaiderRoom::SpawnItems()
@@ -195,6 +189,8 @@ void AA1RaiderRoom::SpawnItem(int32 idx)
         NewSpawnedItem->SetPickup(false);
         NewSpawnedItem->SetActorHiddenInGame(false);
         NewSpawnedItem->FinishSpawning(FTransform::Identity, true);
+
+        UE_LOG(LogA1, Log, TEXT("Spawned Item: %s"), *NewSpawnedItem->GetName());
     }
 }
 
@@ -211,7 +207,7 @@ void AA1RaiderRoom::SpawnChest(FTransform SpawnTransform)
 
 void AA1RaiderRoom::RemoveEnemy()
 {
-    for (auto Raider : SpawnedRaiders)
+    for (auto Raider : SpawnedCreatures)
     {
         if (Raider)
         {
@@ -219,7 +215,7 @@ void AA1RaiderRoom::RemoveEnemy()
         }
     }
 
-    SpawnedRaiders.Empty();
+    SpawnedCreatures.Empty();
 }
 
 void AA1RaiderRoom::RemoveItem()
@@ -275,14 +271,47 @@ void AA1RaiderRoom::RemoveChest()
     }
 }
 
-void AA1RaiderRoom::AddEnemyToQueue(const FTransform& Transform)
+void AA1RaiderRoom::SetRoomType(int32 RoomIndex)
 {
-    SpawnQueue.Enqueue(FSpawnQueueItem(FSpawnQueueItem::Enemy, Transform));
+    switch (RoomIndex)
+    {
+    case 0:
+    case 6:
+    case 7:
+        RoomType = ERoomType::Rounge;
+        break;
+    case 1:
+        RoomType = ERoomType::Storage;
+        break;
+    case 2:
+        RoomType = ERoomType::Container;
+        break;
+    case 3:
+        RoomType = ERoomType::Master;
+        break;
+    case 4:
+        RoomType = ERoomType::Bridge;
+        break;
+    case 5:
+        RoomType = ERoomType::LBridge;
+        break;
+    case 8:
+        RoomType = ERoomType::BedRoom;
+        break;
+    case 9:
+        RoomType = ERoomType::SecondFloor;
+        break;
+    }
+}
+
+void AA1RaiderRoom::AddEnemyToQueue(TSubclassOf<AA1CreatureBase> EnemyClass, const FTransform& Transform)
+{
+    SpawnQueue.Enqueue(FSpawnQueueItem(FSpawnQueueItem::Enemy, Transform, EnemyClass));
 }
 
 void AA1RaiderRoom::AddItemToQueue(int32 ItemIndex)
 {
-    SpawnQueue.Enqueue(FSpawnQueueItem(FSpawnQueueItem::Item, FTransform::Identity, ItemIndex));
+    SpawnQueue.Enqueue(FSpawnQueueItem(FSpawnQueueItem::Item, FTransform::Identity, nullptr, ItemIndex));
 }
 
 void AA1RaiderRoom::AddChestToQueue(const FTransform& Transform)
@@ -304,7 +333,7 @@ void AA1RaiderRoom::ProcessSpawnQueue()
         switch (Item.Type)
         {
         case FSpawnQueueItem::Enemy:
-            SpawnEnemy(Item.Transform);
+            SpawnEnemy(Item.Transform, Item.EnemyClass);
             break;
         case FSpawnQueueItem::Item:
             SpawnItem(Item.ItemIndex);

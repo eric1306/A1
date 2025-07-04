@@ -17,7 +17,8 @@ struct FSpawnQueue
     enum ESpawnType
     {
         Enemy,
-        Item
+        Item,
+        Cliff
     };
 
     ESpawnType Type;
@@ -30,8 +31,7 @@ struct FSpawnQueue
         Type = Enemy;
         RaiderRoom = nullptr;
     }
-
-    FSpawnQueue(ESpawnType InType, AA1RaiderRoom* InRoom) : Type(InType), RaiderRoom(InRoom) { }
+	FSpawnQueue(ESpawnType InType, AA1RaiderRoom* InRoom) : Type(InType), RaiderRoom(InRoom) { }
 };
 
 class AA1RoomBridge;
@@ -103,6 +103,9 @@ public:
     UFUNCTION(Server, Reliable)
     void Server_SpawnItem();
 
+    UFUNCTION(Server, Reliable)
+    void Server_MakeCliff();
+
     //RPC Functions
 
     UFUNCTION(NetMulticast, Reliable)
@@ -145,6 +148,7 @@ protected:
 private:
     void AddEnemyToQueue(AA1RaiderRoom* Room);
     void AddItemToQueue(AA1RaiderRoom* Room);
+    void AddCliffToQueue(AA1RaiderRoom* Room);
 
     // 큐에서 처리하는 함수
     void ProcessSpawnQueue();
@@ -244,6 +248,10 @@ protected:
 
     UPROPERTY(EditDefaultsOnly)
     TSubclassOf<AActor> PlundererSpawnClass;
+
+    //Enemy
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Map|Enemy")
+    TSubclassOf<AA1CreatureBase> RaiderClass;
 
 private:
     FTimerHandle GenerateTimer;

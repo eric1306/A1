@@ -189,6 +189,11 @@ void AA1RandomMapGenerator::AddItemToQueue(AA1RaiderRoom* Room)
     SpawnQueue.Enqueue(FSpawnQueue(FSpawnQueue::Item, Room));
 }
 
+void AA1RandomMapGenerator::AddCliffToQueue(AA1RaiderRoom* Room)
+{
+    SpawnQueue.Enqueue(FSpawnQueue(FSpawnQueue::Cliff, Room));
+}
+
 void AA1RandomMapGenerator::ProcessSpawnQueue()
 {
     if (!HasAuthority())
@@ -203,14 +208,32 @@ void AA1RandomMapGenerator::ProcessSpawnQueue()
         switch (Queue.Type)
         {
         case FSpawnQueue::Enemy:
-            Queue.RaiderRoom->SpawnEnemys();
+            Queue.RaiderRoom->SpawnEnemies(RaiderClass);
             break;
         case FSpawnQueue::Item:
             Queue.RaiderRoom->SpawnItems();
             break;
+        case FSpawnQueue::Cliff:
+            Queue.RaiderRoom->MakeCliff();
+            break;
         }
 
         SpawnedThisTick++;
+    }
+}
+
+void AA1RandomMapGenerator::Server_MakeCliff_Implementation()
+{
+    //Make Cliff
+    for (auto Room : SpawnedRooms)
+    {
+        if (Room->GetActorLocation().Z < 1000.f)
+        {
+            if (AA1RaiderRoom* RaiderRoom = Cast<AA1RaiderRoom>(Room))
+            {
+                AddCliffToQueue(RaiderRoom);
+            }
+        }
     }
 }
 
@@ -273,10 +296,11 @@ void AA1RandomMapGenerator::Server_SetSeed_Implementation()
     //Set Room Number by Day
     int32 CurrentDay = DayNightManager->GetCurrentDay();
     float DayPercentage = static_cast<float>(CurrentDay) / 40;
-    MaxRoomAmount =  10 + 20 * FMath::Min(DayPercentage, 1.f);
+    MaxRoomAmount = 10 + 20 * FMath::Min(DayPercentage, 1.f);
     RoomAmount = MaxRoomAmount;
 
     MAP_LOG(LogMap, Log, TEXT("Set Seed!: %d"), Stream.GetInitialSeed());
+
     Server_SpawnStartRoom();
 }
 
@@ -412,6 +436,11 @@ void AA1RandomMapGenerator::Server_SpawnNextRoom_Implementation()
         SpawnedActor->NetUpdateFrequency = 60.0f;
         SpawnedActor->MinNetUpdateFrequency = 30.0f;
         SpawnedActor->NetPriority = 3.0f;
+        if (AA1RaiderRoom* RaiderRoom = Cast<AA1RaiderRoom>(SpawnedActor))
+        {
+            RaiderRoom->SetRoomType(OutIndex);
+        }
+
 
         UGameplayStatics::FinishSpawningActor(SpawnedActor, NextRoomTransform);
 
@@ -540,7 +569,7 @@ void AA1RandomMapGenerator::Server_CheckForOverlap_Implementation()
 
             ExitsList.Append(ChildrenComp);
 
-            ExpectedExitCount += ChildrenComp.Num() - 1; //
+            ExpectedExitCount += ChildrenComp.Num() - 1;
         }
 
         if (RoomAmount > 0)
@@ -845,6 +874,7 @@ void AA1RandomMapGenerator::Server_CloseHoles_Implementation()
 
     Server_SpawnEnemy();
     Server_SpawnItem();
+    Server_MakeCliff();
 }
 
 void AA1RandomMapGenerator::Multicast_CloseHoles_Implementation()
