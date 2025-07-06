@@ -523,19 +523,19 @@ void UA1EquipManagerComponent::CanInteract()
 {
 	FGameplayTag TagToCheck = FGameplayTag::RequestGameplayTag(FName("Status.TryInteract"));
 	bool HasTag = GetAbilitySystemComponent()->HasMatchingGameplayTag(TagToCheck);
+	bool HasItem = GetEquippedActor(ConvertToEquipmentSlotType(CurrentMainHand)) != nullptr;
+	bool HasTwoHandItem = GetEquippedActor(EEquipmentSlotType::TwoHand) != nullptr;
 
 	FGameplayTagContainer TagContainer;
 	TagContainer.AddTag(TagToCheck);
 
+
+	// Tag를 보유했으며 (TwoHand가 찼다면 || MainHand가 비어있지 않다면) 불가능 -> Tag 제거
+	if (HasTag && (HasItem || HasTwoHandItem))
+		UAbilitySystemBlueprintLibrary::RemoveLooseGameplayTags(GetOwner(), TagContainer, true);
 	
-	// MainHand가 비어있지 않다면 불가능 -> Tag 제거
-	if (GetEquippedActor(ConvertToEquipmentSlotType(CurrentMainHand)) != nullptr)
-		UAbilitySystemBlueprintLibrary::RemoveLooseGameplayTags(GetOwner(), TagContainer, true);
-	// TwoHand가 찼다면 불가능 -> Tag 제거
-	else if(GetEquippedActor(EEquipmentSlotType::TwoHand) != nullptr)
-		UAbilitySystemBlueprintLibrary::RemoveLooseGameplayTags(GetOwner(), TagContainer, true);
-	// MainHand Item이 비었고 Tag가 없다면 -> Interact 가능 태그 부여
-	else if(HasTag == false)
+	// Tag가 없으며 MainHand & TwoHand 모두 Item이 비었다면 -> Interact 가능 태그 부여
+	if(!HasTag && !(HasItem || HasTwoHandItem))
 		UAbilitySystemBlueprintLibrary::AddLooseGameplayTags(GetOwner(), TagContainer, true);
 }
 
