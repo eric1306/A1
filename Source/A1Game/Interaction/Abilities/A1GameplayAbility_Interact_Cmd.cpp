@@ -70,13 +70,6 @@ void UA1GameplayAbility_Interact_Cmd::ActivateAbility(const FGameplayAbilitySpec
 	{
 		LyraPlayerController->SetViewTargetWithBlend(CMD, 0.5f, EViewTargetBlendFunction::VTBlend_Linear);
 	}
-
-	// TODO eric 1306
-	// Tutorial 상태라면
-	//if (AActor* TargetActor = Cast<AActor>(UGameplayStatics::GetActorOfClass(GetWorld(), AActor::StaticClass())))
-	//	bTutorialMode = true;
-	//else
-	//	bTutorialMode = false;
 }
 
 void UA1GameplayAbility_Interact_Cmd::EndAbility(const FGameplayAbilitySpecHandle Handle,

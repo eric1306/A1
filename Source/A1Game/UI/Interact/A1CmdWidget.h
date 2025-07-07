@@ -50,6 +50,7 @@ protected:
 	UFUNCTION(Blueprintimplementableevent)
 	void ShowRepairPercent(float Percent);
 
+	void ShowTutoMode();
 	void ShowMenu();
 	void HiddenMenu();
 
