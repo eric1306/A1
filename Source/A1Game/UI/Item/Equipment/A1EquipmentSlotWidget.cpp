@@ -4,6 +4,9 @@
 
 #include "A1EquipmentSlotsWidget.h"
 #include "A1EquipmentEntryWidget.h"
+#include "AbilitySystemGlobals.h"
+#include "AbilitySystemComponent.h"
+#include "AbilitySystemBlueprintLibrary.h"
 #include "Item/Managers/A1EquipManagerComponent.h"
 #include "Components/Image.h"
 #include "Components/Overlay.h"
@@ -110,6 +113,16 @@ bool UA1EquipmentSlotWidget::NativeOnDrop(const FGeometry& InGeometry, const FDr
 	Super::NativeOnDrop(InGeometry, InDragDropEvent, InOperation);
 
 	OnDragEnded();
+
+	// Tag를 가지고 있다면 Drag 중이라는 태그 제거
+	FGameplayTag TagToCheck = FGameplayTag::RequestGameplayTag(FName("GameplayEvent.Inventory.Drag"));
+	bool HasTag = UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(GetOwningPlayerPawn())->HasMatchingGameplayTag(TagToCheck);
+	if (HasTag)
+	{
+		FGameplayTagContainer TagContainer;
+		TagContainer.AddTag(TagToCheck);
+		UAbilitySystemBlueprintLibrary::RemoveLooseGameplayTags(GetOwningPlayerPawn(), TagContainer, true);
+	}
 
 	UA1ItemDragDrop* ItemDragDrop = Cast<UA1ItemDragDrop>(InOperation);
 	if (ItemDragDrop == nullptr)

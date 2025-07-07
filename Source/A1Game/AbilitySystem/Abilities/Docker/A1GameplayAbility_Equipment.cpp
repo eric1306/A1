@@ -22,7 +22,7 @@ UA1GameplayAbility_Equipment::UA1GameplayAbility_Equipment(const FObjectInitiali
 	bServerRespectsRemoteAbilityCancellation = false;
 	NetSecurityPolicy = EGameplayAbilityNetSecurityPolicy::ServerOnlyTermination;
 
-	ActivationBlockedTags.AddTag(A1GameplayTags::GameplayEvent_Widget_Inventory);
+	ActivationBlockedTags.AddTag(A1GameplayTags::GameplayEvent_Inventory_Open);
 }
 
 void UA1GameplayAbility_Equipment::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)

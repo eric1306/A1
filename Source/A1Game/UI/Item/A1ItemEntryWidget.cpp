@@ -2,6 +2,9 @@
 
 #include "A1ItemEntryWidget.h"
 
+#include "AbilitySystemGlobals.h"
+#include "AbilitySystemComponent.h"
+#include "AbilitySystemBlueprintLibrary.h"
 #include "Components/Image.h"
 #include "Components/TextBlock.h"
 #include "Data/A1ItemData.h"
@@ -100,6 +103,16 @@ void UA1ItemEntryWidget::NativeOnDragDetected(const FGeometry& InGeometry, const
 	Super::NativeOnDragDetected(InGeometry, InMouseEvent, OutOperation);
 
 	RefreshWidgetOpacity(false);
+
+	// Tag를 가지고 있지 않다면 Drag 중이라는 태그 부여
+	FGameplayTag TagToCheck = FGameplayTag::RequestGameplayTag(FName("GameplayEvent.Inventory.Drag"));
+	bool HasTag = UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(GetOwningPlayerPawn())->HasMatchingGameplayTag(TagToCheck);
+	if (!HasTag)
+	{
+		FGameplayTagContainer TagContainer;
+		TagContainer.AddTag(TagToCheck);
+		UAbilitySystemBlueprintLibrary::AddLooseGameplayTags(GetOwningPlayerPawn(), TagContainer, true);
+	}
 }
 
 void UA1ItemEntryWidget::NativeOnDragCancelled(const FDragDropEvent& InDragDropEvent, UDragDropOperation* InOperation)

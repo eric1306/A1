@@ -5,6 +5,9 @@
 #include "A1InventorySlotWidget.h"
 #include "A1InventoryEntryWidget.h"
 #include "A1InventoryValidWidget.h"
+#include "AbilitySystemGlobals.h"
+#include "AbilitySystemComponent.h"
+#include "AbilitySystemBlueprintLibrary.h"
 #include "Components/CanvasPanel.h"
 #include "Components/CanvasPanelSlot.h"
 #include "Components/Overlay.h"
@@ -123,6 +126,16 @@ bool UA1InventorySlotsWidget::NativeOnDrop(const FGeometry& InGeometry, const FD
 	Super::NativeOnDrop(InGeometry, InDragDropEvent, InOperation);
 
 	FinishDrag();
+
+	//Tag를 가지고 있다면 Drag 중이라는 태그 제거
+	FGameplayTag TagToCheck = FGameplayTag::RequestGameplayTag(FName("GameplayEvent.Inventory.Drag"));
+	bool HasTag = UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(GetOwningPlayerPawn())->HasMatchingGameplayTag(TagToCheck);
+	if (HasTag)
+	{
+		FGameplayTagContainer TagContainer;
+		TagContainer.AddTag(TagToCheck);
+		UAbilitySystemBlueprintLibrary::RemoveLooseGameplayTags(GetOwningPlayerPawn(), TagContainer, true);
+	}
 
 	FIntPoint UnitInventorySlotSize = UA1UIData::Get().UnitInventorySlotSize;
 
