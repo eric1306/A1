@@ -123,51 +123,59 @@ bool UA1GameplayAbility_Weapon_Gun_NormalShoot::Shoot()
 		// 가해자 정보
 		FGameplayEffectContextHandle EffectContextHandle = SourceASC->MakeEffectContext();
 		HitResult.bBlockingHit = true;
-		EffectContextHandle.AddHitResult(HitResult);
-		EffectContextHandle.AddInstigator(SourceASC->AbilityActorInfo->AvatarActor.Get(), EquippedActor);
 
-		// 맞았으면 데미지 적용
-		if (bHit)
+		if (EffectContextHandle.IsValid())
 		{
-			AA1RaiderBase* Target = Cast<AA1RaiderBase>(HitResult.GetActor());
-			if (Target)
+			EffectContextHandle.AddHitResult(HitResult);
+			EffectContextHandle.AddInstigator(SourceASC->AbilityActorInfo->AvatarActor.Get(), EquippedActor);
+
+			// 맞았으면 데미지 적용
+			if (bHit)
 			{
-				float Damage = GetEquipmentStatValue(A1GameplayTags::SetByCaller_BaseDamage, EquippedActor);
-				FGameplayAbilityTargetDataHandle TargetDataHandle = UAbilitySystemBlueprintLibrary::AbilityTargetDataFromActor(Target);
-
-				const TSubclassOf<UGameplayEffect> DamageGE = ULyraAssetManager::GetSubclassByPath(ULyraGameData::Get().DamageGameplayEffect_SetByCaller);
-				FGameplayEffectSpecHandle DamageEffectSpecHandle = MakeOutgoingGameplayEffectSpec(DamageGE);
-				DamageEffectSpecHandle.Data->SetContext(EffectContextHandle);
-
-				if (DamageEffectSpecHandle.IsValid())
+				AA1RaiderBase* Target = Cast<AA1RaiderBase>(HitResult.GetActor());
+				if (Target)
 				{
-					// 무기에 희귀도에 따른 대미지 차별화
-					DamageEffectSpecHandle.Data->SetSetByCallerMagnitude(A1GameplayTags::SetByCaller_BaseDamage, Damage);
-					float DamageSet = DamageEffectSpecHandle.Data->GetSetByCallerMagnitude(A1GameplayTags::SetByCaller_BaseDamage, false);
-					UE_LOG(LogA1, Warning, TEXT("Set Damage: %f"), DamageSet);
-					ApplyGameplayEffectSpecToTarget(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, DamageEffectSpecHandle, TargetDataHandle);
+					float Damage = GetEquipmentStatValue(A1GameplayTags::SetByCaller_BaseDamage, EquippedActor);
+					FGameplayAbilityTargetDataHandle TargetDataHandle = UAbilitySystemBlueprintLibrary::AbilityTargetDataFromActor(Target);
+					if (TargetDataHandle.IsValid(0))
+					{
+						const TSubclassOf<UGameplayEffect> DamageGE = ULyraAssetManager::GetSubclassByPath(ULyraGameData::Get().DamageGameplayEffect_SetByCaller);
+						FGameplayEffectSpecHandle DamageEffectSpecHandle = MakeOutgoingGameplayEffectSpec(DamageGE);
+
+						if (DamageEffectSpecHandle.IsValid())
+						{
+							DamageEffectSpecHandle.Data->SetContext(EffectContextHandle);
+							// 무기에 희귀도에 따른 대미지 차별화
+								DamageEffectSpecHandle.Data->SetSetByCallerMagnitude(A1GameplayTags::SetByCaller_BaseDamage, Damage);
+								float DamageSet = DamageEffectSpecHandle.Data->GetSetByCallerMagnitude(A1GameplayTags::SetByCaller_BaseDamage, false);
+							UE_LOG(LogA1, Warning, TEXT("Set Damage: %f"), DamageSet);
+							ApplyGameplayEffectSpecToTarget(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, DamageEffectSpecHandle, TargetDataHandle);
+						}
+					}
 				}
 			}
 		}
-
+		
 		if (LyraCharacter->IsOutSide())
 		{
 			// 산소 소모
 			float Oxygen = GetEquipmentStatValue(A1GameplayTags::SetByCaller_BaseOxygen, EquippedActor);
 			FGameplayAbilityTargetDataHandle TargetDataHandle = UAbilitySystemBlueprintLibrary::AbilityTargetDataFromActor(LyraCharacter);
-			//SourceASC->AbilityActorInfo->AvatarActor.Get()
-			const TSubclassOf<UGameplayEffect> OxygenGE = ULyraAssetManager::GetSubclassByPath(ULyraGameData::Get().ConsumeOxygenByWeapon_SetByCaller);
-			FGameplayEffectSpecHandle OxygenEffectSpecHandle = MakeOutgoingGameplayEffectSpec(OxygenGE);
-			OxygenEffectSpecHandle.Data->SetContext(EffectContextHandle);
-
-			if (OxygenEffectSpecHandle.IsValid())
+			if (TargetDataHandle.IsValid(0))
 			{
-				// 무기에 희귀도에 따른 대미지 차별화
-				OxygenEffectSpecHandle.Data->SetSetByCallerMagnitude(A1GameplayTags::SetByCaller_BaseOxygen, Oxygen);
-				float DamageSet = OxygenEffectSpecHandle.Data->GetSetByCallerMagnitude(A1GameplayTags::SetByCaller_BaseOxygen, false);
-				ApplyGameplayEffectSpecToTarget(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, OxygenEffectSpecHandle, TargetDataHandle);
+				const TSubclassOf<UGameplayEffect> OxygenGE = ULyraAssetManager::GetSubclassByPath(ULyraGameData::Get().ConsumeOxygenByWeapon_SetByCaller);
+				FGameplayEffectSpecHandle OxygenEffectSpecHandle = MakeOutgoingGameplayEffectSpec(OxygenGE);
+				if (OxygenEffectSpecHandle.IsValid())
+				{
+					OxygenEffectSpecHandle.Data->SetContext(EffectContextHandle);
+					// 무기에 희귀도에 따른 대미지 차별화
+					OxygenEffectSpecHandle.Data->SetSetByCallerMagnitude(A1GameplayTags::SetByCaller_BaseOxygen, Oxygen);
+					float DamageSet = OxygenEffectSpecHandle.Data->GetSetByCallerMagnitude(A1GameplayTags::SetByCaller_BaseOxygen, false);
+					ApplyGameplayEffectSpecToTarget(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, OxygenEffectSpecHandle, TargetDataHandle);
+				}
 			}
 		}
+		
 	}
 
 	return true;
