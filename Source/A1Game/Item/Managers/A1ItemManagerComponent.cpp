@@ -431,6 +431,10 @@ bool UA1ItemManagerComponent::TryPickItem(AA1EquipmentBase* PickupableItemActor)
 
 		return true;
 	}
+	else
+	{
+		Character->HandleNoticeWarning("Pickup", 0);
+	}
 
 	return false;
 }

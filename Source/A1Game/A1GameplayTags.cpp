@@ -70,7 +70,7 @@ namespace A1GameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Interact_Active,							"Ability.Interact.Active");
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Interact_Object,							"Ability.Interact.Object");
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Interact_FlashLight,						"Ability.Interact.FlashLight");
-	UE_DEFINE_GAMEPLAY_TAG(Ability_Interact_Repair,						"Ability.Interact.Repair");
+	UE_DEFINE_GAMEPLAY_TAG(Ability_Interact_Repair,							"Ability.Interact.Repair");
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Widget_Inventory,						"Ability.Widget.Inventory");
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Widget_WorldMap,							"Ability.Widget.WorldMap");
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Widget_ClassSelection,					"Ability.Widget.SkinSelection");
@@ -125,7 +125,8 @@ namespace A1GameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(GameplayEvent_Knockback,							"GameplayEvent.Knockback");
 	UE_DEFINE_GAMEPLAY_TAG(GameplayEvent_Stun,								"GameplayEvent.Stun");
 	UE_DEFINE_GAMEPLAY_TAG(GameplayEvent_Gun_ADS,							"GameplayEvent.Gun.ADS");
-	UE_DEFINE_GAMEPLAY_TAG(GameplayEvent_Widget_Inventory,					"GameplayEvent.Widget.Inventory");
+	UE_DEFINE_GAMEPLAY_TAG(GameplayEvent_Inventory_Open,					"GameplayEvent.Inventory.Open");
+	UE_DEFINE_GAMEPLAY_TAG(GameplayEvent_Inventory_Drag,					"GameplayEvent.Inventory.Drag");
 	UE_DEFINE_GAMEPLAY_TAG(GameplayEvent_HitReact,							"GameplayEvent.HitReact");
 	UE_DEFINE_GAMEPLAY_TAG(GameplayEvent_Cmd_Exit,							"GameplayEvent.Cmd.Exit");
 

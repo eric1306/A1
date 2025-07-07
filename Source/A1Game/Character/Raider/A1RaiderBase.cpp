@@ -130,6 +130,9 @@ void AA1RaiderBase::BeAttacked(AActor* InInstigator, float OldValue, float NewVa
 			{
 				BlackBoard->SetValueAsBool(AA1RaiderController::CanAttackKey, true);
 				BlackBoard->SetValueAsObject(AA1RaiderController::AggroTargetKey, InInstigator);
+
+				// 기본 Idle 음성 멈추기
+				EnterAttackMode(true);
 			}
 		}
 	}
@@ -144,6 +147,9 @@ void AA1RaiderBase::HandleOutOfHealth(AActor* InActor, float OldValue, float New
 
 
 	GetController()->UnPossess();  // AI가 더 이상 캐릭터를 제어하지 않도록 함
+
+	// 기본 Idle 음성 멈추기
+	EnterAttackMode(false);
 
 	SetDead();
 }
