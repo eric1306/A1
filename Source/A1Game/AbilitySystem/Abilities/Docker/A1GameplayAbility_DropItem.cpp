@@ -31,7 +31,7 @@ void UA1GameplayAbility_DropItem::ActivateAbility(const FGameplayAbilitySpecHand
 		return;
 	}
 
-	FGameplayTag CheckToWidget = FGameplayTag::RequestGameplayTag("GameplayEvent.Widget.Inventory");
+	FGameplayTag CheckToWidget = FGameplayTag::RequestGameplayTag("GameplayEvent.Inventory.Open");
 	FGameplayTag CheckToInteract = FGameplayTag::RequestGameplayTag("Status.TryInteract");
 	bool bActivateWidget = SourceASC->HasMatchingGameplayTag(CheckToWidget);
 	bool bTryInteract = SourceASC->HasMatchingGameplayTag(CheckToInteract);
