@@ -31,6 +31,9 @@ public:
 
 	void AddDropItems(TWeakObjectPtr<AA1EquipmentBase> Item);
 
+	UFUNCTION(BlueprintImplementableEvent)
+	void EnterAttackMode(bool OnOff);
+
 protected:
 	void BeAttacked(AActor* Instigator, float OldValue, float NewValue);
 	void HandleOutOfHealth(AActor* InActor, float OldValue, float NewValue);
