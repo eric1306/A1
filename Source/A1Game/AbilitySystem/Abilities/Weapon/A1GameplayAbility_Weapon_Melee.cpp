@@ -103,21 +103,26 @@ void UA1GameplayAbility_Weapon_Melee::ProcessHitResult(FHitResult HitResult, flo
 		}
 
 		FGameplayAbilityTargetDataHandle TargetDataHandle = UAbilitySystemBlueprintLibrary::AbilityTargetDataFromActor(HitResult.GetActor());
-		const TSubclassOf<UGameplayEffect> DamageGE = UA1AbilityData::Get().GetGameplayEffect("Attack");
-		if (DamageGE)
+		if (TargetDataHandle.IsValid(0))
 		{
-			FGameplayEffectSpecHandle EffectSpecHandle = MakeOutgoingGameplayEffectSpec(DamageGE);
+			const TSubclassOf<UGameplayEffect> DamageGE = UA1AbilityData::Get().GetGameplayEffect("Attack");
+			if (DamageGE)
+			{
+				FGameplayEffectSpecHandle EffectSpecHandle = MakeOutgoingGameplayEffectSpec(DamageGE);
+				FGameplayEffectContextHandle EffectContextHandle = SourceASC->MakeEffectContext();
+				if (EffectSpecHandle.IsValid() && EffectContextHandle.IsValid())
+				{				
+					HitResult.bBlockingHit = bBlockingHit;
+					EffectContextHandle.AddHitResult(HitResult);
+					EffectContextHandle.AddInstigator(SourceASC->AbilityActorInfo->AvatarActor.Get(), WeaponActor);
+					EffectSpecHandle.Data->SetContext(EffectContextHandle);
 
-			FGameplayEffectContextHandle EffectContextHandle = SourceASC->MakeEffectContext();
-			HitResult.bBlockingHit = bBlockingHit;
-			EffectContextHandle.AddHitResult(HitResult);
-			EffectContextHandle.AddInstigator(SourceASC->AbilityActorInfo->AvatarActor.Get(), WeaponActor);
-			EffectSpecHandle.Data->SetContext(EffectContextHandle);
+					Damage = bBlockingHit ? Damage * BlockHitDamageMultiplier : Damage;
 
-			Damage = bBlockingHit ? Damage * BlockHitDamageMultiplier : Damage;
-
-			EffectSpecHandle.Data->SetSetByCallerMagnitude(A1GameplayTags::SetByCaller_BaseDamage, Damage);
-			ApplyGameplayEffectSpecToTarget(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, EffectSpecHandle, TargetDataHandle);
+					EffectSpecHandle.Data->SetSetByCallerMagnitude(A1GameplayTags::SetByCaller_BaseDamage, Damage);
+					ApplyGameplayEffectSpecToTarget(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, EffectSpecHandle, TargetDataHandle);
+				}
+			}
 		}
 	}
 	

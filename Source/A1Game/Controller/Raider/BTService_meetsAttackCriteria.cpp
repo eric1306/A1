@@ -5,6 +5,7 @@
 
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Character/LyraCharacter.h"
+#include "Character/Raider/A1RaiderBase.h"
 #include "Controller/Raider/A1RaiderController.h"
 #include "Item/Managers/A1EquipManagerComponent.h"
 
@@ -18,7 +19,7 @@ void UBTService_meetsAttackCriteria::TickNode(UBehaviorTreeComponent& OwnerComp,
 {
 	Super::TickNode(OwnerComp, NodeMemory, DeltaSeconds);
 
-	AActor* ControllingPawn = Cast<AActor>(OwnerComp.GetAIOwner()->GetPawn());
+	AA1RaiderBase* ControllingPawn = Cast<AA1RaiderBase>(OwnerComp.GetAIOwner()->GetPawn());
 	if (ControllingPawn == nullptr)
 		return;
 
@@ -48,6 +49,8 @@ void UBTService_meetsAttackCriteria::TickNode(UBehaviorTreeComponent& OwnerComp,
 		{
 			OwnerComp.GetBlackboardComponent()->SetValueAsBool(AA1RaiderController::CanAttackKey, false);
 			OwnerComp.GetBlackboardComponent()->SetValueAsObject(AA1RaiderController::AggroTargetKey, nullptr);	
+
+			ControllingPawn->EnterAttackMode(false);
 		}
 
 		// 선공 상태가 아닐때만 계산
@@ -82,6 +85,10 @@ void UBTService_meetsAttackCriteria::TickNode(UBehaviorTreeComponent& OwnerComp,
 			}
 
 			OwnerComp.GetBlackboardComponent()->SetValueAsBool(AA1RaiderController::CanAttackKey, bStrikeFirst);
+
+			// 기본 Idle 음성 멈추기
+			if(bStrikeFirst)
+				ControllingPawn->EnterAttackMode(true);	
 		}
 	}
 }

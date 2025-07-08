@@ -19,7 +19,7 @@ UA1GameplayAbility_ChangeMainHand::UA1GameplayAbility_ChangeMainHand(const FObje
 	ActivationGroup = ELyraAbilityActivationGroup::Independent;
 	
 	AbilityTags.AddTag(A1GameplayTags::Ability_ChangeHand);
-	ActivationBlockedTags.AddTag(A1GameplayTags::GameplayEvent_Widget_Inventory);
+	ActivationBlockedTags.AddTag(A1GameplayTags::GameplayEvent_Inventory_Open);
 	ActivationBlockedTags.AddTag(A1GameplayTags::Status_Attack);
 	ActivationBlockedTags.AddTag(A1GameplayTags::Status_ActiveUtility);
 }
