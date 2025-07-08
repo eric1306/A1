@@ -149,9 +149,8 @@ private:
     void AddEnemyToQueue(AA1RaiderRoom* Room);
     void AddItemToQueue(AA1RaiderRoom* Room);
     void AddCliffToQueue(AA1RaiderRoom* Room);
-
-    // 큐에서 처리하는 함수
     void ProcessSpawnQueue();
+
 protected:
 
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Generator", meta = (AllowPrivateAccess = "true"))
@@ -262,27 +261,26 @@ private:
     int32 RepairAttempts;
     static const int32 MaxRepairAttempts = 3;
 
-    // 스폰 큐
 	TQueue<FSpawnQueue> SpawnQueue;
 
-    // 동적 스폰 제한
+    // Restrict SpawnQueue Amount
     UPROPERTY(EditAnywhere, Category = "Spawn Optimization")
     int32 MinSpawnPerTick = 1;
 
     UPROPERTY(EditAnywhere, Category = "Spawn Optimization")
     int32 MaxSpawnPerTick = 5;
 
-    // 프레임 시간 체크
+    // Check Frame Time
     float LastFrameTime = 0.0f;
-    float TargetFrameTime = 0.016f; // 60 FPS 기준
+    float TargetFrameTime = 0.016f;
 
-    // 스폰 간격
+    // Spawn Term
     UPROPERTY(EditAnywhere, Category = "Spawn Optimization")
-    float SpawnInterval = 0.1f; // 0.1초마다 큐 처리
+    float SpawnInterval = 0.1f;
 
     float SpawnTimer = 0.0f;
 
-    // 틱당 스폰 개수
+    // Spawn Per Tick Count
     UPROPERTY(EditAnywhere, Category = "Spawn")
-    int32 SpawnPerTick = 5;
+    int32 SpawnPerTick = 1;
 };

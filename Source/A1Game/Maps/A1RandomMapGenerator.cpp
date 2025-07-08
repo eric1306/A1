@@ -22,17 +22,17 @@ AA1RandomMapGenerator::AA1RandomMapGenerator()
 
     // 네트워크 설정 최적화
     bReplicates = true;
-    bAlwaysRelevant = true;          // 모든 클라이언트에게 항상 관련성 있음
-    bNetLoadOnClient = true;         // 클라이언트 로드 시 자동으로 로드
-    NetUpdateFrequency = 60.0f;      // 네트워크 업데이트 빈도 증가
-    MinNetUpdateFrequency = 30.0f;   // 최소 업데이트 빈도
-    NetPriority = 3.0f;              // 높은 네트워크 우선순위
+    bAlwaysRelevant = true;
+    bNetLoadOnClient = true;
+    NetUpdateFrequency = 60.0f;
+    MinNetUpdateFrequency = 30.0f;
+    NetPriority = 3.0f;
 
     // 초기값 설정
     bDungeonGenerateComplete = false;
     bIsResettingMap = false;
     bVerificationComplete = false;
-    Seed = -1;                       // -1: 랜덤 시드, 0 이상: 고정 시드
+    Seed = -1;                       // -1: Random Seed, > 0 : Fixed Seed
     MaxDungeonTime = 10.f;
     MaxRoomAmount = 30;             //default value
     RoomAmount = MaxRoomAmount;     //default Value
@@ -109,20 +109,19 @@ void AA1RandomMapGenerator::Tick(float DeltaSeconds)
     if (!HasAuthority())
         return;
 
-    // 스폰 간격 체크
+    // Check Spawn Term
     SpawnTimer += DeltaSeconds;
     if (SpawnTimer < SpawnInterval)
         return;
 
     SpawnTimer = 0.0f;
 
-    // 프레임 시간에 따라 스폰 개수 동적 조정
     float CurrentFrameTime = FApp::GetDeltaTime();
-    if (CurrentFrameTime > TargetFrameTime * 1.5f) // 40 FPS 이하
+    if (CurrentFrameTime > TargetFrameTime * 1.5f) // 40 FPS
     {
         SpawnPerTick = MinSpawnPerTick;
     }
-    else if (CurrentFrameTime < TargetFrameTime) // 60 FPS 이상
+    else if (CurrentFrameTime < TargetFrameTime) //60 FPS
     {
         SpawnPerTick = MaxSpawnPerTick;
     }
@@ -202,7 +201,7 @@ void AA1RandomMapGenerator::ProcessSpawnQueue()
     int32 SpawnedThisTick = 0;
     FSpawnQueue Queue;
 
-    // 틱당 최대 SpawnPerTick 개수만큼 스폰
+    // Spawn Something SpawnPerTick Amount
     while (SpawnedThisTick < SpawnPerTick && SpawnQueue.Dequeue(Queue))
     {
         switch (Queue.Type)
@@ -214,7 +213,7 @@ void AA1RandomMapGenerator::ProcessSpawnQueue()
             Queue.RaiderRoom->SpawnItems();
             break;
         case FSpawnQueue::Cliff:
-            Queue.RaiderRoom->MakeCliff();
+            Queue.RaiderRoom->CreateCliffHole();
             break;
         }
 
@@ -231,7 +230,10 @@ void AA1RandomMapGenerator::Server_MakeCliff_Implementation()
         {
             if (AA1RaiderRoom* RaiderRoom = Cast<AA1RaiderRoom>(Room))
             {
-                AddCliffToQueue(RaiderRoom);
+                if (RaiderRoom->GetCanMakeCliff())
+                {
+                    AddCliffToQueue(RaiderRoom);
+                }
             }
         }
     }
@@ -687,7 +689,7 @@ void AA1RandomMapGenerator::Server_ResetMap_Implementation()
         }
     }
 
-    //Destory Endwalls and Rooms
+    //Destroy EndWalls and Rooms
     for (auto EndWall : SpawnedEndWalls)
     {
         if (EndWall)

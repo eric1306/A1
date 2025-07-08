@@ -3,26 +3,29 @@
 #pragma once
 
 #include "Maps/A1MasterRoom.h"
+#include "ProceduralMeshComponent.h"
 #include "A1RaiderRoom.generated.h"
 
-class UDynamicMeshComponent;
 class AA1CreatureBase;
 class AA1ChestBase;
 class AA1EquipmentBase;
 class AA1RaiderBase;
 
+//Spawned Room Type
 UENUM(BlueprintType)
 enum class ERoomType : uint8
 {
-	Rounge,
-	Storage,
-	Container,
-	Master,
-	Bridge,
-	LBridge,
-	BedRoom,
-	SecondFloor
+	Rounge UMETA(DisplayName = "Rounge"),
+	Storage UMETA(DisplayName = "Storage"),
+	Container UMETA(DisplayName = "Container"),
+	Master UMETA(DisplayName = "Master"),
+	Bridge UMETA(DisplayName = "Bridge"),
+	LBridge UMETA(DisplayName = "LBridge"),
+	BedRoom UMETA(DisplayName = "BedRoom"),
+	SecondFloor UMETA(DisplayName = "SecondFloor")
 };
+
+//Spawn Queue
 USTRUCT()
 struct FSpawnQueueItem
 {
@@ -53,8 +56,8 @@ struct FSpawnQueueItem
 	}
 };
 
-/**
- * 
+/*
+ * Raider Room with procedural mesh cliff creation
  */
 UCLASS()
 class AA1RaiderRoom : public AA1MasterRoom
@@ -69,6 +72,11 @@ protected:
 
 public:
 	virtual void Tick(float DeltaSeconds) override;
+
+
+/********************************************
+* Spawn Functions Section
+********************************************/
 	UFUNCTION(BlueprintCallable)
 	void SpawnEnemies(TSubclassOf<AA1CreatureBase> CreatureClass);
 
@@ -96,95 +104,205 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 	void SpawnPlundererSpawner();
 
-	UFUNCTION(BlueprintImplementableEvent)
-	void MakeCliff();
-
+	// Room Type Helper Function
 	void SetRoomType(int32 RoomIndex);
-
 	FORCEINLINE ERoomType GetRoomType() const { return RoomType; }
+	FORCEINLINE bool GetCanMakeCliff() const { return bCanMakeCliff; }
 
+
+/********************************************
+ * Spawn Queue Function Section
+ ********************************************/
 private:
-
-	// 큐에 추가하는 헬퍼 함수들
+	// Spawn Queue Functions
 	void AddEnemyToQueue(TSubclassOf<AA1CreatureBase> EnemyClass, const FTransform& Transform);
 	void AddItemToQueue(int32 ItemIndex);
 	void AddChestToQueue(const FTransform& Transform);
-
-	// 큐에서 처리하는 함수
 	void ProcessSpawnQueue();
 
-protected:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Raider|EssentialSpawn")
-	TObjectPtr<USceneComponent> EssentialSpawn;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Raider|optionalSpawn")
-	TObjectPtr<USceneComponent> OptionalSpawn;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Raider|ItemSpawnLocations")
-	TObjectPtr<USceneComponent> ItemSpawnLocation;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Raider|RemoveItemPos")
-	TObjectPtr<USceneComponent> RemoveItemPosition;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Raider|ItemSpawnLocations")
-	TArray<TObjectPtr<USceneComponent>> ItemSpawnLocations;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Raider|ItemSpawnLocations")
-	TObjectPtr<USceneComponent> ItemBoxSpawnLocation;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Raider|ItemSpawnLocations")
-	TArray<TObjectPtr<USceneComponent>> ItemBoxSpawnLocations;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Raider | Chest")
-	TSubclassOf<AA1ChestBase> ChestClass;
-
-	UPROPERTY(EditDefaultsOnly)
-	int32 MinOptionalMonster;
-	UPROPERTY(EditDefaultsOnly)
-	int32 MaxOptionalMonster;
-
-	UPROPERTY(EditDefaultsOnly)
-	int32 MinOptionalItemCount;
-
-	UPROPERTY(EditDefaultsOnly)
-	int32 MaxOptionalItemCount;
-
-	UPROPERTY(EditDefaultsOnly)
-	int32 SpawnPercentage;
-
-	UPROPERTY(VisibleAnywhere, Category = "Raider", Replicated)
-	TArray<TObjectPtr<AA1CreatureBase>> SpawnedCreatures;
-
-	UPROPERTY(VisibleAnywhere, Category = "Raider", Replicated)
-	TArray<TObjectPtr<AA1EquipmentBase>> SpawnedItems;
-
-	UPROPERTY(VisibleAnywhere, Category = "Raider", Replicated)
-	TArray<TObjectPtr<AA1ChestBase>> SpawnedChests;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TArray<TSubclassOf<class UA1ItemTemplate>> CachedItemTemplates;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "DynamicMesh")
-	TObjectPtr<UDynamicMeshComponent> DynamicMeshComponent;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "RoomType")
-	ERoomType RoomType = ERoomType::Rounge;
+/********************************************
+* Cliff Function Section
+********************************************/
+public:
+	// Cliff Creation
+	void CreateCliffHole();
 
 private:
-	// 스폰 큐
+	// Cliff Creation Sequence Functions
+	void StartCliffCreation();
+	void ExecuteCliffStep();
+	void Step01_GetFloorDimensions();
+	void Step02_CreateBasePlane();
+	void Step03_CreateHoleGeometry();
+	void Step04_RemoveTrianglesInHole();
+	void Step05_GenerateCliffWalls();
+	void Step06_CreateFinalMesh();
+	void Step07_FinalizeCliff();
+	void Step08_FinalizeCliff_2();
+
+	// Cliff Helper Functions
+	void LogStepTime(const FString& StepName);
+	void StartStepTimer();
+	FVector GetSquareEdgeIntersection(const FVector& P1, const FVector& P2, int32 EdgeIndex);
+	TArray<FVector> ClipTriangleToSquare(const TArray<FVector>& TriangleVertices);
+	bool IsVertexOutsideHole(const FVector& Vertex);
+	bool IsVertexInSquareHole(const FVector& Vertex);
+
+protected:
+
+/********************************************
+* Core Component
+********************************************/
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Raider|Components")
+	TObjectPtr<UStaticMeshComponent> Inner;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Raider|Components")
+	TObjectPtr<UStaticMeshComponent> Floor;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Raider|Components")
+	TObjectPtr<UProceduralMeshComponent> CliffProceduralMesh;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Raider|Materials")
+	TArray<UMaterialInterface*> StaticMeshMaterials;
+
+
+/********************************************
+* Spawn Component
+********************************************/
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Raider|Spawn")
+	TObjectPtr<USceneComponent> EssentialSpawn;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Raider|Spawn")
+	TObjectPtr<USceneComponent> OptionalSpawn;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Raider|Spawn")
+	TObjectPtr<USceneComponent> ItemSpawnLocation;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Raider|Spawn")
+	TObjectPtr<USceneComponent> RemoveItemPosition;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Raider|Spawn")
+	TObjectPtr<USceneComponent> ItemBoxSpawnLocation;
+
+
+/********************************************
+* Replicated Arrays
+********************************************/
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Raider|Spawn")
+	TArray<TObjectPtr<USceneComponent>> ItemSpawnLocations;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Raider|Spawn")
+	TArray<TObjectPtr<USceneComponent>> ItemBoxSpawnLocations;
+
+	UPROPERTY(VisibleAnywhere, Category = "Raider|Spawned", Replicated)
+	TArray<TObjectPtr<AA1CreatureBase>> SpawnedCreatures;
+
+	UPROPERTY(VisibleAnywhere, Category = "Raider|Spawned", Replicated)
+	TArray<TObjectPtr<AA1EquipmentBase>> SpawnedItems;
+
+	UPROPERTY(VisibleAnywhere, Category = "Raider|Spawned", Replicated)
+	TArray<TObjectPtr<AA1ChestBase>> SpawnedChests;
+
+
+/********************************************
+* Class & Template
+********************************************/
+	UPROPERTY(EditDefaultsOnly, Category = "Raider|Classes")
+	TSubclassOf<AA1ChestBase> ChestClass;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Raider|Items")
+	TArray<TSubclassOf<class UA1ItemTemplate>> CachedItemTemplates;
+
+
+/********************************************
+* Spawn Setting
+********************************************/
+	UPROPERTY(EditDefaultsOnly, Category = "Raider|Settings")
+	int32 MinOptionalMonster;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Raider|Settings")
+	int32 MaxOptionalMonster;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Raider|Settings")
+	int32 MinOptionalItemCount;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Raider|Settings")
+	int32 MaxOptionalItemCount;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Raider|Settings")
+	int32 SpawnPercentage;
+
+
+/********************************************
+* Room Type and Set
+********************************************/
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Raider|Type")
+	ERoomType RoomType = ERoomType::Rounge;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Raider|Cliff")
+	bool bCanMakeCliff = false;
+
+/********************************************
+* Cliff Creation Section
+********************************************/
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Raider|Cliff", meta = (ClampMin = "200", ClampMax = "600"))
+	float HoleSize = 400.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Raider|Cliff", meta = (ClampMin = "100", ClampMax = "400"))
+	float HoleDepth = 100.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Raider|Performance", meta = (ClampMin = "0.01", ClampMax = "0.1"))
+	float StepTime = 0.016f; // 16ms per step
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Raider|Debug")
+	bool bShowStepTiming = true; // Show individual step timing
+
+	UPROPERTY()
+	TArray<int32> HoleBoundaryIndices;
+
+private:
+/********************************************
+* Spawn Queue & Timing
+********************************************/
 	TQueue<FSpawnQueueItem> SpawnQueue;
 
-	// 프레임 시간 체크
-	float LastFrameTime = 0.0f;
-	float TargetFrameTime = 0.016f; // 60 FPS 기준
-
-	// 스폰 간격
-	UPROPERTY(EditAnywhere, Category = "Spawn Optimization")
-	float SpawnInterval = 0.3f; // 0.1초마다 큐 처리
-
+	UPROPERTY(EditAnywhere, Category = "Raider|Performance")
+	float SpawnInterval = 0.3f;
 	float SpawnTimer = 0.0f;
 
-	// 틱당 스폰 개수
-	UPROPERTY(EditAnywhere, Category = "Spawn")
+	UPROPERTY(EditAnywhere, Category = "Raider|Performance")
 	int32 SpawnPerTick = 1;
+
+/********************************************
+ * Cliff Section
+ ********************************************/
+
+// Random Stream
+	FRandomStream RandomStream;
+
+//Cliff Creation
+	FTimerHandle CliffTimerHandle;
+	int32 CurrentCliffStep = 0;
+	bool bCliffInProgress = false;
+	double CliffStartTime = 0.0;
+	double StepStartTime = 0.0;
+
+// Procedural Mesh Data Storage
+	TArray<FVector> OriginalVertices;
+	TArray<int32> OriginalTriangles;
+	TArray<FVector> OriginalNormals;
+	TArray<FVector2D> OriginalUVs;
+
+	TArray<FVector> FinalVertices;
+	TArray<int32> FinalTriangles;
+	TArray<FVector> FinalNormals;
+	TArray<FVector2D> FinalUVs;
+
+	FTransform OriginalFloorTransform;
+
+// Hole Geometry
+	FVector HoleCenter;
+	float HoleHalfSize;
+	float FloorSizeX;
+	float FloorSizeY;
 };
