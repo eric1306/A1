@@ -5,7 +5,6 @@
 
 #include "A1EquipmentBase.h"
 #include "A1SpaceshipBase.h"
-#include "A1TutorialManager.h"
 #include "Character/LyraCharacter.h"
 #include "Components/ArrowComponent.h"
 #include "Item/Managers/A1EquipManagerComponent.h"

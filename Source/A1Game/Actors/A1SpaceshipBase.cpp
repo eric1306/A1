@@ -12,7 +12,7 @@
 #include "A1ShipOutputBase.h"
 #include "A1SignalDetectionBase.h"
 #include "A1StorageBase.h"
-#include "A1TutorialManager.h"
+#include "Tutorial/A1TutorialManager.h"
 #include "GameModes/LyraGameMode.h"
 #include "Kismet/GameplayStatics.h"
 #include "Maps/A1RandomMapGenerator.h"

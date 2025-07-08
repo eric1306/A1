@@ -6,7 +6,6 @@
 #include "A1LogChannels.h"
 #include "A1ScoreBlueprintFunctionLibrary.h"
 #include "A1ScoreSaveGame.h"
-#include "Actors/A1TutorialManager.h"
 #include "Kismet/GameplayStatics.h"
 
 UA1ScoreManager* UA1ScoreManager::Instance = nullptr;

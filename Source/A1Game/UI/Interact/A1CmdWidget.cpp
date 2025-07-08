@@ -13,7 +13,7 @@
 #include "Data/A1CmdData.h"
 #include "Data/A1UIData.h"
 #include "EngineUtils.h"
-#include "Actors/A1TutorialManager.h"
+#include "Tutorial/A1TutorialManager.h"
 #include "Components/Image.h"
 #include "GameModes/LyraGameMode.h"
 #include "Kismet/GameplayStatics.h"
