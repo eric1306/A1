@@ -1,4 +1,4 @@
-// Copyright (c) 2025 THIS-ACCENT. All Rights Reserved.
+ï»¿// Copyright (c) 2025 THIS-ACCENT. All Rights Reserved.
 
 
 #include "UI/A1ActivatableWidget.h"
@@ -51,7 +51,7 @@ void UA1ActivatableWidget::AffectTypingEffect(UTextBlock* TargetTextBlock, FStri
     if (TypingSound)
         PlaySound(TypingSound);
 
-    FString FormattedText = InText.Replace(TEXT("\\n"), TEXT("\n")); // È¤Àº ±×³É "\n"
+    FString FormattedText = InText.Replace(TEXT("\\n"), TEXT("\n")); // í˜¹ì€ ê·¸ëƒ¥ "\n"
 
     FTimerHandle TypingHandle;
     FTypingState* State = new FTypingState();
@@ -61,10 +61,10 @@ void UA1ActivatableWidget::AffectTypingEffect(UTextBlock* TargetTextBlock, FStri
     State->TimerHandle = TypingHandle;
     State->TargetTextBlock = TargetTextBlock;
 
-    // ¶÷´Ù »ý¼º
+    // ëžŒë‹¤ ìƒì„±
     FTimerDelegate TypingDelegate = FTimerDelegate::CreateLambda([this, State]()
         {
-            // À¯È¿¼º °Ë»ç
+            // ìœ íš¨ì„± ê²€ì‚¬
             if (!State->TargetTextBlock)
             {
                 GetWorld()->GetTimerManager().PauseTimer(State->TimerHandle);
@@ -72,7 +72,7 @@ void UA1ActivatableWidget::AffectTypingEffect(UTextBlock* TargetTextBlock, FStri
                 return;
             }
 
-            // ¿Ï·á Ã¼Å©
+            // ì™„ë£Œ ì²´í¬
             if (State->CurrentIndex >= State->FullText.Len())
             {
                 GetWorld()->GetTimerManager().PauseTimer(State->TimerHandle);
@@ -80,13 +80,13 @@ void UA1ActivatableWidget::AffectTypingEffect(UTextBlock* TargetTextBlock, FStri
                 return;
             }
 
-            // ±ÛÀÚ ÇÏ³ª Ãß°¡
+            // ê¸€ìž í•˜ë‚˜ ì¶”ê°€
             State->CurrentText.AppendChar(State->FullText[State->CurrentIndex]);
             State->TargetTextBlock->SetText(FText::FromString(State->CurrentText));
             State->CurrentIndex++;
         });
 
-    // Å¸ÀÌ¸Ó µî·Ï
+    // íƒ€ì´ë¨¸ ë“±ë¡
     GetWorld()->GetTimerManager().SetTimer(
         State->TimerHandle,
         TypingDelegate,
@@ -94,4 +94,10 @@ void UA1ActivatableWidget::AffectTypingEffect(UTextBlock* TargetTextBlock, FStri
         true,
         startdelay
     );
+}
+
+void UA1ActivatableWidget::PlayErrorSound()
+{
+	if ( ErrorSound )
+		PlaySound(ErrorSound);
 }

@@ -13,7 +13,6 @@
 #include "Data/A1CmdData.h"
 #include "Data/A1UIData.h"
 #include "EngineUtils.h"
-#include "Tutorial/A1TutorialManager.h"
 #include "Components/Image.h"
 #include "GameModes/LyraGameMode.h"
 #include "Kismet/GameplayStatics.h"
@@ -47,8 +46,9 @@ void UA1CmdWidget::ConstructUI(FGameplayTag Channel, const FASCInitializeMessage
 	if (Message.ASC == nullptr)
 		return;
 
+	//GA_Interact_Cmd에서 ScoreManager를 통해 설정됨.
 	ASC = Message.ASC;
-    TutoMode = Message.bTutorial;
+	TutoMode = Message.bTutorial;
 
     if (TutoMode)
     {
@@ -207,6 +207,13 @@ void UA1CmdWidget::InputEnded(FText InText)
         {
             FGameplayEventData Payload;
             ASC->HandleGameplayEvent(A1GameplayTags::GameplayEvent_Cmd_Exit, &Payload);
+
+			if (UA1ScoreManager::Get()->GetDoTutorial())
+			{
+				FGameplayEventData EventData;
+				UGameplayMessageSubsystem& MessageSubsystem = UGameplayMessageSubsystem::Get(GetWorld());
+				MessageSubsystem.BroadcastMessage(A1GameplayTags::Tutorial_Interact_CMD, EventData);
+			}
         }
 
         return;

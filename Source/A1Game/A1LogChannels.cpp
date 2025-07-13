@@ -1,4 +1,4 @@
-#include "A1LogChannels.h"
+﻿#include "A1LogChannels.h"
 #include "GameFramework/Actor.h"
 
 DEFINE_LOG_CATEGORY(LogA1);
@@ -10,6 +10,7 @@ DEFINE_LOG_CATEGORY(LogA1AbilitySystem);
 DEFINE_LOG_CATEGORY(LogA1Teams);
 DEFINE_LOG_CATEGORY(LogA1ScoreSystem);
 DEFINE_LOG_CATEGORY(LogA1Cliff);
+DEFINE_LOG_CATEGORY(LogA1Tutorial);
 
 FString GetClientServerContextString(UObject* ContextObject)
 {

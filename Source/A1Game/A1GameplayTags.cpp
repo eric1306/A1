@@ -1,4 +1,4 @@
-#include "A1GameplayTags.h"
+﻿#include "A1GameplayTags.h"
 
 #include "Engine/EngineTypes.h"
 #include "GameplayTagsManager.h"
@@ -199,14 +199,63 @@ namespace A1GameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(HUD_Slot_Reticle,								"HUD.Slot.Reticle");
 
 	// Tutorial
-	UE_DEFINE_GAMEPLAY_TAG(Message_Tutorial_Notice,							"Message.Tutorial.Notice");
-	UE_DEFINE_GAMEPLAY_TAG(Tutorial_Condition_CameraComplete,				"Tutorial.Condition.CameraComplete");
-	UE_DEFINE_GAMEPLAY_TAG(Tutorial_Condition_VideoComplete,				"Tutorial.Condition.VideoComplete");
-	UE_DEFINE_GAMEPLAY_TAG(Tutorial_Condition_AllItemsCarried,				"Tutorial.Condition.AllItemsCarried");
-	UE_DEFINE_GAMEPLAY_TAG(Tutorial_Condition_EmergencyAck,					"Tutorial.Condition.EmergencyAck");
-	UE_DEFINE_GAMEPLAY_TAG(Tutorial_Condition_AllRepairsComplete,			"Tutorial.Condition.AllRepairsComplete");
-	UE_DEFINE_GAMEPLAY_TAG(Tutorial_Condition_EscapeEntered,				"Tutorial.Condition.EscapeEntered");
-	UE_DEFINE_GAMEPLAY_TAG(Tutorial_Condition_TransitionComplete,			"Tutorial.Condition.TransitionComplete");
+	// Event Tag
+	UE_DEFINE_GAMEPLAY_TAG(Tutorial_Event_Player_Awakened,					"Tutorial.Event.Player.Awakened");
+	UE_DEFINE_GAMEPLAY_TAG(Tutorial_Event_System_Analyzed,					"Tutorial.Event.System.Analyzed");
+	UE_DEFINE_GAMEPLAY_TAG(Tutorial_Event_NavigationRoom_Reached,			"Tutorial.Event.NavigationRoom.Reached");
+	UE_DEFINE_GAMEPLAY_TAG(Tutorial_Event_Problem_Discovered,				"Tutorial.Event.Problem.Discovered");
+	UE_DEFINE_GAMEPLAY_TAG(Tutorial_Event_SupplyRoom_Reached,				"Tutorial.Event.SupplyRoom.Reached");
+	UE_DEFINE_GAMEPLAY_TAG(Tutorial_Event_SprayFound,						"Tutorial.Event.SprayFound");
+	UE_DEFINE_GAMEPLAY_TAG(Tutorial_Event_TempRepair_Completed,				"Tutorial.Event.TempRepair.Completed");
+	UE_DEFINE_GAMEPLAY_TAG(Tutorial_Event_ExternalAccess_Gained,			"Tutorial.Event.ExternalAccess.Gained");
+	UE_DEFINE_GAMEPLAY_TAG(Tutorial_Event_RepairKit_Found,					"Tutorial.Event.RepairKit.Found");
+	UE_DEFINE_GAMEPLAY_TAG(Tutorial_Event_Signal_Sent,						"Tutorial.Event.Signal.Sent");
+	UE_DEFINE_GAMEPLAY_TAG(Tutorial_Event_Completed,						"Tutorial.Event.Completed");
+
+	//Step Tags
+	UE_DEFINE_GAMEPLAY_TAG(Tutorial_Condition_PlayerAwake,					"Tutorial.Condition.PlayerAwake");
+	UE_DEFINE_GAMEPLAY_TAG(Tutorial_Condition_SystemChecked,				"Tutorial.Condition.SystemChecked");
+	UE_DEFINE_GAMEPLAY_TAG(Tutorial_Condition_NavigationRoomEntered,		"Tutorial.Condition.NavigationRoomEntered");
+	UE_DEFINE_GAMEPLAY_TAG(Tutorial_Condition_ProblemIdentified,			"Tutorial.Condition.ProblemIdentified");
+	UE_DEFINE_GAMEPLAY_TAG(Tutorial_Condition_SupplyRoomEntered,			"Tutorial.Condition.SupplyRoomEntered");
+	UE_DEFINE_GAMEPLAY_TAG(Tutorial_Condition_SprayObtained,				"Tutorial.Condition.SprayObtained");
+	UE_DEFINE_GAMEPLAY_TAG(Tutorial_Condition_TempRepairDone,				"Tutorial.Condition.TempRepairDone");
+	UE_DEFINE_GAMEPLAY_TAG(Tutorial_Condition_ExternalAreaEntered,			"Tutorial.Condition.ExternalAreaEntered");
+	UE_DEFINE_GAMEPLAY_TAG(Tutorial_Condition_RepairKitObtained,			"Tutorial.Condition.RepairKitObtained");
+	UE_DEFINE_GAMEPLAY_TAG(Tutorial_Condition_SignalHandlerActivated,		"Tutorial.Condition.SignalHandlerActivated");
+
+	//UI Message Tags
+	UE_DEFINE_GAMEPLAY_TAG(Message_Tutorial_Dialogue,						"Message.Tutorial.Dialogue");
+	UE_DEFINE_GAMEPLAY_TAG(Message_Tutorial_Mission,						"Message.Tutorial.Mission");
+	UE_DEFINE_GAMEPLAY_TAG(Message_Tutorial_SystemMessage,					"Message.Tutorial.SystemMessage");
+	UE_DEFINE_GAMEPLAY_TAG(Message_Tutorial_Navigation_Start,				"Message.Tutorial.Navigation.Start");
+	UE_DEFINE_GAMEPLAY_TAG(Message_Tutorial_Navigation_Complete,			"Message.Tutorial.Navigation.Complete");
+	UE_DEFINE_GAMEPLAY_TAG(Message_Tutorial_Fade,							"Message.Tutorial.Fade");
+
+	//Interactable Tags
+	UE_DEFINE_GAMEPLAY_TAG(Tutorial_Interact_Bed,							"Tutorial.Interact.Bed");
+	UE_DEFINE_GAMEPLAY_TAG(Tutorial_Interact_Fuel,							"Tutorial.Interact.Fuel");
+	UE_DEFINE_GAMEPLAY_TAG(Tutorial_Interact_CMD,							"Tutorial.Interact.CMD");
+	UE_DEFINE_GAMEPLAY_TAG(Tutorial_Interact_SignalDetection,				"Tutorial.Interact.SignalDetection");
+	UE_DEFINE_GAMEPLAY_TAG(Tutorial_Interact_DockingSignalHandler,			"Tutorial.Interact.DockingSignalHandler");
+	UE_DEFINE_GAMEPLAY_TAG(Tutorial_Interact_Door,							"Tutorial.Interact.Door");
+	UE_DEFINE_GAMEPLAY_TAG(Tutorial_Interact_Chest,							"Tutorial.Interact.Chest");
+	UE_DEFINE_GAMEPLAY_TAG(Tutorial_Interact_Repair,						"Tutorial.Interact.Repair");
+	UE_DEFINE_GAMEPLAY_TAG(Tutorial_Interact_Entry,							"Tutorial.Interact.Entry");
+	UE_DEFINE_GAMEPLAY_TAG(Tutorial_Interact_ShipOutput,					"Tutorial.Interact.ShipOutput");
+
+	//Step ID Tags
+	UE_DEFINE_GAMEPLAY_TAG(Tutorial_Step_Opening,							"Tutorial.Step.Opening");
+	UE_DEFINE_GAMEPLAY_TAG(Tutorial_Step_SystemAnalysis,					"Tutorial.Step.SystemAnalysis");
+	UE_DEFINE_GAMEPLAY_TAG(Tutorial_Step_SituationExplanation,				"Tutorial.Step.SituationExplanation");
+	UE_DEFINE_GAMEPLAY_TAG(Tutorial_Step_NavigateToCommand,					"Tutorial.Step.NavigateToCommand");
+	UE_DEFINE_GAMEPLAY_TAG(Tutorial_Step_ProblemDiscovery,					"Tutorial.Step.ProblemDiscovery");
+	UE_DEFINE_GAMEPLAY_TAG(Tutorial_Step_Mission1_SpraySearch,				"Tutorial.Step.Mission1.SpraySearch");
+	UE_DEFINE_GAMEPLAY_TAG(Tutorial_Step_Mission2_TempRepair,				"Tutorial.Step.Mission2.TempRepair");
+	UE_DEFINE_GAMEPLAY_TAG(Tutorial_Step_ExternalAccess,					"Tutorial.Step.ExternalAccess");
+	UE_DEFINE_GAMEPLAY_TAG(Tutorial_Step_Mission3_RepairKit,				"Tutorial.Step.Mission3.RepairKit");
+	UE_DEFINE_GAMEPLAY_TAG(Tutorial_Step_SignalSending,						"Tutorial.Step.SignalSending")
+	UE_DEFINE_GAMEPLAY_TAG(Tutorial_Step_Complete,							"Tutorial.Step.Complete");
 
 
 	const TMap<uint8, FGameplayTag> MovementModeTagMap =
