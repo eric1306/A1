@@ -1,4 +1,4 @@
-// Copyright Epic Games, Inc. All Rights Reserved.
+﻿// Copyright Epic Games, Inc. All Rights Reserved.
 
 #pragma once
 
@@ -179,6 +179,8 @@ public:
 
 	// Gets the tag associated with the top layer and the blend weight of it
 	void GetBlendInfo(float& OutWeightOfTopLayer, FGameplayTag& OutTagOfTopLayer) const;
+	//Temp eric1306
+	FORCEINLINE TArray<ULyraCameraMode*> GetCameraModeStack() const { return CameraModeStack; }
 
 protected:
 

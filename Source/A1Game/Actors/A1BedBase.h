@@ -1,4 +1,4 @@
-// Copyright (c) 2025 THIS-ACCENT. All Rights Reserved.
+ï»¿// Copyright (c) 2025 THIS-ACCENT. All Rights Reserved.
 
 #pragma once
 
@@ -63,11 +63,11 @@ public:
     UFUNCTION(BlueprintCallable, BlueprintPure)
     bool IsPlayerSleeping() const { return BedState == EBedState::Occupied; }
 
-    // Ä³¸¯ÅÍ¸¦ ±ú¿ì´Â ÇÔ¼ö
+    // ìºë¦­í„°ë¥¼ ê¹¨ìš°ëŠ” í•¨ìˆ˜
     UFUNCTION(BlueprintCallable, Category = "Bed")
     void WakeUpOccupyingCharacter();
 
-    // Ä³¸¯ÅÍ°¡ Ä§´ë¿¡ ´©¿ï ¶§ È£Ãâ
+    // ìºë¦­í„°ê°€ ì¹¨ëŒ€ì— ëˆ„ìš¸ ë•Œ í˜¸ì¶œ
     UFUNCTION(BlueprintCallable, Category = "Bed")
     void SetOccupyingCharacter(AActor* Character);
 
@@ -76,6 +76,8 @@ public:
 
     FORCEINLINE bool bIsOccupyingCharacterExist() const { return OccupyingCharacter != nullptr; }
     FORCEINLINE AActor* GetOccupyingCharacter() const { return OccupyingCharacter; }
+	FORCEINLINE bool GetUsedInTutoMode() const { return bUsedInTutorial; }
+	FORCEINLINE void SetUsedInTutoMode(bool InUsedTutoMode) { bUsedInTutorial = InUsedTutoMode; }
 
 protected:
     UFUNCTION(BlueprintImplementableEvent)
@@ -123,15 +125,17 @@ protected:
     float HealthRecoveryRate = 2.0f;
 
 
-    // Ä§´ë¿¡ ´©¿öÀÖ´Â Ä³¸¯ÅÍ ÂüÁ¶ Ãß°¡
+    // ì¹¨ëŒ€ì— ëˆ„ì›ŒìˆëŠ” ìºë¦­í„° ì°¸ì¡° ì¶”ê°€
     UPROPERTY(Replicated)
     TObjectPtr<AActor> OccupyingCharacter;
-    // ÇÃ·¹ÀÌ¾î°¡ ÃÖ´ë·Î ´©¿öÀÖ´Ù¸é ±ú¿ì´Â Å¸ÀÌ¸Ó
+    // í”Œë ˆì´ì–´ê°€ ìµœëŒ€ë¡œ ëˆ„ì›Œìˆë‹¤ë©´ ê¹¨ìš°ëŠ” íƒ€ì´ë¨¸
     FTimerHandle MaxLyingTimerHandle;
-    //ÃÖ´ë ´©¿öÀÖÀ» ¼ö ÀÖ´Â ½Ã°£
+    //ìµœëŒ€ ëˆ„ì›Œìˆì„ ìˆ˜ ìˆëŠ” ì‹œê°„
     float MaxLyingTimeRate;
-    //ÇÃ·¹ÀÌ¾î°¡ Ä§´ë¿¡ ´©¿öÀÖÀ» ¶§ Weight °¨¼Ò½ÃÅ°´Â Timer
+    //í”Œë ˆì´ì–´ê°€ ì¹¨ëŒ€ì— ëˆ„ì›Œìˆì„ ë•Œ Weight ê°ì†Œì‹œí‚¤ëŠ” Timer
     FTimerHandle DecreaseWeightTimerHandle;
 
     float DecreaseWeightTimeRate;
+
+	bool bUsedInTutorial = false;
 };

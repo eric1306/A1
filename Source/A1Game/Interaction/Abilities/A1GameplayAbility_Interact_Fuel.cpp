@@ -1,4 +1,4 @@
-// Copyright (c) 2025 THIS-ACCENT. All Rights Reserved.
+ï»¿// Copyright (c) 2025 THIS-ACCENT. All Rights Reserved.
 
 
 #include "Interaction/Abilities/A1GameplayAbility_Interact_Fuel.h"
@@ -35,8 +35,8 @@ void UA1GameplayAbility_Interact_Fuel::ActivateAbility(const FGameplayAbilitySpe
         return;
     }
 
-    // ¿¬·á °¨Áö È°¼ºÈ­ - ´ëºÎºÐÀÇ »óÈ£ÀÛ¿ëÀº ÀÚµ¿À¸·Î ÀÌ·ç¾îÁö¹Ç·Î ¿©±â¼­´Â Æ¯º°ÇÑ ÀÛ¾÷ ¾øÀ½
-    // ÇÊ¿äÇÏ´Ù¸é ¼öµ¿À¸·Î ¿¬·á °¨Áö Æ®¸®°Å °¡´É
+    // ì—°ë£Œ ê°ì§€ í™œì„±í™” - ëŒ€ë¶€ë¶„ì˜ ìƒí˜¸ìž‘ìš©ì€ ìžë™ìœ¼ë¡œ ì´ë£¨ì–´ì§€ë¯€ë¡œ ì—¬ê¸°ì„œëŠ” íŠ¹ë³„í•œ ìž‘ì—… ì—†ìŒ
+    // í•„ìš”í•˜ë‹¤ë©´ ìˆ˜ë™ìœ¼ë¡œ ì—°ë£Œ ê°ì§€ íŠ¸ë¦¬ê±° ê°€ëŠ¥
     FuelActor->DetectAndAbsorbFuelItems();
 
     EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);

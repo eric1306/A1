@@ -2,6 +2,7 @@
 		  
 #include "A1EquipManagerComponent.h"
 #include "A1EquipmentManagerComponent.h"
+#include "A1GameplayTags.h"
 #include "A1InventoryManagerComponent.h"
 #include "Actors/A1EquipmentBase.h"
 #include "Actors/A1GunBase.h"
@@ -12,6 +13,8 @@
 #include "Item/Fragments/A1ItemFragment_Equipable.h"
 #include "Item/Fragments/A1ItemFragment_Equipable_Attachment.h"
 #include "GameFramework/Character.h"
+#include "GameFramework/GameplayMessageSubsystem.h"
+#include "Item/Fragments/A1ItemFragment_Equipable_Utility.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "System/LyraAssetManager.h"
 
@@ -427,6 +430,17 @@ bool UA1ItemManagerComponent::TryPickItem(AA1EquipmentBase* PickupableItemActor)
 		{
 			Character->bullets = GunActor->GetBulletCount();
 			Character->OnGunEquipped.Broadcast(Character->bullets);
+		}
+
+		//Tutorial Code
+		if (const UA1ItemFragment_Equipable_Utility* UtilityFragment = ItemTemplate.FindFragmentByClass<UA1ItemFragment_Equipable_Utility>())
+		{
+			if (UtilityFragment->UtilityType == EUtilityType::Repairkit)
+			{
+				FGameplayEventData Payload;
+				UGameplayMessageSubsystem& MessageSubsystem = UGameplayMessageSubsystem::Get(GetWorld());
+				MessageSubsystem.BroadcastMessage(A1GameplayTags::Tutorial_Event_RepairKit_Found, Payload);
+			}
 		}
 
 		return true;

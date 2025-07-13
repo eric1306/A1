@@ -1,4 +1,4 @@
-// Copyright (c) 2025 THIS-ACCENT. All Rights Reserved.
+ï»¿// Copyright (c) 2025 THIS-ACCENT. All Rights Reserved.
 
 
 #include "Actors/A1SpaceshipBase.h"
@@ -12,13 +12,13 @@
 #include "A1ShipOutputBase.h"
 #include "A1SignalDetectionBase.h"
 #include "A1StorageBase.h"
-#include "Tutorial/A1TutorialManager.h"
 #include "GameModes/LyraGameMode.h"
 #include "Kismet/GameplayStatics.h"
 #include "Maps/A1RandomMapGenerator.h"
 #include "Net/UnrealNetwork.h"
 #include "Score/A1ScoreBlueprintFunctionLibrary.h"
 #include "Score/A1ScoreManager.h"
+#include "Tutorial/A1TutorialManager.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(A1SpaceshipBase)
 
@@ -32,6 +32,17 @@ void AA1SpaceshipBase::BeginPlay()
 {
 	Super::BeginPlay();
 
+	if ( UA1ScoreManager::Get()->GetDoTutorial())
+	{
+		if ( UGameInstance* GameInstance = GetGameInstance() )
+		{
+			if ( UA1TutorialManager* TutorialManager = GameInstance->GetSubsystem<UA1TutorialManager>() )
+			{
+				TutorialManager->StartTutorial();
+			}
+		}
+	}
+	 
 	UA1ScoreBlueprintFunctionLibrary::StartNewGame();
 
 	if (HasAuthority())
@@ -49,16 +60,7 @@ void AA1SpaceshipBase::BeginPlay()
 
 	UA1ScoreManager::Get()->OnGameEnded.AddDynamic(this, &AA1SpaceshipBase::OnStopFuelConsume);
 
-	auto FindActor = UGameplayStatics::GetActorOfClass(GetWorld(), AA1TutorialManager::StaticClass());
-	if (FindActor)
-	{
-		bTutorial = true;
-	}
-	else
-	{
-		bTutorial = false;
-	}
-
+	SpawnOneRepairBaseByTutoMode();
 
 	FindAllRepairBases();
 }
@@ -209,27 +211,34 @@ void AA1SpaceshipBase::CheckTwoDaysAgo(int32 NewDay)
 {
 	if (NewDay - CurrentDay >= 2)
 	{
-		//Select RepairBase Random and change state
-		int32 idx = FMath::RandRange(0, CachedNonBrokenRepairs.Num() - 1);
+		BreakFoam(NewDay);
+	}
+}
 
-		CachedNonBrokenRepairs[idx]->SetCurrentState(RepairState::Break);
-		UE_LOG(LogA1, Log, TEXT("[AA1Spaceship] %s Changed to break!"), *CachedNonBrokenRepairs[idx]->GetName());
-		CachedNonBrokenRepairs[idx]->ActivateCheckOverlap();
-		//Add Fuel Consume Amount after 5 seconds
-		FTimerHandle TimerHandle;
-		GetWorldTimerManager().SetTimer(TimerHandle, [this]()
-			{
-				CurrentFuelConsumeAmount += 1.f;
-			}, 5.f, false);
+void AA1SpaceshipBase::BreakFoam(int32 NewDay)
+{
+	//Select RepairBase Random and change state
+	int32 idx = FMath::RandRange(0, CachedNonBrokenRepairs.Num() - 1);
 
-		CachedNonBrokenRepairs.RemoveAt(idx);
-		CurrentDay = NewDay;
+	CachedNonBrokenRepairs[ idx ]->SetCurrentState(RepairState::Break);
+	UE_LOG(LogA1, Log, TEXT("[AA1Spaceship] %s Changed to break!"), *CachedNonBrokenRepairs[ idx ]->GetName());
+	CachedNonBrokenRepairs[ idx ]->ActivateCheckOverlap();
 
-		//Game Over if all repair base activate
-		if (CachedNonBrokenRepairs.Num() == 0)
+	//Add Fuel Consume Amount after 5 seconds
+
+	FTimerHandle TimerHandle;
+	GetWorldTimerManager().SetTimer(TimerHandle, [ this ] ()
 		{
-			HandleGameOver();
-		}
+			CurrentFuelConsumeAmount += 1.f;
+		}, 5.f, false);
+
+	CachedNonBrokenRepairs.RemoveAt(idx);
+	CurrentDay = NewDay;
+
+	//Game Over if all repair base activate
+	if ( CachedNonBrokenRepairs.Num() == 0 )
+	{
+		HandleGameOver();
 	}
 }
 
@@ -238,7 +247,7 @@ void AA1SpaceshipBase::FindSpaceshipComponents()
 	if (!HasAuthority())
 		return;
 
-	// ÀÌ¹Ì ÇÒ´çµÈ ÂüÁ¶°¡ ÀÖÀ¸¸é ÀçÇÒ´çÇÏÁö ¾ÊÀ½
+	// ì´ë¯¸ í• ë‹¹ëœ ì°¸ì¡°ê°€ ìˆìœ¼ë©´ ì¬í• ë‹¹í•˜ì§€ ì•ŠìŒ
 	if (!DockingSignalHandler)
 	{
 		TArray<AActor*> FoundDockingSignalHandlers;
@@ -249,7 +258,7 @@ void AA1SpaceshipBase::FindSpaceshipComponents()
 		}
 	}
 
-	// Doors°¡ ºñ¾îÀÖ´Â °æ¿ì¿¡¸¸ Ã£±â
+	// Doorsê°€ ë¹„ì–´ìˆëŠ” ê²½ìš°ì—ë§Œ ì°¾ê¸°
 	if (!CacheDoor)
 	{
 		TArray<AActor*> FoundDoor;
@@ -319,12 +328,6 @@ void AA1SpaceshipBase::FindSpaceshipComponents()
 			}
 		}
 	}
-
-	AActor* Actor = UGameplayStatics::GetActorOfClass(GetWorld(), AA1TutorialManager::StaticClass());
-	if (UA1ScoreManager::Get()->GetDoTutorial() && Actor == nullptr)
-	{
-		Storages[0].Get()->SpawnDefaultItems();
-	}
 }
 
 void AA1SpaceshipBase::FindComponentsByTags()
@@ -373,6 +376,47 @@ void AA1SpaceshipBase::FindComponentsByTags()
 	}
 }
 
+void AA1SpaceshipBase::SpawnOneRepairBaseByTutoMode()
+{
+	
+	const FVector SpawnLocation = FVector(-6026.f, -600.f, 170.f);
+	const FVector SpawnLocation2 = FVector(-6129.f, -600.f, 170.f);
+	FActorSpawnParameters Params;
+
+	if (UA1ScoreManager::Get()->GetDoTutorial())
+	{
+		AActor* Actor = GetWorld()->SpawnActor(PipeRepairBase, &SpawnLocation, &FRotator::ZeroRotator);
+		if (AA1RepairBase* RepairBase = Cast<AA1RepairBase>(Actor) )
+		{
+			RepairBase->SetCurrentState(RepairState::NotBroken);
+			UE_LOG(LogA1, Log, TEXT("RepairBase Name: %s"), *RepairBase->GetName());
+			RepairBase->SetActorHiddenInGame(true);
+
+			//Caching Specific Actor
+			SpecificRepairBase = RepairBase;
+
+			UE_LOG(LogA1, Log, TEXT("RepairBase Name: %s"), *SpecificRepairBase->GetName());
+		}
+	}
+	else
+	{
+		AActor* Actor = GetWorld()->SpawnActor(DefaultRepairBaseClass, &SpawnLocation2, &FRotator::ZeroRotator);
+		if ( AA1RepairBase* RepairBase = Cast<AA1RepairBase>(Actor) )
+		{
+			RepairBase->SetCurrentState(RepairState::NotBroken);
+		}
+	}
+}
+
+void AA1SpaceshipBase::BreakPipeRepairBase()
+{
+	SpecificRepairBase->SetActorHiddenInGame(false);
+	SpecificRepairBase->SetCurrentState(RepairState::Break);
+	SpecificRepairBase->ActivateCheckOverlap();
+	CachedNonBrokenRepairs.Remove(SpecificRepairBase);
+
+}
+
 void AA1SpaceshipBase::OnRep_CurrentFuel()
 {
 	OnFuelChanged.Broadcast(CurrentFuelAmount);
@@ -380,13 +424,13 @@ void AA1SpaceshipBase::OnRep_CurrentFuel()
 
 void AA1SpaceshipBase::OnRep_GameEndState()
 {
-	// Å¬¶óÀÌ¾ğÆ®¿¡¼­ °ÔÀÓ Á¾·á ÀÌº¥Æ® ¹ß»ı
+	// í´ë¼ì´ì–¸íŠ¸ì—ì„œ ê²Œì„ ì¢…ë£Œ ì´ë²¤íŠ¸ ë°œìƒ
 	OnGameEndEvent.Broadcast(GameEndState);
 }
 
 void AA1SpaceshipBase::FindAllRepairBases()
 {
-	//TODO eric1306 -> TutorialÀÎÁö ¾Æ´ÑÁö¿¡ µû¶ó Ä³½Ì °´Ã¼ ¼öÁ¤ÇÏ°Ô
+	//TODO eric1306 -> Tutorialì¸ì§€ ì•„ë‹Œì§€ì— ë”°ë¼ ìºì‹± ê°ì²´ ìˆ˜ì •í•˜ê²Œ
 	TArray<AActor*> Results;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AA1RepairBase::StaticClass(), OUT Results);
 	for (auto Result : Results)
@@ -405,9 +449,9 @@ void AA1SpaceshipBase::FindAllRepairBases()
 		
 	}
 
+	//TODO eric1306 -> Tutorial ì¸ì§€ ì—¬ë¶€ì— ë”°ë¼ ê¸°ë¯¹ì„ ì¶”ê°€í•´ì•¼í•¨(ê¸°ì¡´ì— ìˆì—ˆëŠ”ë° ì‚­ì œ)
 	AActor* Actor = UGameplayStatics::GetActorOfClass(GetWorld(), AA1DayNightManager::StaticClass());
-	AActor* Actor2 = UGameplayStatics::GetActorOfClass(GetWorld(), AA1TutorialManager::StaticClass());
-	if (Actor && Actor2 == nullptr)
+	if (Actor)
 	{
 		if (AA1DayNightManager* DayNight = Cast<AA1DayNightManager>(Actor))
 		{

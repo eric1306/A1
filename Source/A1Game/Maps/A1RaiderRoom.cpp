@@ -1,4 +1,4 @@
-// Copyright (c) 2025 THIS-ACCENT. All Rights Reserved.
+﻿// Copyright (c) 2025 THIS-ACCENT. All Rights Reserved.
 
 #include "Maps/A1RaiderRoom.h"
 
@@ -172,7 +172,7 @@ void AA1RaiderRoom::SpawnItem(int32 idx)
     if (idx >= ItemSpawnLocations.Num() || CachedItemTemplates.Num() <= 5)
         return;
 
-    int32 ItemToSpawn = FMath::RandRange(2, CachedItemTemplates.Num() - 5);
+    int32 ItemToSpawn = FMath::RandRange(2, CachedItemTemplates.Num() - 6);
     TSubclassOf<UA1ItemTemplate> ItemTemplateClass = CachedItemTemplates[ItemToSpawn];
     int32 ItemTemplateId = UA1ItemData::Get().FindItemTemplateIDByClass(ItemTemplateClass);
 

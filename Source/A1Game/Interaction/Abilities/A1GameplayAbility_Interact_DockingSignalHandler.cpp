@@ -1,4 +1,4 @@
-// Copyright (c) 2025 THIS-ACCENT. All Rights Reserved.
+ï»¿// Copyright (c) 2025 THIS-ACCENT. All Rights Reserved.
 
 
 #include "Interaction/Abilities/A1GameplayAbility_Interact_DockingSignalHandler.h"
@@ -7,6 +7,7 @@
 #include "Actors/A1SignalDetectionBase.h"
 #include "Kismet/GameplayStatics.h"
 #include "Maps/A1RandomMapGenerator.h"
+#include "Score/A1ScoreManager.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(A1GameplayAbility_Interact_DockingSignalHandler)
 
@@ -47,13 +48,13 @@ void UA1GameplayAbility_Interact_DockingSignalHandler::ActivateAbility(const FGa
 		CancelAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true);
 		return;
 	}
-	//ÀÌ¹Ì ¸ÊÀÌ È°¼ºÈ­ µÇ¾îÀÖ´Â °æ¿ì
+	//ì´ë¯¸ ë§µì´ í™œì„±í™” ë˜ì–´ìžˆëŠ” ê²½ìš°
 	if (Spaceship->GetIsExternalMapActive())
 	{
 		CancelAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true);
 		return;
 	}
-	// ½Ã±×³Î ÇÚµé·¯ »ç¿ëÀÌ ºÒ°¡´ÉÇÑÁö
+	// ì‹œê·¸ë„ í•¸ë“¤ëŸ¬ ì‚¬ìš©ì´ ë¶ˆê°€ëŠ¥í•œì§€
 	if (!Spaceship->GetCanUseDockingSignalHandler())
 	{
 		CancelAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true);

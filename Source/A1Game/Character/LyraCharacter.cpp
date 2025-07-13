@@ -1,4 +1,4 @@
-// Copyright Epic Games, Inc. All Rights Reserved.
+ï»¿// Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "LyraCharacter.h"
 
@@ -19,7 +19,11 @@
 #include "TimerManager.h"
 //#include "Item/Managers/A1CosmeticManagerComponent.h"
 #include "AbilitySystem/Attributes/A1CharacterAttributeSet.h"
+#include "Actors/A1BedBase.h"
 #include "GameModes/LyraGameMode.h"
+#include "Interaction/A1InteractionQuery.h"
+#include "Kismet/GameplayStatics.h"
+#include "Score/A1ScoreManager.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(LyraCharacter)
 
@@ -217,10 +221,10 @@ void ALyraCharacter::OnAbilitySystemInitialized()
 
 	InitializeGameplayTags();
 
-	// 0¹ø ¹«ÇÑ Çã±â °¨¼Ò
+	// 0ë²ˆ ë¬´í•œ í—ˆê¸° ê°ì†Œ
 	ApplyStatEffect(0);
 
-	// 1¹ø 10ºĞ¸¶´Ù weight Áõ°¡
+	// 1ë²ˆ 10ë¶„ë§ˆë‹¤ weight ì¦ê°€
 	ApplyStatEffect(1);
 }
 
@@ -417,7 +421,7 @@ void ALyraCharacter::DeleteStatEffect(int index)
 
 void ALyraCharacter::HandleChangeOfWeight(const FOnAttributeChangeData& ChangeData)
 {
-	// ÀÌµ¿ ÃÖ´ë ¼Óµµ º¯°æ
+	// ì´ë™ ìµœëŒ€ ì†ë„ ë³€ê²½
 	ULyraCharacterMovementComponent* LyraMoveComp = CastChecked<ULyraCharacterMovementComponent>(GetCharacterMovement());
 	
 	if (ChangeData.NewValue > 9.0f)
@@ -425,9 +429,9 @@ void ALyraCharacter::HandleChangeOfWeight(const FOnAttributeChangeData& ChangeDa
 	else
 		LyraMoveComp->MaxWalkSpeed = MaxSpeed;
 	
-	if (ChangeData.NewValue >= 100.f)			// »õ °ªÀÌ 100ÀÌ»óÀÌ¸é HP°¨¼Ò Àû¿ë
+	if (ChangeData.NewValue >= 100.f)			// ìƒˆ ê°’ì´ 100ì´ìƒì´ë©´ HPê°ì†Œ ì ìš©
 		ApplyStatEffect(3);
-	else if (ChangeData.OldValue >= 100.f)		// »õ °ªÀÌ 100ÀÌÇÏ, ±âÁ¸ °ªÀÌ 100ÀÌ»ó HP°¨¼Ò ÇØÁ¦
+	else if (ChangeData.OldValue >= 100.f)		// ìƒˆ ê°’ì´ 100ì´í•˜, ê¸°ì¡´ ê°’ì´ 100ì´ìƒ HPê°ì†Œ í•´ì œ
 		DeleteStatEffect(3);
 }
 
