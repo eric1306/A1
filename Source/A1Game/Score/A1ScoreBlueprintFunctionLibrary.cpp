@@ -231,3 +231,13 @@ FString UA1ScoreBlueprintFunctionLibrary::GetSurvivalScoreBreakdown(int32 Days)
     Breakdown += FString::Printf(TEXT("총 생존 점수: %d점"), TotalScore);
     return Breakdown;
 }
+
+bool UA1ScoreBlueprintFunctionLibrary::GetDoTutorial()
+{
+	return UA1ScoreManager::Get()->GetDoTutorial();
+}
+
+void UA1ScoreBlueprintFunctionLibrary::SetDoTutorial(bool InTutorial)
+{
+	UA1ScoreManager::Get()->SetDoTutorial(InTutorial);
+}

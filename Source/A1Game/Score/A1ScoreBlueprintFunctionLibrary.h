@@ -1,4 +1,4 @@
-// Copyright (c) 2025 THIS-ACCENT. All Rights Reserved.
+ï»¿// Copyright (c) 2025 THIS-ACCENT. All Rights Reserved.
 
 #pragma once
 
@@ -16,14 +16,14 @@ class A1GAME_API UA1ScoreBlueprintFunctionLibrary : public UBlueprintFunctionLib
 {
 	GENERATED_BODY()
 public:
-    // === °ÔÀÓ ¼¼¼Ç °ü¸® ===
+    // === ê²Œì„ ì„¸ì…˜ ê´€ë¦¬ ===
     UFUNCTION(BlueprintCallable, Category = "Score")
     static void StartNewGame();
 
     UFUNCTION(BlueprintCallable, Category = "Score")
     static void EndGame(EGameEndReason EndReason);
 
-    // === Á¡¼ö µ¥ÀÌÅÍ ¼³Á¤ ===
+    // === ì ìˆ˜ ë°ì´í„° ì„¤ì • ===
     UFUNCTION(BlueprintCallable, Category = "Score")
     static void AddDaySurvived(int32 Count = 1);
 
@@ -60,14 +60,14 @@ public:
     UFUNCTION(BlueprintCallable, Category = "Score")
     static void SetRemainingFuel(int32 Fuel);
 
-    // === ÆíÀÇ ÇÔ¼öµé ===
+    // === í¸ì˜ í•¨ìˆ˜ë“¤ ===
     UFUNCTION(BlueprintCallable, Category = "Score")
     static void UpdateItemCounts(int32 InventoryCount, int32 StorageCount);
 
     UFUNCTION(BlueprintCallable, Category = "Score")
     static void ConsumeItem(int32 Count = 1);
 
-    // === µ¥ÀÌÅÍ °¡Á®¿À±â ===
+    // === ë°ì´í„° ê°€ì ¸ì˜¤ê¸° ===
     UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Score")
     static FA1ScoreData GetCurrentScore();
 
@@ -80,29 +80,35 @@ public:
     UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Score")
     static int32 GetNextGameNumber();
 
-    // === Á¡¼ö ¹Ì¸®º¸±â ===
+    // === ì ìˆ˜ ë¯¸ë¦¬ë³´ê¸° ===
     UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Score")
     static int32 CalculateCurrentScore();
 
     UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Score")
     static FString GetCurrentScoreBreakdown();
 
-    // === À¯Æ¿¸®Æ¼ ===
+    // === ìœ í‹¸ë¦¬í‹° ===
     UFUNCTION(BlueprintCallable, Category = "Score")
     static void ClearAllScores();
 
-    // === Á¡¼ö ¸Å´ÏÀú Á÷Á¢ °¡Á®¿À±â (°í±Ş »ç¿ëÀÚ¿ë) ===
+    // === ì ìˆ˜ ë§¤ë‹ˆì € ì§ì ‘ ê°€ì ¸ì˜¤ê¸° (ê³ ê¸‰ ì‚¬ìš©ììš©) ===
     UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Score")
     static class UA1ScoreManager* GetScoreManager();
 
-    // === Á¡¼ö °è»ê °ø½Ä Á¤º¸ ===
+    // === ì ìˆ˜ ê³„ì‚° ê³µì‹ ì •ë³´ ===
     UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Score")
     static FString GetScoreFormula();
 
-    // === »ıÁ¸ Á¡¼ö °è»ê (¹Ì¸®º¸±â¿ë) ===
+    // === ìƒì¡´ ì ìˆ˜ ê³„ì‚° (ë¯¸ë¦¬ë³´ê¸°ìš©) ===
     UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Score")
     static int32 CalculateSurvivalScore(int32 Days);
 
     UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Score")
     static FString GetSurvivalScoreBreakdown(int32 Days);
+
+	UFUNCTION(BlueprintCallable, Category = "Score")
+	static bool GetDoTutorial();
+
+	UFUNCTION(BlueprintCallable, Category = "Score")
+	static void SetDoTutorial(bool InTutorial);
 };

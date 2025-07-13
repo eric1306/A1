@@ -1,4 +1,4 @@
-// Copyright (c) 2025 THIS-ACCENT. All Rights Reserved.
+﻿// Copyright (c) 2025 THIS-ACCENT. All Rights Reserved.
 
 
 #include "Actors/A1ChestBase.h"
@@ -90,7 +90,7 @@ void AA1ChestBase::SpawnItems()
 
 void AA1ChestBase::SpawnItem(int32 idx)
 {
-	int32 ItemtoSpawn = FMath::RandRange(2, CachedItemTemplates.Num() - 5);
+	int32 ItemtoSpawn = FMath::RandRange(2, CachedItemTemplates.Num() - 6);
 	TSubclassOf<UA1ItemTemplate> ItemTemplateClass = CachedItemTemplates[ItemtoSpawn];
 	int32 ItemTemplateId = UA1ItemData::Get().FindItemTemplateIDByClass(ItemTemplateClass);
 	UA1ItemInstance* AddedItemInstance = NewObject<UA1ItemInstance>();

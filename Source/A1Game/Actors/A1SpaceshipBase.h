@@ -1,4 +1,4 @@
-// Copyright (c) 2025 THIS-ACCENT. All Rights Reserved.
+﻿// Copyright (c) 2025 THIS-ACCENT. All Rights Reserved.
 
 #pragma once
 
@@ -164,11 +164,16 @@ public:
     FORCEINLINE bool GetbTutorial() const { return bTutorial; }
     FORCEINLINE float GetFuelConsumeAmount() const {return CurrentFuelConsumeAmount;}
     FORCEINLINE void SetFuelConsumeAmount(float InCurrentFuelConsumeAmount) { CurrentFuelConsumeAmount = InCurrentFuelConsumeAmount; }
+	FORCEINLINE AA1RepairBase* GetPipeRepairBase() const { return SpecificRepairBase; }
 
     UFUNCTION(BlueprintCallable, Category = "Spaceship|GameState", BlueprintAuthorityOnly)
     void SetMeetRescueShip(bool bMeetRescue);
     UFUNCTION()
     void CheckTwoDaysAgo(int32 NewDay);
+
+	void BreakFoam(int32 NewDay);
+
+	void BreakPipeRepairBase();
 
 protected:
     UFUNCTION(BlueprintCallable, Category = "Spaceship|Components")
@@ -176,6 +181,9 @@ protected:
 
     UFUNCTION(BlueprintCallable, Category = "Spaceship|Components")
     void FindComponentsByTags();
+
+private:
+	void SpawnOneRepairBaseByTutoMode();
 
 public:
     //Fuel Change Delegate
@@ -189,6 +197,15 @@ public:
     FOnDeactivateMap OnDeactivateMap;
 
 protected:
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Spaceship | RepairBase")
+	TSubclassOf<AA1RepairBase> DefaultRepairBaseClass;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Spaceship | RepairBase")
+	TSubclassOf<AA1RepairBase> PipeRepairBase;
+
+	UPROPERTY()
+	TObjectPtr<AA1RepairBase> SpecificRepairBase;
+
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spaceship|Fuel")
     float MaxFuelAmount = 200000.f;
 

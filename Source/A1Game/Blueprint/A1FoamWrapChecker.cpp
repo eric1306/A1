@@ -1,4 +1,4 @@
-// Copyright (c) 2025 THIS-ACCENT. All Rights Reserved.
+ï»¿// Copyright (c) 2025 THIS-ACCENT. All Rights Reserved.
 
 
 #include "Blueprint/A1FoamWrapChecker.h"
@@ -22,15 +22,15 @@ float UA1FoamWrapChecker::GetActorFoamCoverage(AActor* TargetActor)
         return 0.0f;
 
     FVector Center = TargetActor->GetActorLocation();
-    FVector Extent = FVector(10.f, 10.f, 10.f); // ÀûÀıÇÑ Å©±â·Î Á¶Á¤
+    FVector Extent = FVector(10.f, 10.f, 10.f); // ì ì ˆí•œ í¬ê¸°ë¡œ ì¡°ì •
 
     TArray<FOverlapResult> OverlapResults;
     FCollisionShape CollisionShape = FCollisionShape::MakeBox(Extent);
 
     FCollisionQueryParams QueryParams;
-    QueryParams.AddIgnoredActor(TargetActor); // ÀÚ±â ÀÚ½ÅÀº Á¦¿Ü
+    QueryParams.AddIgnoredActor(TargetActor); // ìê¸° ìì‹ ì€ ì œì™¸
 
-    // Overlap °Ë»ç·Î ¹üÀ§ ³» ¾×ÅÍµé Ã£±â
+    // Overlap ê²€ì‚¬ë¡œ ë²”ìœ„ ë‚´ ì•¡í„°ë“¤ ì°¾ê¸°
     bool bFoundOverlaps = TargetActor->GetWorld()->OverlapMultiByChannel(
         OverlapResults, 
         Center,
@@ -42,7 +42,7 @@ float UA1FoamWrapChecker::GetActorFoamCoverage(AActor* TargetActor)
 
     DrawDebugBox(TargetActor->GetWorld(), Center, Extent, FColor::Red, true);
 
-    // Foam ¾×ÅÍµé¸¸ ÇÊÅÍ¸µ
+    // Foam ì•¡í„°ë“¤ë§Œ í•„í„°ë§
     TArray<AActor*> FoamActors;
     if (bFoundOverlaps)
     {
@@ -62,10 +62,10 @@ float UA1FoamWrapChecker::GetActorFoamCoverage(AActor* TargetActor)
     if (FoamActors.Num() == 0)
         return 0.0f;
 
-    // Ã¼Å© Æ÷ÀÎÆ® »ı¼º (±âÁ¸°ú µ¿ÀÏ)
+    // ì²´í¬ í¬ì¸íŠ¸ ìƒì„± (ê¸°ì¡´ê³¼ ë™ì¼)
     TArray<FVector> CheckPoints;
 
-    // 8°³ ¸ğ¼­¸®
+    // 8ê°œ ëª¨ì„œë¦¬
     CheckPoints.Add(Center + FVector(Extent.X, Extent.Y, Extent.Z));
     CheckPoints.Add(Center + FVector(Extent.X, Extent.Y, -Extent.Z));
     CheckPoints.Add(Center + FVector(Extent.X, -Extent.Y, Extent.Z));
@@ -75,7 +75,7 @@ float UA1FoamWrapChecker::GetActorFoamCoverage(AActor* TargetActor)
     CheckPoints.Add(Center + FVector(-Extent.X, -Extent.Y, Extent.Z));
     CheckPoints.Add(Center + FVector(-Extent.X, -Extent.Y, -Extent.Z));
 
-    // 6°³ ¸é Áß½É
+    // 6ê°œ ë©´ ì¤‘ì‹¬
     CheckPoints.Add(Center + FVector(Extent.X, 0, 0));
     CheckPoints.Add(Center + FVector(-Extent.X, 0, 0));
     CheckPoints.Add(Center + FVector(0, Extent.Y, 0));
@@ -83,23 +83,23 @@ float UA1FoamWrapChecker::GetActorFoamCoverage(AActor* TargetActor)
     CheckPoints.Add(Center + FVector(0, 0, Extent.Z));
     CheckPoints.Add(Center + FVector(0, 0, -Extent.Z));
 
-    // Áß½ÉÁ¡
+    // ì¤‘ì‹¬ì 
     CheckPoints.Add(Center);
 
-    // °¢ Ã¼Å© Æ÷ÀÎÆ®°¡ Æû¿¡ µ¤¿©ÀÖ´ÂÁö È®ÀÎ
+    // ê° ì²´í¬ í¬ì¸íŠ¸ê°€ í¼ì— ë®ì—¬ìˆëŠ”ì§€ í™•ì¸
     int32 CoveredPoints = 0;
 
     for (const FVector& Point : CheckPoints)
     {
         bool bPointCovered = false;
 
-        // ÇÊÅÍ¸µµÈ Æû ¾×ÅÍµé°ú¸¸ Ã¼Å© (ÈÎ¾À ÀûÀº ¼ö)
+        // í•„í„°ë§ëœ í¼ ì•¡í„°ë“¤ê³¼ë§Œ ì²´í¬ (í›¨ì”¬ ì ì€ ìˆ˜)
         for (AActor* FoamActor : FoamActors)
         {
             if (!IsValid(FoamActor))
                 continue;
 
-            // Æû ¾×ÅÍÀÇ ¸ğµç Primitive ÄÄÆ÷³ÍÆ® Ã¼Å©
+            // í¼ ì•¡í„°ì˜ ëª¨ë“  Primitive ì»´í¬ë„ŒíŠ¸ ì²´í¬
             TArray<UPrimitiveComponent*> PrimitiveComponents;
             FoamActor->GetComponents<UPrimitiveComponent>(PrimitiveComponents);
 
@@ -108,7 +108,7 @@ float UA1FoamWrapChecker::GetActorFoamCoverage(AActor* TargetActor)
                 if (!IsValid(PrimComp) || !PrimComp->GetCollisionEnabled())
                     continue;
 
-                // Æ÷ÀÎÆ®°¡ ÄÄÆ÷³ÍÆ® ¹Ù¿îµå ¾È¿¡ ÀÖ´ÂÁö Ã¼Å©
+                // í¬ì¸íŠ¸ê°€ ì»´í¬ë„ŒíŠ¸ ë°”ìš´ë“œ ì•ˆì— ìˆëŠ”ì§€ ì²´í¬
                 FBox ComponentBounds = PrimComp->Bounds.GetBox();
                 if (ComponentBounds.IsInsideOrOn(Point))
                 {
@@ -125,6 +125,6 @@ float UA1FoamWrapChecker::GetActorFoamCoverage(AActor* TargetActor)
             CoveredPoints++;
     }
 
-    // Ä¿¹ö¸®Áö ºñÀ² ¹İÈ¯
+    // ì»¤ë²„ë¦¬ì§€ ë¹„ìœ¨ ë°˜í™˜
     return CheckPoints.Num() > 0 ? (float)CoveredPoints / (float)CheckPoints.Num() : 0.0f;
 }

@@ -1,4 +1,4 @@
-// Copyright Epic Games, Inc. All Rights Reserved.
+﻿// Copyright Epic Games, Inc. All Rights Reserved.
 
 using UnrealBuildTool;
 
@@ -46,7 +46,10 @@ public class A1Game : ModuleRules
 				"Media",
 				"MediaAssets",
 				"GeometryFramework",
-			}
+				"ProceduralMeshComponent",
+                "LevelSequence",
+                "MovieScene",
+            }
 		);
 
 		PrivateDependencyModuleNames.AddRange(
@@ -78,11 +81,11 @@ public class A1Game : ModuleRules
 				"DTLSHandlerComponent",
 				"NavigationSystem",
 				"NiagaraAnimNotifies",
-				"GameplayCameras",
-            }
+				"GameplayCameras"
+			}
 		);
 
-		DynamicallyLoadedModuleNames.AddRange(
+        DynamicallyLoadedModuleNames.AddRange(
 			new string[] {
 			}
 		);

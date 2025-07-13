@@ -1,18 +1,22 @@
-// Copyright (c) 2025 THIS-ACCENT. All Rights Reserved.
+ï»¿// Copyright (c) 2025 THIS-ACCENT. All Rights Reserved.
 
 
 #include "Actors/A1StorageEntryBase.h"
 
 #include "A1EquipmentBase.h"
+#include "A1GameplayTags.h"
 #include "Components/ArrowComponent.h"
 #include "Components/BoxComponent.h"
 #include "Data/A1ItemData.h"
+#include "GameFramework/GameplayMessageSubsystem.h"
 #include "Item/A1ItemInstance.h"
 #include "Item/A1ItemTemplate.h"
 #include "Item/Fragments/A1ItemFragment_Equipable_Attachment.h"
+#include "Item/Fragments/A1ItemFragment_Equipable_Utility.h"
 #include "Net/UnrealNetwork.h"
 #include "Physics/LyraCollisionChannels.h"
 #include "Score/A1ScoreBlueprintFunctionLibrary.h"
+#include "Score/A1ScoreManager.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(A1StorageEntryBase)
 
@@ -62,7 +66,7 @@ void AA1StorageEntryBase::SetItemTransform(int32 ItemTemplateID, EItemRarity Ite
 		FActorSpawnParameters SpawnParams;
 		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
-		// ¿øÇÏ´Â À§Ä¡¿¡ »õ·Î¿î ¾ÆÀÌÅÛ ½ºÆù
+		// ì›í•˜ëŠ” ìœ„ì¹˜ì— ìƒˆë¡œìš´ ì•„ì´í…œ ìŠ¤í°
 		FVector SpawnLocation = GetActorLocation();
 
 		AA1EquipmentBase* NewCachedItem = GetWorld()->SpawnActor<AA1EquipmentBase>(
@@ -94,6 +98,17 @@ void AA1StorageEntryBase::SetItemInput()
 void AA1StorageEntryBase::SetItemOutput()
 {
 	UE_LOG(LogTemp, Log, TEXT("[AA1StorageEntryBase] Remove Item"));
+	if (UA1ScoreManager::Get()->GetDoTutorial() )
+	{
+		const UA1ItemTemplate& ItemTemplate = UA1ItemData::Get().FindItemTemplateByID(CachedItem->GetTemplateID());
+		const UA1ItemFragment_Equipable_Utility* ItemFragment = Cast<UA1ItemFragment_Equipable_Utility>(ItemTemplate.FindFragmentByClass(UA1ItemFragment_Equipable_Utility::StaticClass()));
+		if ( ItemFragment->UtilityType == EUtilityType::FoamGun )
+		{
+			FGameplayEventData EventData;
+			UGameplayMessageSubsystem& MessageSubsystem = UGameplayMessageSubsystem::Get(GetWorld());
+			MessageSubsystem.BroadcastMessage(A1GameplayTags::Tutorial_Condition_SprayObtained, EventData);
+		}
+	}
 	CachedItem = nullptr;
 	ItemState = EItemEntryState::None;
 	UA1ScoreBlueprintFunctionLibrary::SetStorageItems(UA1ScoreBlueprintFunctionLibrary::GetStorageItems() - 1);

@@ -1,4 +1,4 @@
-// Copyright (c) 2025 THIS-ACCENT. All Rights Reserved.
+﻿// Copyright (c) 2025 THIS-ACCENT. All Rights Reserved.
 
 #pragma once
 
@@ -15,6 +15,8 @@ class ULyraCameraMode_FirstPerson : public ULyraCameraMode
 public:
 	ULyraCameraMode_FirstPerson();
 
+	FORCEINLINE bool GetCanRotate() const { return bCanRotate; }
+	FORCEINLINE void SetCanRotate(bool InCanRotate) { bCanRotate = InCanRotate; }
 protected:
 	virtual void UpdateView(float DeltaTime) override;
 
@@ -40,6 +42,7 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "First Person|Sprint")
 	float SprintOffsetInterpSpeed = 10.0f;
 private:
+	bool bCanRotate = true;
 	float HeadBobTime = 0.0f;
 	FVector CalculateHeadBob(float DeltaTime);
 };

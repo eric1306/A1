@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "Logging/LogMacros.h"
 
@@ -10,6 +10,8 @@ A1GAME_API DECLARE_LOG_CATEGORY_EXTERN(LogA1Experience, Log, All);
 A1GAME_API DECLARE_LOG_CATEGORY_EXTERN(LogA1AbilitySystem, Log, All);
 A1GAME_API DECLARE_LOG_CATEGORY_EXTERN(LogA1Teams, Log, All);
 A1GAME_API DECLARE_LOG_CATEGORY_EXTERN(LogA1ScoreSystem, Log, All);
+A1GAME_API DECLARE_LOG_CATEGORY_EXTERN(LogA1Cliff, Log, All);
+A1GAME_API DECLARE_LOG_CATEGORY_EXTERN(LogA1Tutorial, Log, All);
 
 
 #define CALLINFO (FString(__FUNCTION__) + TEXT("(") + FString::FromInt(__LINE__) + TEXT(")"))

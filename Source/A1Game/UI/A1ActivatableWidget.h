@@ -1,4 +1,4 @@
-// Copyright (c) 2025 THIS-ACCENT. All Rights Reserved.
+﻿// Copyright (c) 2025 THIS-ACCENT. All Rights Reserved.
 
 #pragma once
 
@@ -30,10 +30,15 @@ public:
 protected:
 	virtual void NativeOnActivated() override;
 	virtual void NativeOnDeactivated() override;
-
+	UFUNCTION(BlueprintCallable)
 	void AffectTypingEffect(UTextBlock* TargetTextBlock, FString InText, float delta, float startdelay);
+	UFUNCTION(BlueprintCallable)
+	void PlayErrorSound();
 
 
 	UPROPERTY(EditAnywhere)
 	USoundBase* TypingSound;
+
+	UPROPERTY(EditAnywhere)
+	USoundBase* ErrorSound;
 };

@@ -1,4 +1,4 @@
-// Copyright (c) 2025 THIS-ACCENT. All Rights Reserved.
+ï»¿// Copyright (c) 2025 THIS-ACCENT. All Rights Reserved.
 
 
 #include "Score/A1ScoreManager.h"
@@ -6,7 +6,6 @@
 #include "A1LogChannels.h"
 #include "A1ScoreBlueprintFunctionLibrary.h"
 #include "A1ScoreSaveGame.h"
-#include "Actors/A1TutorialManager.h"
 #include "Kismet/GameplayStatics.h"
 
 UA1ScoreManager* UA1ScoreManager::Instance = nullptr;
@@ -36,9 +35,9 @@ void UA1ScoreManager::EndGame(EGameEndReason EndReason)
 {
 	CurrentGameScore.GameEndReason = EndReason;
 	
-	CurrentGameScore.CalculateScore(); // ÃÖÁ¾ Á¡¼ö °è»ê
+	CurrentGameScore.CalculateScore(); // ìµœì¢… ì ìˆ˜ ê³„ì‚°
 
-	// ÀúÀåµÈ Á¡¼ö¿¡ Ãß°¡
+	// ì €ì¥ëœ ì ìˆ˜ì— ì¶”ê°€
 	if (!SavedScores)
 	{
 		SavedScores = Cast<UA1ScoreSaveGame>(UGameplayStatics::CreateSaveGameObject(UA1ScoreSaveGame::StaticClass()));
@@ -46,7 +45,7 @@ void UA1ScoreManager::EndGame(EGameEndReason EndReason)
 	SavedScores->AddScore(CurrentGameScore);
 	SaveScores();
 
-	// ÀÌº¥Æ® ºê·ÎµåÄ³½ºÆ®
+	// ì´ë²¤íŠ¸ ë¸Œë¡œë“œìºìŠ¤íŠ¸
 	OnGameEnded.Broadcast(CurrentGameScore);
 
 	SetDoTutorial(false);
@@ -169,7 +168,7 @@ bool UA1ScoreManager::LoadScores()
 		}
 	}
 
-	// ÀúÀå ÆÄÀÏÀÌ ¾ø°Å³ª ·Îµå ½ÇÆĞ½Ã »õ·Î »ı¼º
+	// ì €ì¥ íŒŒì¼ì´ ì—†ê±°ë‚˜ ë¡œë“œ ì‹¤íŒ¨ì‹œ ìƒˆë¡œ ìƒì„±
 	SavedScores = Cast<UA1ScoreSaveGame>(UGameplayStatics::CreateSaveGameObject(UA1ScoreSaveGame::StaticClass()));
 	UE_LOG(LogA1ScoreSystem, Log, TEXT("[ScoreManager] Created new save data"));
 
@@ -198,7 +197,7 @@ int32 UA1ScoreManager::GetNextGameNumber() const
 {
 	if (SavedScores && SavedScores->GetAllScores().Num() > 0)
 	{
-		// ¸¶Áö¸· °ÔÀÓ ¹øÈ£ + 1
+		// ë§ˆì§€ë§‰ ê²Œì„ ë²ˆí˜¸ + 1
 		int32 MaxGameNumber = 0;
 		for (const FA1ScoreData& Score : SavedScores->GetAllScores())
 		{
@@ -206,7 +205,7 @@ int32 UA1ScoreManager::GetNextGameNumber() const
 		}
 		return MaxGameNumber + 1;
 	}
-	return 1; // Ã¹ °ÔÀÓ
+	return 1; // ì²« ê²Œì„
 }
 
 void UA1ScoreManager::ClearAllData()

@@ -1,4 +1,4 @@
-// Copyright (c) 2025 THIS-ACCENT. All Rights Reserved.
+﻿// Copyright (c) 2025 THIS-ACCENT. All Rights Reserved.
 
 
 #include "Camera/LyraCameraMode_FirstPerson.h"
@@ -9,6 +9,7 @@
 #include "GameFramework/Pawn.h"
 #include "Components/CapsuleComponent.h"
 #include "Engine/Engine.h"
+#include "Score/A1ScoreManager.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(LyraCameraMode_FirstPerson)
 
@@ -46,8 +47,14 @@ void ULyraCameraMode_FirstPerson::UpdateView(float DeltaTime)
 			PivotRotation.Pitch = FMath::ClampAngle(PivotRotation.Pitch, ViewPitchMin, ViewPitchMax);
 
 			View.Location = PivotLocation;
+			if (!bCanRotate )
+			{
+				PivotRotation.Yaw += 180.f;
+				bCanRotate = true;
+			}
 			View.Rotation = PivotRotation;
 			View.ControlRotation = View.Rotation;
+			
 			View.FieldOfView = FieldOfView;
 
 			FVector AdjustedEyeHeightOffset = EyeHeightOffset;
@@ -77,7 +84,7 @@ FVector ULyraCameraMode_FirstPerson::CalculateHeadBob(float DeltaTime)
 	else
 	{
 		float MovementSpeed = TargetPawn->GetVelocity().Size();
-		float SpeedMultiplier = FMath::Clamp(MovementSpeed / 600.0f, 0.5f, 2.0f);
+		float SpeedMultiplier = FMath::Clamp(MovementSpeed / 1000.0f, 0.5f, 1.0f);
 		HeadBobTime += DeltaTime * HeadBobFrequency * SpeedMultiplier;
 	}
 

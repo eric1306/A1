@@ -1,4 +1,4 @@
-// Copyright (c) 2025 THIS-ACCENT. All Rights Reserved.
+ï»¿// Copyright (c) 2025 THIS-ACCENT. All Rights Reserved.
 
 
 #include "Actors/A1FuelBase.h"
@@ -10,10 +10,13 @@
 #include "Data/A1ItemData.h"
 #include "Kismet/GameplayStatics.h"
 #include "Engine/OverlapResult.h"
+#include "GameFramework/GameplayMessageSubsystem.h"
 #include "Item/A1ItemInstance.h"
 #include "Item/A1ItemTemplate.h"
 #include "Item/Fragments/A1ItemFragment_Equipable_Utility.h"
 #include "Score/A1ScoreBlueprintFunctionLibrary.h"
+#include "A1GameplayTags.h"
+#include "Score/A1ScoreManager.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(A1FuelBase)
 
@@ -108,7 +111,7 @@ bool AA1FuelBase::IsFuelItem(AActor* Item) const
 
 	if (AA1EquipmentBase* Equipment = Cast<AA1EquipmentBase>(Item))
 	{
-		if (!Equipment->GetPickup()) //Pickup¾ÈµÈ ¿¬·á¸¸ ³Ö±â °¡´É.
+		if (!Equipment->GetPickup()) //Pickupì•ˆëœ ì—°ë£Œë§Œ ë„£ê¸° ê°€ëŠ¥.
 		{
 			const UA1ItemTemplate& ItemTemplate = UA1ItemData::Get().FindItemTemplateByID(Equipment->GetTemplateID());
 			const UA1ItemFragment_Equipable_Utility* ItemFragment = Cast<UA1ItemFragment_Equipable_Utility>(ItemTemplate.FindFragmentByClass(UA1ItemFragment_Equipable_Utility::StaticClass()));
@@ -169,6 +172,16 @@ void AA1FuelBase::DetectAndAbsorbFuelItems()
 
 					Result.GetActor()->Destroy();
 					UA1ScoreBlueprintFunctionLibrary::AddConsumedItems();
+
+					if (UA1ScoreManager::Get()->GetDoTutorial() )
+					{
+						FGameplayEventData EventData;
+						EventData.Instigator = GetInstigator();
+						EventData.Target = this;
+
+						UGameplayMessageSubsystem& MessageSubsystem = UGameplayMessageSubsystem::Get(GetWorld());
+						MessageSubsystem.BroadcastMessage(A1GameplayTags::Tutorial_Interact_Fuel, EventData);
+					}
 				}
 			}
 		}

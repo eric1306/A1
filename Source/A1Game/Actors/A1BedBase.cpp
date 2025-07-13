@@ -1,4 +1,4 @@
-// Copyright (c) 2025 THIS-ACCENT. All Rights Reserved.
+ï»¿// Copyright (c) 2025 THIS-ACCENT. All Rights Reserved.
 
 
 #include "Actors/A1BedBase.h"
@@ -11,6 +11,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Net/UnrealNetwork.h"
 #include "Player/LyraPlayerController.h"
+#include "Score/A1ScoreManager.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(A1BedBase)
 
@@ -125,7 +126,7 @@ void AA1BedBase::WakeUpOccupyingCharacter()
 	if (!OccupyingCharacter)
 		return;
 
-	//Actor°¡ LyraCharacterÀÎÁö Ã¼Å©
+	//Actorê°€ LyraCharacterì¸ì§€ ì²´í¬
 	ALyraCharacter* LyraCharacter = Cast<ALyraCharacter>(OccupyingCharacter);
 	if (!LyraCharacter)
 		return;
@@ -134,7 +135,7 @@ void AA1BedBase::WakeUpOccupyingCharacter()
 	if (!LyraPlayerController)
 		return;
 
-	// AbilitySystemComponent °¡Á®¿À±â
+	// AbilitySystemComponent ê°€ì ¸ì˜¤ê¸°
 	UAbilitySystemComponent* ASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(LyraCharacter);
 	if (!ASC)
 		return;
@@ -153,7 +154,7 @@ void AA1BedBase::WakeUpOccupyingCharacter()
 		ASC->HandleGameplayEvent(A1GameplayTags::Ability_Interact_Active, &Payload);
 	}
 
-	// Ä³¸¯ÅÍ ÂüÁ¶ Á¦°Å
+	// ìºë¦­í„° ì°¸ì¡° ì œê±°
 	OccupyingCharacter = nullptr;
 
 	//Temp eric1306 (fuck)
@@ -169,7 +170,7 @@ void AA1BedBase::SetOccupyingCharacter(AActor* Character)
 		{
 			OccupyingCharacter = Character;
 
-			//Health Changed Delegate µî·Ï
+			//Health Changed Delegate ë“±ë¡
 			UAbilitySystemComponent* ASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(OccupyingCharacter);
 			if (ASC)
 			{
@@ -194,7 +195,7 @@ void AA1BedBase::SetOccupyingCharacter(AActor* Character)
 
 			DeactivateDecreaseWeight();
 
-			//µ¨¸®°ÔÀÌÆ® Á¦°Å
+			//ë¸ë¦¬ê²Œì´íŠ¸ ì œê±°
 			UAbilitySystemComponent* ASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(OccupyingCharacter);
 			if (ASC)
 			{
@@ -202,7 +203,7 @@ void AA1BedBase::SetOccupyingCharacter(AActor* Character)
 				Attribute->OnHealthChanged.RemoveAll(this);
 			}
 
-			//ÈÄ nullptr·Î ÃÊ±âÈ­
+			//í›„ nullptrë¡œ ì´ˆê¸°í™”
 			OccupyingCharacter = Character;
 		}
 	}
@@ -218,7 +219,7 @@ void AA1BedBase::Multicast_Wakeup_Implementation()
 
 void AA1BedBase::ActivateDecreaseWeight()
 {
-	// ÀÌ¹Ì ½ÇÇà ÁßÀÎ Å¸ÀÌ¸Ó°¡ ÀÖ´Ù¸é Á¦°Å
+	// ì´ë¯¸ ì‹¤í–‰ ì¤‘ì¸ íƒ€ì´ë¨¸ê°€ ìˆë‹¤ë©´ ì œê±°
 	if (GetWorldTimerManager().IsTimerActive(DecreaseWeightTimerHandle))
 	{
 		GetWorldTimerManager().ClearTimer(DecreaseWeightTimerHandle);
@@ -254,7 +255,7 @@ void AA1BedBase::ActivateDecreaseWeight()
 
 void AA1BedBase::DeactivateDecreaseWeight()
 {
-	// Å¸ÀÌ¸Ó ÁßÁö
+	// íƒ€ì´ë¨¸ ì¤‘ì§€
 	if (GetWorldTimerManager().IsTimerActive(DecreaseWeightTimerHandle))
 	{
 		GetWorldTimerManager().ClearTimer(DecreaseWeightTimerHandle);
@@ -274,6 +275,6 @@ void AA1BedBase::SetupTags()
 
 void AA1BedBase::OnHealthChanged(AActor* InInstigator, float OldValue, float NewValue)
 {
-	//HP °¨¼Ò »ó°ü¾øÀÌ ÇÃ·¹ÀÌ¾î ±ú¿ì±â
+	//HP ê°ì†Œ ìƒê´€ì—†ì´ í”Œë ˆì´ì–´ ê¹¨ìš°ê¸°
 	WakeUpOccupyingCharacter();
 }

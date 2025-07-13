@@ -1,4 +1,4 @@
-// Copyright (c) 2025 THIS-ACCENT. All Rights Reserved.
+﻿// Copyright (c) 2025 THIS-ACCENT. All Rights Reserved.
 
 
 #include "Actors/A1StorageBase.h"
@@ -14,6 +14,7 @@
 #include "Data/A1ItemData.h"
 #include "Net/UnrealNetwork.h"
 #include "Physics/LyraCollisionChannels.h"
+#include "Score/A1ScoreManager.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(A1StorageBase)
 
@@ -43,11 +44,16 @@ void AA1StorageBase::BeginPlay()
     SpawnStartLocation = GetActorLocation() + FVector(0.f, 0.f, 0.f);
     for (int32 row = 0; row < StorageHeightNum ; row++) for (int32 col=0; col < StorageWidthNum ; col++)
     {
-        FVector FinalSpawnLocation = SpawnStartLocation + FVector(-60.f + 50.f * col, -30.f, 50.f + 60.f * row);
+        FVector FinalSpawnLocation = SpawnStartLocation + FVector(-60.f + 50.f * col, 0.f, 50.f + 60.f * row);
         FRotator SpawnRotation = GetActorRotation();
         AA1StorageEntryBase* Entry = GetWorld()->SpawnActor<AA1StorageEntryBase>(EntryClass, FinalSpawnLocation, SpawnRotation, Params);
         StorageEntries.Add(Entry);
     }
+
+	if(UA1ScoreManager::Get()->GetDoTutorial())
+	{
+		SpawnDefaultItems();
+	}
 }
 
 void AA1StorageBase::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const
@@ -115,9 +121,9 @@ bool AA1StorageBase::EntryIsEmpty()
 
 void AA1StorageBase::SpawnDefaultItems()
 {
-    // TODO eric1306: Gae Ship ship HardCoding
+    // TODO eric1306: Fix HardCoding
     StorageEntries[14].Get()->SpawnItem(2004);
-    StorageEntries[15].Get()->SpawnItem(1000);
+    //StorageEntries[15].Get()->SpawnItem(1000);
 }
 
 void AA1StorageBase::SetupTags()

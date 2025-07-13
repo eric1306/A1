@@ -1,4 +1,4 @@
-// Copyright (c) 2025 THIS-ACCENT. All Rights Reserved.
+ï»¿// Copyright (c) 2025 THIS-ACCENT. All Rights Reserved.
 
 
 #include "Interaction/Abilities/A1GameplayAbility_Interact_Bed.h"
@@ -11,6 +11,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Player/LyraPlayerController.h"
+#include "Score/A1ScoreManager.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(A1GameplayAbility_Interact_Bed)
 
@@ -51,25 +52,34 @@ void UA1GameplayAbility_Interact_Bed::ActivateAbility(const FGameplayAbilitySpec
         return;
     }
 
-    //ÀÌ¹Ì ¼±Á¡ÇÑ ³»°¡ ¾Æ´Ñ Ä³¸¯ÅÍ°¡ Á¸ÀçÇÏ´Â °æ¿ì
+    //ì´ë¯¸ ì„ ì í•œ ë‚´ê°€ ì•„ë‹Œ ìºë¦­í„°ê°€ ì¡´ì¬í•˜ëŠ” ê²½ìš°
     if (BedActor->bIsOccupyingCharacterExist() && BedActor->GetOccupyingCharacter() != LyraCharacter)
     {
         CancelAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true);
         return;
     }
+	bool bDoTutorial = UA1ScoreManager::Get()->GetDoTutorial();
+	if (!bDoTutorial)
+	{
+		//ìºë¦­í„°ì˜ í”¼ë¡œë„ê°€ 10 ì´í•˜ì¸ë° ë“¤ì–´ì˜¤ë ¤ê³  ì‹œë„í•˜ëŠ” ê²½ìš°
+		ULyraAbilitySystemComponent* ASC = LyraCharacter->GetLyraAbilitySystemComponent();
+		if ( ASC )
+		{
+			const UA1CharacterAttributeSet* Attribute = ASC->GetSet<UA1CharacterAttributeSet>();
 
-    //Ä³¸¯ÅÍÀÇ ÇÇ·Îµµ°¡ 10 ÀÌÇÏÀÎµ¥ µé¾î¿À·Á°í ½ÃµµÇÏ´Â °æ¿ì
-    ULyraAbilitySystemComponent* ASC = LyraCharacter->GetLyraAbilitySystemComponent();
-    if (ASC)
-    {
-        const UA1CharacterAttributeSet* Attribute = ASC->GetSet<UA1CharacterAttributeSet>();
+			if ( Attribute->GetWeight() <= 10.f && BedActor->GetBedState() == EBedState::Empty )
+			{
+				CancelAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true);
+				return;
+			}
+		}
+	}
 
-        if (Attribute->GetWeight() <= 10.f && BedActor->GetBedState() == EBedState::Empty)
-        {
-            CancelAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true);
-            return;
-        }
-    }
+	if ( bDoTutorial && BedActor->GetUsedInTutoMode())
+	{
+		CancelAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true);
+		return;
+	}
 
     AActor* Actor = UGameplayStatics::GetActorOfClass(GetWorld(), AA1DayNightManager::StaticClass());
     if (Actor == nullptr)
@@ -85,7 +95,8 @@ void UA1GameplayAbility_Interact_Bed::ActivateAbility(const FGameplayAbilitySpec
         LyraCharacter->GetCharacterMovement()->SetMovementMode(MOVE_None);
         BedActor->StorePlayerReturnTransform(LyraCharacter->GetActorTransform());
 
-        PlayScreenFadeEffect(false);
+		if ( !UA1ScoreManager::Get()->GetDoTutorial() )
+			PlayScreenFadeEffect(false);
 
         FTransform BedTransform = BedActor->GetLayDownTransform();
         LyraCharacter->SetActorTransform(BedTransform);
@@ -97,10 +108,10 @@ void UA1GameplayAbility_Interact_Bed::ActivateAbility(const FGameplayAbilitySpec
 
         BedActor->SetBedState(EBedState::Occupied);
 
-        // Ãß°¡: Ä§´ë¿¡ Ä³¸¯ÅÍ Á¤º¸ ÀúÀå
+        // ì¶”ê°€: ì¹¨ëŒ€ì— ìºë¦­í„° ì •ë³´ ì €ì¥
         BedActor->SetOccupyingCharacter(LyraCharacter);
 
-        // Ãß°¡: DayNightManager¿¡ Ä§´ë µî·Ï
+        // ì¶”ê°€: DayNightManagerì— ì¹¨ëŒ€ ë“±ë¡
         if (AA1DayNightManager* DayNightManager = Cast<AA1DayNightManager>(Actor))
         {
             DayNightManager->SetPlayerSleeping(LyraCharacter, true);
@@ -113,21 +124,24 @@ void UA1GameplayAbility_Interact_Bed::ActivateAbility(const FGameplayAbilitySpec
     {
         LyraCharacter->GetCharacterMovement()->SetMovementMode(MOVE_Walking);
 
-        PlayScreenFadeEffect(true);
+		if ( !UA1ScoreManager::Get()->GetDoTutorial() )
+			PlayScreenFadeEffect(true);
 
         FTransform ReturnTransform = BedActor->GetPlayerReturnTransform();
         LyraCharacter->SetActorTransform(ReturnTransform);
 
         BedActor->SetBedState(EBedState::Empty);
 
-        // Ãß°¡: Ä§´ë¿¡ Ä³¸¯ÅÍ Á¤º¸ ÇØÁ¦
+        // ì¶”ê°€: ì¹¨ëŒ€ì— ìºë¦­í„° ì •ë³´ í•´ì œ
         BedActor->SetOccupyingCharacter(nullptr);
 
-        // Ãß°¡: DayNightManager¿¡¼­ Ä§´ë µî·Ï ÇØÁ¦
+        // ì¶”ê°€: DayNightManagerì—ì„œ ì¹¨ëŒ€ ë“±ë¡ í•´ì œ
         if (AA1DayNightManager* DayNightManager = Cast<AA1DayNightManager>(Actor))
         {
             DayNightManager->SetPlayerSleeping(LyraCharacter, false);
         }
+		
+		BedActor->SetUsedInTutoMode(true);
     }
 
     break;
