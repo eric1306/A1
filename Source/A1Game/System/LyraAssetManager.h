@@ -1,4 +1,4 @@
-// Copyright Epic Games, Inc. All Rights Reserved.
+﻿// Copyright Epic Games, Inc. All Rights Reserved.
 
 #pragma once
 
@@ -21,6 +21,7 @@ class UA1NoticeData;
 class UA1GuideData;
 class UA1CmdData;
 class UA1AbilityData;
+class UA1TutorialData;
 
 struct FLyraBundles
 {
@@ -73,6 +74,7 @@ public:
 	const UA1GuideData& GetGuideData();
 	const UA1CmdData& GetCmdData();
 	const UA1AbilityData& GetAbilityData();
+	const UA1TutorialData& GetTutorialData();
 	
 protected:
 	template <typename GameDataClass>
@@ -142,6 +144,9 @@ protected:
 
 	UPROPERTY(Config)
 	TSoftObjectPtr<UA1AbilityData> AbilityDataPath;
+
+	UPROPERTY(Config)
+	TSoftObjectPtr<UA1TutorialData> TutorialDataPath;
 
 private:
 	// Flushes the StartupJobs array. Processes all startup work.

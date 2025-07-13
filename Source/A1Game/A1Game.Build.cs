@@ -1,4 +1,4 @@
-// Copyright Epic Games, Inc. All Rights Reserved.
+﻿// Copyright Epic Games, Inc. All Rights Reserved.
 
 using UnrealBuildTool;
 
@@ -47,6 +47,8 @@ public class A1Game : ModuleRules
 				"MediaAssets",
 				"GeometryFramework",
 				"ProceduralMeshComponent",
+                "LevelSequence",
+                "MovieScene",
             }
 		);
 

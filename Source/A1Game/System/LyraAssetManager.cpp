@@ -1,4 +1,4 @@
-// Copyright Epic Games, Inc. All Rights Reserved.
+﻿// Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "LyraAssetManager.h"
 #include "A1LogChannels.h"
@@ -13,6 +13,7 @@
 #include "Data/A1GuideData.h"
 #include "Data/A1CmdData.h"
 #include "Data/A1AbilityData.h"
+#include "Data/A1TutorialData.h"
 #include "AbilitySystemGlobals.h"
 #include "Character/LyraPawnData.h"
 #include "Misc/App.h"
@@ -133,6 +134,7 @@ void ULyraAssetManager::StartInitialLoading()
 		STARTUP_JOB_WEIGHTED(GetGuideData(), 25.f);
 		STARTUP_JOB_WEIGHTED(GetCmdData(), 25.f);
 		STARTUP_JOB_WEIGHTED(GetAbilityData(), 25.f);
+		STARTUP_JOB_WEIGHTED(GetTutorialData(), 25.f);
 	}
 
 	// Run all the queued up startup jobs
@@ -202,6 +204,11 @@ const UA1CmdData& ULyraAssetManager::GetCmdData()
 const UA1AbilityData& ULyraAssetManager::GetAbilityData()
 {
 	return GetOrLoadTypedGameData<UA1AbilityData>(AbilityDataPath);
+}
+
+const UA1TutorialData& ULyraAssetManager::GetTutorialData()
+{
+	return GetOrLoadTypedGameData<UA1TutorialData>(TutorialDataPath);
 }
 
 UPrimaryDataAsset* ULyraAssetManager::LoadGameDataOfClass(TSubclassOf<UPrimaryDataAsset> DataClass, const TSoftObjectPtr<UPrimaryDataAsset>& DataClassPath, FPrimaryAssetType PrimaryAssetType)

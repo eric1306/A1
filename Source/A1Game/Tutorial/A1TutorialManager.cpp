@@ -1,714 +1,280 @@
-// Copyright (c) 2025 THIS-ACCENT. All Rights Reserved.
+﻿// Copyright (c) 2025 THIS-ACCENT. All Rights Reserved.
 
+#include "Tutorial/A1TutorialManager.h"
 
-#include "A1TutorialManager.h"
-
-#include "Actors/A1CMDBase.h"
-#include "Actors/A1EquipmentBase.h"
 #include "A1GameplayTags.h"
 #include "A1LogChannels.h"
-#include "Actors/A1RepairBase.h"
-#include "Actors/A1StorageEntryBase.h"
-#include "GameFramework/GameplayMessageSubsystem.h"
-#include "Kismet/GameplayStatics.h"
-#include "Player/LyraPlayerController.h"
-#include "Blueprint/UserWidget.h"
-#include "Character/LyraCharacter.h"
-#include "Data/A1ItemData.h"
-#include "UI/A1ActivatableWidget.h"
-#include "Item/A1ItemTemplate.h"
-#include "Item/Fragments/A1ItemFragment_Equipable_Utility.h"
-#include "Item/Fragments/A1ItemFragment_Equipable_Weapon.h"
+#include "Data/A1TutorialData.h"
+#include "Tutorial/A1TutorialStep.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(A1TutorialManager)
 
-//==============================================================================
-// AA1TutorialManager - 통합 튜토리얼 시스템
-//==============================================================================
-
-AA1TutorialManager::AA1TutorialManager()
+UA1TutorialManager::UA1TutorialManager()
 {
-	PrimaryActorTick.bCanEverTick = false;
-
+	bIsTutorialActive = false;
+	bIsTutorialPaused = false;
+	bHasActiveNavigation = false;
+	CurrentNavigationTarget = FVector::ZeroVector;
 }
 
-void AA1TutorialManager::BeginPlay()
+void UA1TutorialManager::Initialize(FSubsystemCollectionBase& Collection)
 {
-	Super::BeginPlay();
-    // 플레이어 컨트롤러 찾기
-    PlayerController = Cast<ALyraPlayerController>(UGameplayStatics::GetPlayerController(this, 0));
+	Super::Initialize(Collection);
 
-    // 스텝 데이터 로드
-    if (TutorialStepsTable)
-    {
-        TutorialStepsTable->GetAllRows<FA1TutorialStepData>(TEXT("TutorialSteps"), StepDataArray);
-        UE_LOG(LogA1System, Log, TEXT("Loaded %d tutorial steps"), StepDataArray.Num());
-    }
+	LoadTutorialSteps();
 
-    StartTutorial();
+	UGameplayMessageSubsystem& MessageSubsystem = UGameplayMessageSubsystem::Get(GetGameInstance());
+	MessageListenerHandle = MessageSubsystem.RegisterListener(FGameplayTag(), this,
+			&UA1TutorialManager::OnGameplayEventReceived);
+	
+
+	UE_LOG(LogA1Tutorial, Log, TEXT("[TutorialManager] Initialized with %d steps"), StepDataMap.Num());
 }
 
-void AA1TutorialManager::EndPlay(const EEndPlayReason::Type EndPlayReason)
+void UA1TutorialManager::Deinitialize()
 {
-    // 타이머 정리
-    GetWorld()->GetTimerManager().ClearTimer(AutoProgressTimer);
-    GetWorld()->GetTimerManager().ClearTimer(ActionDelayTimer);
-    FText EmptyTitle = FText::FromString(TEXT(""));
-    FText EmptyContent = FText::FromString(TEXT(""));
+	StopTutorial();
 
-    SendUIMessage(EmptyTitle, EmptyContent);
+	if ( MessageListenerHandle.IsValid() )
+	{
+		UGameplayMessageSubsystem& MessageSubsystem = UGameplayMessageSubsystem::Get(GetGameInstance());
+		MessageSubsystem.UnregisterListener(MessageListenerHandle);
+		MessageListenerHandle.Unregister();
+	}
 
-    Super::EndPlay(EndPlayReason);
+	Super::Deinitialize();
 }
 
-void AA1TutorialManager::StartTutorial()
+void UA1TutorialManager::StartTutorial()
 {
-    if (bIsActive || StepDataArray.Num() == 0)
-    {
-        return;
-    }
+	if ( bIsTutorialActive )
+		return;
 
-    bIsActive = true;
-    CurrentStepIndex = -1;
-    TutorialStep = ETutorialStep::None;
+	UE_LOG(LogA1Tutorial, Log, TEXT("[TutorialManager] Starting Tutorial"));
 
-    UE_LOG(LogA1System, Log, TEXT("Starting compact tutorial with %d steps"), StepDataArray.Num());
+	bIsTutorialActive = true;
+	bIsTutorialPaused = false;
+	CompletedSteps.Empty();
 
-    NextStep();
+	OnTutorialStarted.Broadcast();
+	BP_OnTutorialStarted();
+
+	// 첫 번째 단계 시작
+	if ( !FirstStepID.IsEmpty() && StepDataMap.Contains(FirstStepID) )
+	{
+		StartStep(FirstStepID);
+	}
+	else if ( !StepDataMap.IsEmpty() )
+	{
+		// FirstStepID가 없으면 첫 번째 단계 사용
+		auto It = StepDataMap.CreateConstIterator();
+		StartStep(It.Key());
+	}
 }
 
-void AA1TutorialManager::NextStep()
+void UA1TutorialManager::StopTutorial()
 {
-    if (!bIsActive)
-    {
-        return;
-    }
+	if ( !bIsTutorialActive )
+		return;
 
-    CurrentStepIndex++;
+	UE_LOG(LogA1Tutorial, Log, TEXT("[TutorialManager] Stopping Tutorial"));
 
-    if (!StepDataArray.IsValidIndex(CurrentStepIndex))
-    {
-        EndTutorial();
-        return;
-    }
+	if ( CurrentStep )
+	{
+		CurrentStep->CleanupStep();
+		CurrentStep = nullptr;
+	}
 
-    FA1TutorialStepData* StepData = StepDataArray[CurrentStepIndex];
-    if (!StepData)
-    {
-        NextStep();
-        return;
-    }
-
-    UE_LOG(LogA1System, Log, TEXT("Starting step %d: %s"), CurrentStepIndex, *StepData->StepName.ToString());
-
-    // Blueprint 이벤트 호출
-    OnStepStarted(*StepData);
-
-    //Change Current Tutorial Step
-    ChangeTutorialStep(TutorialStep);
-
-    // 액션들 순차 실행
-    for (int32 i = 0; i < StepData->Actions.Num(); i++)
-    {
-        ETutorialActionType ActionType = StepData->Actions[i];
-        FString Params = StepData->ActionParams.FindRef(ActionType);
-
-        // 액션 간 지연을 위한 타이머 사용
-        float Delay = (i+1) * 0.1f; // 각 액션마다ExecuteAction( 0.1초 간격)
-        UE_LOG(LogA1System, Log, TEXT("Action Type: %hhd"), ActionType);
-        FTimerHandle TimerHandle;
-        GetWorld()->GetTimerManager().SetTimer(
-            TimerHandle,
-            [this, ActionType, Params]() { ExecuteAction(ActionType, Params); },
-            Delay,
-            false
-        );
-    }
-
-    // 완료 조건 설정
-    CurrentWaitingCondition = StepData->CompletionCondition;
-
-    // 자동 진행 설정
-    if (StepData->AutoProgressTime > 0.0f)
-    {
-        GetWorld()->GetTimerManager().SetTimer(
-            AutoProgressTimer,
-            this,
-            &AA1TutorialManager::NextStep,
-            StepData->AutoProgressTime,
-            false
-        );
-    }
+	bIsTutorialActive = false;
+	bIsTutorialPaused = false;
+	CurrentStepID.Empty();
+	ClearNavigationTarget();
 }
 
-void AA1TutorialManager::GoToStep(int32 StepIndex)
+void UA1TutorialManager::PauseTutorial()
 {
-    if (!StepDataArray.IsValidIndex(StepIndex))
-    {
-        return;
-    }
+	if ( !bIsTutorialActive || bIsTutorialPaused )
+		return;
 
-    CurrentStepIndex = StepIndex - 1; // NextStep에서 +1 되므로
-    NextStep();
+	UE_LOG(LogA1Tutorial, Log, TEXT("[TutorialManager] Pausing Tutorial"));
+
+	bIsTutorialPaused = true;
+	BP_OnTutorialPaused();
 }
 
-void AA1TutorialManager::OnConditionMet(FGameplayTag ConditionTag)
+void UA1TutorialManager::ResumeTutorial()
 {
-    if (!bIsActive || CurrentWaitingCondition != ConditionTag)
-    {
-        return;
-    }
+	if ( !bIsTutorialActive || !bIsTutorialPaused )
+		return;
 
-    UE_LOG(LogA1System, Log, TEXT("Condition met: %s"), *ConditionTag.ToString());
+	UE_LOG(LogA1Tutorial, Log, TEXT("[TutorialManager] Resuming Tutorial"));
 
-    // 자동 진행 타이머 정리
-    GetWorld()->GetTimerManager().ClearTimer(AutoProgressTimer);
-
-    // Blueprint 이벤트 호출
-    OnStepCompleted(CurrentStepIndex);
-
-    // 다음 스텝으로 진행
-    NextStep();
+	bIsTutorialPaused = false;
+	BP_OnTutorialResumed();
 }
 
-void AA1TutorialManager::EndTutorial()
+void UA1TutorialManager::StartStep(const FString& StepID)
 {
-    if (!bIsActive)
-    {
-        return;
-    }
+	if ( !bIsTutorialActive || bIsTutorialPaused || StepID.IsEmpty() )
+		return;
 
-    UE_LOG(LogA1System, Log, TEXT("Tutorial completed"));
+	FA1TutorialStepInfo* StepInfo = StepDataMap.Find(StepID);
+	if ( !StepInfo)
+	{
+		UE_LOG(LogA1Tutorial, Warning, TEXT("[TutorialManager] Tutorial Step not found: %s"), *StepID);
+		return;
+	}
 
-    bIsActive = false;
-    CurrentStepIndex = -1;
+	UE_LOG(LogA1Tutorial, Log, TEXT("[TutorialManager] Starting Step: %s"), *StepID);
 
-    // 타이머 정리
-    GetWorld()->GetTimerManager().ClearTimer(AutoProgressTimer);
-    GetWorld()->GetTimerManager().ClearTimer(ActionDelayTimer);
+	// 현재 단계 정리
+	if ( CurrentStep )
+	{
+		CurrentStep->CleanupStep();
+	}
 
-    // Blueprint 이벤트 호출
-    OnTutorialCompleted();
+	// 새 단계 생성 및 시작
+	CurrentStep = CreateStepInstance(StepInfo);
+	if ( CurrentStep )
+	{
+		CurrentStepID = StepID;
+		CurrentStep->StartStep();
+		OnStepChanged.Broadcast(*StepInfo);
+	}
 }
 
-//==============================================================================
-// Active Function
-//==============================================================================
-
-void AA1TutorialManager::SendUIMessage(FText Title, FText Content)
+void UA1TutorialManager::CompleteCurrentStep()
 {
-    FA1TutorialUIMessage Message;
-    Message.Title = Title;
-    Message.Content = Content;
+	if ( CurrentStep && !CurrentStep->IsStepCompleted() )
+	{
+		// 완료된 단계 기록
+		if ( !CurrentStepID.IsEmpty() )
+		{
+			CompletedSteps.AddUnique(CurrentStepID);
+		}
 
-    UGameplayMessageSubsystem& MessageSystem = UGameplayMessageSubsystem::Get(PlayerController);
-    MessageSystem.BroadcastMessage(A1GameplayTags::Message_Tutorial_Notice, Message);
+		CurrentStep->CompleteStep();
+	}
 }
 
-void AA1TutorialManager::OnItemFill(AA1EquipmentBase* CachedItem)
+void UA1TutorialManager::SkipToStep(const FString& StepID)
 {
-    bool bResult = CachedItem->GetName().Contains(TEXT("FoamGun")) || CachedItem->GetName().Contains(TEXT("OneHandSword"))|| CachedItem->GetName().Contains(TEXT("FlashLight"));
-    if (bResult)
-    {
-        ItemStoredCount++;
-    }
-    if (ItemStoredCount == 3)
-    {
-        NextStep();
-    }
+	if ( !bIsTutorialActive )
+		return;
+
+	UE_LOG(LogA1Tutorial, Log, TEXT("[TutorialManager] Skipping to Step: %s"), *StepID);
+	StartStep(StepID);
 }
 
-void AA1TutorialManager::ExecuteAction(ETutorialActionType ActionType, const FString& Params)
+void UA1TutorialManager::SendGameplayEvent(FGameplayTag EventTag, const FGameplayEventData& EventData)
 {
-    switch (ActionType)
-    {
-    case ETutorialActionType::PlayVideo:        DoPlayVideo(Params); break;
-    case ETutorialActionType::ShowMessage:      DoShowMessage(Params); break;
-    case ETutorialActionType::HighlightActors:  DoHighlightActors(Params); break;
-    case ETutorialActionType::SpawnEffects:     DoSpawnEffects(Params); break;
-    case ETutorialActionType::PlaySound:        DoPlaySound(Params); break;
-    case ETutorialActionType::CheckStorage:     DoCheckStorage(Params); break;
-    case ETutorialActionType::WaitForCondition: DoWaitForCondition(Params); break;
-    case ETutorialActionType::ChangeLevel:      DoChangeLevel(Params); break;
-    case ETutorialActionType::FadeScreen:       DoFadeScreen(Params); break;
-    case ETutorialActionType::Custom:           ExecuteCustomAction(Params); break;
-    default: break;
-    }
+	UGameplayMessageSubsystem& MessageSubsystem = UGameplayMessageSubsystem::Get(GetGameInstance());
+	
+	MessageSubsystem.BroadcastMessage(EventTag, EventData);
+	UE_LOG(LogA1Tutorial, Log, TEXT("[TutorialManager] Sent Gameplay Event: %s"), *EventTag.ToString());
 }
 
-void AA1TutorialManager::ChangeTutorialStep(ETutorialStep CurrentStep)
+FString UA1TutorialManager::GetCurrentStepID() const
 {
-    switch (CurrentStep)
-    {
-    case ETutorialStep::None: SetTutorialStep(ETutorialStep::VideoPlayBack); break;
-    case ETutorialStep::VideoPlayBack: SetTutorialStep(ETutorialStep::CarryItems); break;
-    case ETutorialStep::CarryItems: SetTutorialStep(ETutorialStep::Emergency); break;
-    case ETutorialStep::Emergency: SetTutorialStep(ETutorialStep::Repair); break;
-    case ETutorialStep::Repair: SetTutorialStep(ETutorialStep::Store); break;
-    case ETutorialStep::Store: SetTutorialStep(ETutorialStep::Collapse); break;
-    case ETutorialStep::Collapse: SetTutorialStep(ETutorialStep::End); break;
-    }
-
-    UE_LOG(LogA1, Log, TEXT("Current Step: %hhd"), TutorialStep);
+	return CurrentStepID;
 }
 
-void AA1TutorialManager::DoPlayVideo(const FString& Params)
+int32 UA1TutorialManager::GetCurrentStepIndex() const
 {
-    // Blueprint에서 구현된 비디오 재생 함수 호출
-    // Param : "VideoPath=/Game/Videos/Briefing.mp4;AutoProgress=true"
-    UE_LOG(LogA1System, Log, TEXT("Playing video with params: %s"), *Params);
+	if ( CurrentStepID.IsEmpty() )
+		return -1;
 
-    UIWidget = CreateWidget<UA1ActivatableWidget>(PlayerController, UIWidgetClass);
-
-    if (UIWidget)
-    {
-        OpenWidget();
-    }
-    NextStep();
+	return StepOrder.Find(CurrentStepID);
 }
 
-void AA1TutorialManager::DoShowMessage(const FString& Params)
+float UA1TutorialManager::GetTutorialProgress() const
 {
-    // Param: "Title=Warning;Content=Emergency Detected;Duration=3.0"
-    UE_LOG(LogA1System, Log, TEXT("Showing message: %s"), *Params);
-    FText Title;
-    FText Content;
-    float Duration = 2.0f;
-    // UI 위젯에 메시지 표시 (Blueprint 이벤트로 처리)
-    TArray<FString> ParamPairs;
-    Params.ParseIntoArray(ParamPairs, TEXT(";"));
+	if ( StepOrder.Num() == 0 )
+		return 0.0f;
 
-    for (const FString& Pair : ParamPairs)
-    {
-        FString Key, Value;
-        if (Pair.Split(TEXT("="), &Key, &Value))
-        {
-            if (Key == TEXT("Title"))
-            {
-                Title = FText::FromString(Value);
-            }
-            else if (Key == TEXT("Content"))
-            {
-                Content = FText::FromString(Value);
-            }
-            else if (Key == TEXT("Duration"))
-            {
-                Duration = FCString::Atof(*Value);
-            }
-        }
-    }
-    SendUIMessage(Title, Content);
+	int32 CurrentIndex = GetCurrentStepIndex();
+	if ( CurrentIndex < 0 )
+		return 0.0f;
+
+	return static_cast< float >(CurrentIndex) / static_cast< float >(StepOrder.Num());
 }
 
-void AA1TutorialManager::DoHighlightActors(const FString& Params)
+void UA1TutorialManager::AdvanceDialogue()
 {
-    // Param: "Actors=Actor1,Actor2,Actor3;Enable=true"
-    //방식 변경 -> 액터 이름으로 하지 말고 
-    TArray<FString> ActorNames = ParseStringArray(Params);
-
-    
-    TArray<AActor*> OutActor; //Item 정리 step 인 경우
-    if (TutorialStep == ETutorialStep::CarryItems)
-    {
-        UGameplayStatics::GetAllActorsOfClass(GetWorld(), AA1EquipmentBase::StaticClass(), OutActor);
-        if (OutActor.Num() > 0)
-        {
-            //주워야 할 액터 하이라이팅
-            for (AActor* EquipActor : OutActor)
-            {
-                if (AA1EquipmentBase* Equip = Cast<AA1EquipmentBase>(EquipActor))
-                {
-                    if (Equip->GetPickup()) continue;
-
-                    const UA1ItemTemplate& Template = UA1ItemData::Get().FindItemTemplateByID(Equip->GetTemplateID());
-                    if (const UA1ItemFragment_Equipable_Utility* ItemFragment = Cast<UA1ItemFragment_Equipable_Utility>(Template.FindFragmentByClass(UA1ItemFragment_Equipable_Utility::StaticClass())))
-                    {
-                        if (ItemFragment->UtilityType != EUtilityType::Repairkit)
-                        {
-                            Equip->OnItemPickupChanged.AddUniqueDynamic(this, &AA1TutorialManager::OnItemPickedUp);
-                        }
-                    }
-                    else if (const UA1ItemFragment_Equipable_Weapon* WeaponFragment = Cast<UA1ItemFragment_Equipable_Weapon>(Template.FindFragmentByClass(UA1ItemFragment_Equipable_Weapon::StaticClass())))
-                    {
-                        Equip->OnItemPickupChanged.AddUniqueDynamic(this, &AA1TutorialManager::OnItemPickedUp);
-                    }
-                }
-                // 액터 하이라이트 적용
-                TArray<UPrimitiveComponent*> PrimitiveComponents;
-                EquipActor->GetComponents<UPrimitiveComponent>(PrimitiveComponents);
-
-                for (UPrimitiveComponent* Component : PrimitiveComponents)
-                {
-                    Component->SetRenderCustomDepth(true);
-                    Component->SetCustomDepthStencilValue(250);
-                }
-            }
-        }
-        OutActor.Empty();
-    } //Repair step인 경우
-    else if (TutorialStep == ETutorialStep::Repair)
-    {
-        UGameplayStatics::GetAllActorsOfClass(GetWorld(), AA1RepairBase::StaticClass(), OutActor);
-        if (OutActor.Num() > 0)
-        {
-            for (AActor* RepairActor : OutActor)
-            {
-	            if (AA1RepairBase* Repair = Cast<AA1RepairBase>(RepairActor))
-	            {
-                    //델리게이트 연결
-                    Repair->OnRepairStateChanged.AddUniqueDynamic(this, &AA1TutorialManager::OnRepaired);
-                    
-                    //오버랩 검사 활성화
-                    Repair->ActivateCheckOverlap();
-
-                    Repair->SetCurrentState(RepairState::Break);
-                    UE_LOG(LogA1, Log, TEXT("Set Repair State Complete"));
-                    
-                    // 액터 하이라이트 적용
-                    TArray<UPrimitiveComponent*> PrimitiveComponents;
-                    Repair->GetComponents<UPrimitiveComponent>(PrimitiveComponents);
-                    
-                    for (UPrimitiveComponent* Component : PrimitiveComponents)
-                    {
-                        Component->SetRenderCustomDepth(true);
-                        Component->SetCustomDepthStencilValue(250);
-                    }
-	            }
-            }
-        }
-    }
-    else if (TutorialStep == ETutorialStep::Collapse)
-    {
-        //Highlight CMD
-        AActor* CachedActor = UGameplayStatics::GetActorOfClass(GetWorld(), AA1CMDBase::StaticClass());
-        if (CachedActor!=nullptr)
-        {
-	        if (AA1CMDBase* Cmd = Cast<AA1CMDBase>(CachedActor))
-	        {
-                TArray<UPrimitiveComponent*> PrimitiveComponents;
-                Cmd->GetComponents<UPrimitiveComponent>(PrimitiveComponents);
-
-                for (UPrimitiveComponent* Component : PrimitiveComponents)
-                {
-                    Component->SetRenderCustomDepth(true);
-                    Component->SetCustomDepthStencilValue(250);
-                }
-	        }
-        }
-    }
+	if ( CurrentStep )
+	{
+		CurrentStep->AdvanceDialogue();
+	}
 }
 
-void AA1TutorialManager::DoSpawnEffects(const FString& Params)
+void UA1TutorialManager::SetNavigationTarget(const FVector& TargetLocation, const FText& TargetName,
+	UTexture2D* TargetIcon)
 {
-    // 파라미터: "Effect=/Game/Effects/Explosion;Location=100,200,300"
-    UE_LOG(LogA1System, Log, TEXT("Spawning effects: %s"), *Params);
+	bHasActiveNavigation = true;
+	CurrentNavigationTarget = TargetLocation;
+	CurrentNavigationText = TargetName;
+	CurrentNavigationIcon = TargetIcon;
+
+	UE_LOG(LogA1Tutorial, Log, TEXT("[TutorialManager] Navigation target set: %s at %s"),
+		*TargetName.ToString(), *TargetLocation.ToString());
 }
 
-void AA1TutorialManager::DoPlaySound(const FString& Params)
+void UA1TutorialManager::ClearNavigationTarget()
 {
-    // 파라미터: "Sound=/Game/Audio/Alarm;Volume=1.0;Loop=true"
-    UE_LOG(LogA1System, Log, TEXT("Playing sound: %s"), *Params);
+	bHasActiveNavigation = false;
+	CurrentNavigationTarget = FVector::ZeroVector;
+	CurrentNavigationText = FText::GetEmpty();
+	CurrentNavigationIcon = nullptr;
+
+	UE_LOG(LogA1Tutorial, Log, TEXT("[TutorialManager] Navigation target cleared"));
 }
 
-void AA1TutorialManager::DoCheckStorage(const FString& Params)
+void UA1TutorialManager::BroadcastTutorialMessage(const FA1TutorialMessage& Message)
 {
-    TArray<AActor*> Results;
-    UGameplayStatics::GetAllActorsOfClass(GetWorld(), AA1StorageEntryBase::StaticClass(), OUT Results);
-    if (Results.Num() > 0)
-    {
-	    for (auto Result : Results)
-	    {
-		    if (AA1StorageEntryBase* Entry = Cast<AA1StorageEntryBase>(Result))
-		    {
-                if (Entry->GetItem()!=nullptr)
-                {
-                    bool bResult = Entry->GetItem()->GetName().Contains(TEXT("FoamGun")) || Entry->GetItem()->GetName().Contains(TEXT("OneHandSword")) || Entry->GetItem()->GetName().Contains(TEXT("FlashLight"));
-                    ItemStoredCount++;
-
-                    ETutorialActionType ActionType = StepDataArray[CurrentStepIndex]->Actions[0];
-                    FString Params = StepDataArray[CurrentStepIndex]->ActionParams.FindRef(ActionType);
-
-                    FText Title;
-                    FText Content;
-                    TArray<FString> ParamPairs;
-                    Params.ParseIntoArray(ParamPairs, TEXT(";"));
-
-                    for (const FString& Pair : ParamPairs)
-                    {
-                        FString Key, Value;
-                        if (Pair.Split(TEXT("="), &Key, &Value))
-                        {
-                            if (Key == TEXT("Title"))
-                            {
-                                Title = FText::FromString(Value);
-                            }
-                            else if (Key == TEXT("Content"))
-                            {
-                                Content = FText::FromString(FString::Printf(TEXT("%s %d/3"), *Value, ItemStoredCount));
-                            }
-                        }
-                    }
-
-                    SendUIMessage(Title, Content);
-                }
-                else
-                {
-                    Entry->OnItemEntryStateChanged.AddDynamic(this, &AA1TutorialManager::OnItemFill);
-                }
-		    }
-	    }
-    }
-
-    if (ItemStoredCount == 3)
-    {
-        NextStep();
-    }
+	//TODO eric1306 -> bool 값에 따라 다른 messsage 보내게 구현
+	UGameplayMessageSubsystem& MessageSubsystem = UGameplayMessageSubsystem::Get(GetWorld());
+	MessageSubsystem.BroadcastMessage(A1GameplayTags::Message_Tutorial_Dialogue, Message);
 }
 
-void AA1TutorialManager::DoWaitForCondition(const FString& Params)
+void UA1TutorialManager::TransitionToStep(const FString& StepID)
 {
-    // 파라미터에서 조건 태그 설정
-    CurrentWaitingCondition = FGameplayTag::RequestGameplayTag(*Params);
+	StartStep(StepID);
 }
 
-void AA1TutorialManager::DoChangeLevel(const FString& Params)
+void UA1TutorialManager::OnGameplayEventReceived(FGameplayTag EventTag, const FGameplayEventData& EventData)
 {
-    // 파라미터: "Level=MainGame;FadeTime=2.0"
-    UGameplayStatics::OpenLevel(GetWorld(), *Params);
+	if ( !bIsTutorialActive || bIsTutorialPaused || !CurrentStep )
+		return;
+
+	CurrentStep->OnGameplayEvent(EventTag, EventData);
 }
 
-void AA1TutorialManager::OnItemPickedUp()
+void UA1TutorialManager::LoadTutorialSteps()
 {
-    ItemCount++;
-    UE_LOG(LogA1, Log, TEXT("ItemCount: %d"), ItemCount);
+	StepDataMap.Empty();
+	StepOrder.Empty();
 
-    ETutorialActionType ActionType = StepDataArray[CurrentStepIndex]->Actions[1];
-    FString Params = StepDataArray[CurrentStepIndex]->ActionParams.FindRef(ActionType);
+	//Tutorial Data를 로드
+	TArray<FA1TutorialStepInfo> TutorialStepInfos = UA1TutorialData::Get().TutorialStepInfos;
 
-    FText Title;
-    FText Content;
-    TArray<FString> ParamPairs;
-    Params.ParseIntoArray(ParamPairs, TEXT(";"));
+	for (FA1TutorialStepInfo TutorialStepInfo : TutorialStepInfos)
+	{
+		StepDataMap.Add(TutorialStepInfo.StepID, TutorialStepInfo);
+		StepOrder.Add(TutorialStepInfo.StepID);
 
-    for (const FString& Pair : ParamPairs)
-    {
-        FString Key, Value;
-        if (Pair.Split(TEXT("="), &Key, &Value))
-        {
-            if (Key == TEXT("Title"))
-            {
-                Title = FText::FromString(Value);
-            }
-            else if (Key == TEXT("Content"))
-            {
-                Content = FText::FromString(FString::Printf(TEXT("%s %d/3"), *Value, ItemCount));
-            }
-        }
-    }
+		UE_LOG(LogA1Tutorial, Log, TEXT("[TutorialManager] Loaded Step: %s - %s"),
+			*TutorialStepInfo.StepID, *TutorialStepInfo.StepName.ToString());
+	}
 
-    SendUIMessage(Title, Content);
-
-    if (ItemCount == 3)
-    {
-        NextStep();
-    }
+	UE_LOG(LogA1Tutorial, Log, TEXT("[TutorialManager] Loaded %d tutorial steps"), StepDataMap.Num());
 }
 
-void AA1TutorialManager::OnRepaired()
+UA1TutorialStep* UA1TutorialManager::CreateStepInstance(const FA1TutorialStepInfo* StepData)
 {
-    RepairCount++;
-    UE_LOG(LogA1, Log, TEXT("RepairCount: %d"), RepairCount);
-    ETutorialActionType ActionType = StepDataArray[CurrentStepIndex]->Actions[1];
-    FString Params = StepDataArray[CurrentStepIndex]->ActionParams.FindRef(ActionType);
+	if ( !StepData )
+		return nullptr;
 
-    FText Title;
-    FText Content;
-    TArray<FString> ParamPairs;
-    Params.ParseIntoArray(ParamPairs, TEXT(";"));
-
-    for (const FString& Pair : ParamPairs)
-    {
-        FString Key, Value;
-        if (Pair.Split(TEXT("="), &Key, &Value))
-        {
-            if (Key == TEXT("Title"))
-            {
-                Title = FText::FromString(Value);
-            }
-            else if (Key == TEXT("Content"))
-            {
-                Content = FText::FromString(FString::Printf(TEXT("%s %d/10"), *Value, RepairCount));
-            }
-        }
-    }
-
-    SendUIMessage(Title, Content);
-
-    if (RepairCount == 10)
-    {
-        NextStep();
-    }
-
+	UA1TutorialStep* NewStep = NewObject<UA1TutorialStep>(this);
+	NewStep->Initialize(this, *StepData);
+	return NewStep;
 }
-
-FVector AA1TutorialManager::ParseVector(const FString& VectorString)
-{
-    // "X,Y,Z" 형태 파싱
-    TArray<FString> Components;
-    VectorString.ParseIntoArray(Components, TEXT(","));
-
-    if (Components.Num() >= 3)
-    {
-        return FVector(
-            FCString::Atof(*Components[0]),
-            FCString::Atof(*Components[1]),
-            FCString::Atof(*Components[2])
-        );
-    }
-
-    return FVector::ZeroVector;
-}
-
-FRotator AA1TutorialManager::ParseRotator(const FString& RotatorString)
-{
-    // "Pitch,Yaw,Roll" 형태 파싱
-    TArray<FString> Components;
-    RotatorString.ParseIntoArray(Components, TEXT(","));
-
-    if (Components.Num() >= 3)
-    {
-        return FRotator(
-            FCString::Atof(*Components[0]),
-            FCString::Atof(*Components[1]),
-            FCString::Atof(*Components[2])
-        );
-    }
-
-    return FRotator::ZeroRotator;
-}
-
-TArray<FString> AA1TutorialManager::ParseStringArray(const FString& ArrayString)
-{
-    TArray<FString> Result;
-    ArrayString.ParseIntoArray(Result, TEXT(","));
-    return Result;
-}
-
-/******************************************************
- *
- * UA1TutorialInteractionComponent
- * 
- ******************************************************/
-
-UA1TutorialInteractionComponent::UA1TutorialInteractionComponent()
-{
-    PrimaryComponentTick.bCanEverTick = false;
-}
-
-void UA1TutorialInteractionComponent::BeginPlay()
-{
-	Super::BeginPlay();
-    FindTutorialManager();
-}
-
-void UA1TutorialInteractionComponent::OnInteracted()
-{
-    if (!bIsEnabled)
-    {
-        return;
-    }
-
-    if (InteractionDelay > 0.0f)
-    {
-        // 지연 후 트리거
-        GetWorld()->GetTimerManager().SetTimerForNextTick([this]() { TriggerCondition(); });
-    }
-    else
-    {
-        TriggerCondition();
-    }
-}
-
-void UA1TutorialInteractionComponent::TriggerCondition()
-{
-    if (TutorialManager && TriggerConditionTag.IsValid())
-    {
-        TutorialManager->OnConditionMet(TriggerConditionTag);
-    }
-}
-
-void UA1TutorialInteractionComponent::SetHighlight(bool bEnabled)
-{
-    if (AActor* Owner = GetOwner())
-    {
-        TArray<UPrimitiveComponent*> PrimitiveComponents;
-        Owner->GetComponents<UPrimitiveComponent>(PrimitiveComponents);
-
-        for (UPrimitiveComponent* Component : PrimitiveComponents)
-        {
-            Component->SetRenderCustomDepth(bEnabled);
-            if (bEnabled)
-            {
-                Component->SetCustomDepthStencilValue(250);
-            }
-        }
-    }
-}
-
-void UA1TutorialInteractionComponent::FindTutorialManager()
-{
-    if (TutorialManager)
-    {
-        return;
-    }
-
-    TutorialManager = Cast<AA1TutorialManager>(
-        UGameplayStatics::GetActorOfClass(GetWorld(), AA1TutorialManager::StaticClass())
-    );
-}
-
-/******************************************************
- *
- * UA1TutorialBlueprintLibrary
- *
- ******************************************************/
-
-UDataTable* UA1TutorialBlueprintLibrary::CreateBasicTutorialData()
-{
-    // 에디터에서 기본 튜토리얼 데이터 테이블 생성
-    // 실제 구현은 에디터 전용 코드에서 처리
-    return nullptr;
-}
-
-FString UA1TutorialBlueprintLibrary::MakeVectorParam(FVector Vector)
-{
-    return FString::Printf(TEXT("%.2f,%.2f,%.2f"), Vector.X, Vector.Y, Vector.Z);
-}
-
-FString UA1TutorialBlueprintLibrary::MakeRotatorParam(FRotator Rotator)
-{
-    return FString::Printf(TEXT("%.2f,%.2f,%.2f"), Rotator.Pitch, Rotator.Yaw, Rotator.Roll);
-}
-
-FString UA1TutorialBlueprintLibrary::MakeArrayParam(const TArray<FString>& StringArray)
-{
-    return FString::Join(StringArray, TEXT(","));
-}
-
-FString UA1TutorialBlueprintLibrary::MakeFloatParam(float Value)
-{
-    return FString::Printf(TEXT("%.2f"), Value);
-}
-
-void UA1TutorialBlueprintLibrary::TriggerTutorialCondition(UObject* WorldContext, FGameplayTag ConditionTag)
-{
-    if (UWorld* World = GEngine->GetWorldFromContextObject(WorldContext, EGetWorldErrorMode::LogAndReturnNull))
-    {
-        if (AA1TutorialManager* TutorialManager = Cast<AA1TutorialManager>(
-            UGameplayStatics::GetActorOfClass(World, AA1TutorialManager::StaticClass())))
-        {
-            TutorialManager->OnConditionMet(ConditionTag);
-        }
-    }
-}
-
